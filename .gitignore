@@ -96,4 +96,3 @@ ENV/
 mongo/
 sessions/
 *.bat
-*.js
