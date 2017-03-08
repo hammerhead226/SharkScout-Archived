@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/">
+    <?python
+        from datetime import datetime, date
+        import re
+    ?>
+
+    <py:def function="event_listing(events)">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Week</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Dates</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr py:for="event in events">
+                    <td>${event['week']}</td>
+                    <td>
+                        <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
+                            <span class="fa fa-hourglass-o" title="Happening Now"></span>&nbsp;
+                        </py:if>
+                        <py:choose test="event['event_type']">
+                            <py:when test="2"><span class="fa fa-paper-plane" title="District Championship"></span>&nbsp;</py:when>
+                            <py:when test="3"><span class="fa fa-globe" title="Championship Division"></span>&nbsp;</py:when>
+                            <py:when test="4"><span class="fa fa-trophy" title="Championship Finals"></span>&nbsp;</py:when>
+                        </py:choose>
+                        <a href="/event/${event['key']}">${event['name']}</a>
+                    </td>
+                    <td><a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">${event['location']}</a></td>
+                    <td>
+                        <py:choose>
+                            <py:when test="event['end_date'] != event['start_date']">
+                                ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d').replace(' 0', ' ')}
+                                -
+                                ${datetime.strptime(event['end_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                            </py:when>
+                            <py:otherwise>
+                                ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                            </py:otherwise>
+                        </py:choose>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </py:def>
+
+    <py:def function="event_info(event, team={})">
+        <h2>
+            <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
+                <span class="fa fa-hourglass-o" title="Happening Now"></span>&nbsp;
+            </py:if>
+            <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
+            <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
+        </h2>
+        <h5>
+            <span class="fa fa-calendar"></span>&nbsp;
+            <py:if test="event['week'] or event['week'] == 0">Week ${event['week']} &mdash;</py:if>
+            <py:choose>
+                <py:when test="event['end_date'] != event['start_date']">
+                    ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d').replace(' 0', ' ')}
+                    -
+                    ${datetime.strptime(event['end_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                </py:when>
+                <py:otherwise>
+                    ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                </py:otherwise>
+            </py:choose>
+        </h5>
+        <h5><span class="fa fa-map-marker"></span>&nbsp;&nbsp;<a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">${event['venue_address'] or event['location']}</a></h5>
+        <h5 py:if="event['website']"><span class="fa fa-globe"></span>&nbsp;&nbsp;<a href="${event['website']}" target="_blank">${event['website']}</a></h5>
+        <h5><span class="fa fa-lightbulb-o fa-rotate-180"></span>&nbsp;&nbsp;<a href="https://www.thebluealliance.com/event/${event['key']}" target="_blank">The Blue Alliance</a></h5>
+        <h5 py:if="event['facebook_eid']"><span class="fa fa-facebook-official"></span>&nbsp;&nbsp;<a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">https://www.facebook.com/events/${event['facebook_eid']}</a></h5>
+        <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">
+            <py:choose>
+                <py:when test="webcast['type'] == 'twitch'"><span class="fa fa-twitch"></span>&nbsp;</py:when>
+                <py:when test="webcast['type'] == 'youtube'"><span class="fa fa-youtube"></span>&nbsp;</py:when>
+                <py:otherwise><span class="fa fa-video-camera"></span>&nbsp;</py:otherwise>
+            </py:choose>
+            <py:choose test="webcast['type']">
+                <py:when test="'html5'">
+                    <a href="${webcast['channel']}" target="_blank">${webcast['channel']}</a>
+                </py:when>
+                <py:when test="'iframe'">
+                    <?python webcast['channel'] = re.search(r'src="(.*?)"', webcast['channel']).group(1) ?>
+                    <a href="${webcast['channel']}" target="_blank">${webcast['channel']}</a>
+                </py:when>
+                <py:when test="'livestream'">
+                    <a href="https://livestream.com/accounts/${webcast['channel']}/events/${webcast['file']}" target="_blank">https://livestream.com/accounts/${webcast['channel']}/events/${webcast['file']}</a>
+                </py:when>
+                <py:when test="'twitch'">
+                    <a href="https://www.twitch.tv/${webcast['channel']}" target="_blank">${webcast['channel']}</a>
+                </py:when>
+                <py:when test="'ustream'">
+                    <a href="http://www.ustream.tv/recorded/${webcast['channel']}" target="_blank">http://www.ustream.tv/recorded/${webcast['channel']}</a>
+                </py:when>
+                <py:when test="'youtube'">
+                    <a href="https://www.youtube.com/watch?v=${webcast['channel']}" target="_blank">https://www.youtube.com/watch?v=${webcast['channel']}</a>
+                </py:when>
+                <py:otherwise>
+                    ${webcast['type']}
+                    ${webcast['channel'] if 'channel' in webcast else ''}
+                    ${webcast['file'] if 'file' in webcast else ''}
+                </py:otherwise>
+            </py:choose>
+        </h5>
+        <py:if test="team">
+            <br />
+            <py:if test="'rankings' in event and str(team['team_number']) in event['rankings']" py:with="ranking = event['rankings'][str(team['team_number'])]">
+                <h5>
+                    <span class="fa fa-sort-numeric-asc"></span>&nbsp;
+                    <b>Rank ${ranking['rank']} / ${len(event['rankings'])}</b>
+                    with a record of <b>${ranking['wins']}-${ranking['losses']}-${ranking['ties']}</b>
+                    after <b>${ranking['played']} matches</b>
+                </h5>
+            </py:if>
+            <py:if test="'stats' in event and event['stats']">
+                <h5 py:if="'oprs' in event['stats']">
+                    <span class="fa fa-crosshairs"></span>&nbsp;&nbsp;Offensive Power Rating:
+                    <b>
+                        Rank
+                        ${sorted(event['stats']['oprs'], key=event['stats']['oprs'].get)[::-1].index(str(team['team_number'])) + 1}
+                        / ${len(event['stats']['oprs'])}
+                    </b>
+                </h5>
+                <h5 py:if="'dprs' in event['stats']">
+                    <span class="fa fa-shield"></span>&nbsp;&nbsp;Defensive Power Rating:
+                    <b>
+                        Rank
+                        ${sorted(event['stats']['dprs'], key=event['stats']['dprs'].get)[::-1].index(str(team['team_number'])) + 1}
+                        / ${len(event['stats']['dprs'])}
+                    </b>
+                </h5>
+                <h5 py:if="'ccwms' in event['stats']">
+                    <span class="fa fa-handshake-o"></span>&nbsp;&nbsp;Calculated Contribution to Winning Margin:
+                    <b>
+                        Rank
+                        ${sorted(event['stats']['ccwms'], key=event['stats']['ccwms'].get)[::-1].index(str(team['team_number'])) + 1}
+                        / ${len(event['stats']['ccwms'])}
+                    </b>
+                </h5>
+            </py:if>
+        </py:if>
+    </py:def>
+
+    <py:def function="match_listing(matches)">
+        <table class="table table-bordered table-striped text-center">
+            <?python
+                # Find all alliances
+                alliances = []
+                for match in matches:
+                    for alliance in match['alliances']:
+                        if alliance not in alliances:
+                            alliances.append(alliance)
+                alliances = sorted(alliances)
+                # Find max team count per alliance
+                alliances_teams = {}
+                for alliance in alliances:
+                    alliances_teams[alliance] = max([len(m['alliances'][alliance]['teams']) for m in matches]) or 1
+                # Find max score
+                max_score = max([max([m['alliances'][a]['score'] for a in m['alliances']]) for m in matches])
+            ?>
+            <thead>
+                <tr class="visible-md visible-lg">
+                    <th>
+                        Match
+                    </th>
+                    <th colspan="${alliances_teams[alliance]}" py:for="alliance in alliances">
+                        ${alliance.title()} Alliance
+                    </th>
+                    <th colspan="${len(alliances) or 1}" py:if="max_score">Scores</th>
+                </tr>
+                <tr class="hidden-md hidden-lg" py:for="alliance in alliances">
+                    <th rowspan="${len(alliances)}" py:if="alliance == alliances[0]">
+                        <span class="fa fa-binoculars"></span>&nbsp;&nbsp;Match
+                    </th>
+                    <th colspan="${alliances_teams[alliance]}">
+                        <span class="fa fa-binoculars"></span>&nbsp;&nbsp;${alliance.title()} Alliance
+                    </th>
+                    <th rowspan="${len(alliances)}" py:if="max_score and alliance == alliances[0]">Scores</th>
+                </tr>
+            </thead>
+            <tbody>
+                <py:for each="match in matches">
+                    <!--! Full table -->
+                    <tr class="visible-md visible-lg">
+                        <td>
+                            <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout">
+                                <py:choose test="match['comp_level']">
+                                    <py:when test="'qm'">Quals</py:when>
+                                    <py:when test="'ef'">Eighths</py:when>
+                                    <py:when test="'qf'">Quarters</py:when>
+                                    <py:when test="'sf'">Semis</py:when>
+                                    <py:when test="'f'">Finals</py:when>
+                                </py:choose>
+                                <py:if test="match['comp_level'] in ['ef','qf','sf','f']">${match['set_number']} Match</py:if>
+                                ${match['match_number']}
+                            </a>
+                        </td>
+                        <py:for each="alliance in alliances">
+                            <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
+                                <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
+                                    ${team_number}
+                                    <py:choose>
+                                        <span class="fa fa-home" py:when="int(team_number) == int(session['team_number'] or 0)"></span>
+                                        <span class="fa fa-asterisk" py:when="'team' in page and int(team_number) == int(page['team']['team_number'])"></span>
+                                    </py:choose>
+                                    <span class="fa fa-check" py:if="'scouting' in match and team in match['scouting']"></span>
+                                </a>
+                            </td>
+                            <td class="${alliance}" py:for="i in range(0, (alliances_teams[alliance]) - len(match['alliances'][alliance]['teams']))">&nbsp;</td>
+                        </py:for>
+                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="alliance in alliances" py:if="max_score">${match['alliances'][alliance]['score']}</td>
+                    </tr>
+                    <!--! Collapsed table -->
+                    <tr class="hidden-md hidden-lg" py:for="alliance in alliances">
+                        <td rowspan="${len(alliances)}" py:if="alliance == alliances[0]">
+                            <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout">
+                                <py:choose test="match['comp_level']">
+                                    <py:when test="'qm'">Quals</py:when>
+                                    <py:when test="'ef'">Eighths</py:when>
+                                    <py:when test="'qf'">Quarters</py:when>
+                                    <py:when test="'sf'">Semis</py:when>
+                                    <py:when test="'f'">Finals</py:when>
+                                </py:choose>
+                                <py:if test="match['comp_level'] in ['ef','qf','sf','f']">${match['set_number']} Match</py:if>
+                                ${match['match_number']}
+                            </a>
+                        </td>
+                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
+                            <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
+                                ${team_number}
+                                <py:choose>
+                                    <span class="fa fa-home" py:when="int(team_number) == int(session['team_number'] or 0)"></span>
+                                    <span class="fa fa-asterisk" py:when="'team' in page and int(team_number) == int(page['team']['team_number'])"></span>
+                                </py:choose>
+                                <span class="fa fa-check" py:if="'scouting' in match and team in match['scouting']"></span>
+                            </a>
+                        </td>
+                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:if="max_score">${match['alliances'][alliance]['score']}</td>
+                    </tr>
+                </py:for>
+            </tbody>
+        </table>
+    </py:def>
+
+    <py:def function="team_listing(teams, event={})">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th py:if="event">
+                        <span class="fa fa-binoculars"></span>&nbsp;&nbsp;Pit Scout
+                    </th>
+                    <th>Team Number</th>
+                    <th>Team Name</th>
+                    <th class="hidden-sm hidden-xs">Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr py:for="team in teams">
+                    <td py:if="event">
+                        <a href="/scout/pit/${event['key']}/${team['key']}">
+                            Pit Scout
+                            <span class="fa fa-check" py:if="'scouting' in team"></span>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}">${team['team_number']}</a>
+                        <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
+                    </td>
+                    <td>
+                        <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
+                            <py:when test="len(team['nickname']) &gt; 50">${team['nickname'][:47]}...</py:when>
+                            <py:when test="team['nickname']">${team['nickname']}</py:when>
+                            <py:otherwise>--</py:otherwise>
+                        </a>
+                    </td>
+                    <td class="hidden-sm hidden-xs">
+                        <span class="${flag_icon_css(team['country_name'])}"></span>
+                        <a href="https://www.google.com/maps/search/${team['location']}" target="_blank" py:choose="">
+                            <py:when test="team['country_name'] == 'USA' or team['country_name'] == 'Canada'">${team['locality']}, ${team['region']}</py:when>
+                            <py:otherwise>${team['locality']}, ${team['country_name']}</py:otherwise>
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </py:def>
+
+    <py:def function="team_info(team)">
+        <h2>
+            <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
+            <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
+        </h2>
+        <h4><em>${team['motto']}</em></h4>
+        <h5><span class="fa fa-id-card-o"></span>&nbsp;&nbsp;${team['name']}</h5>
+        <h5 py:if="team['website']"><span class="fa fa-globe"></span>&nbsp;&nbsp;<a href="${team['website']}" target="_blank">${team['website']}</a></h5>
+        <h5><span class="fa fa-lightbulb-o fa-rotate-180"></span>&nbsp;&nbsp;<a href="hhttps://www.thebluealliance.com/team/${team['team_number']}" target="_blank">The Blue Alliance</a></h5>
+        <h5 py:if="team['location']"><span class="fa fa-map-marker"></span>&nbsp;&nbsp;<a href="https://www.google.com/maps/search/${team['location']}" target="_blank">${team['location']}</a></h5>
+        <h5><span class="fa fa-child"></span>&nbsp;&nbsp;Rookie Year: ${team['rookie_year']}</h5>
+        <!--<h5><span class="fa fa-bookmark"></span></h5>-->
+    </py:def>
+
+
+    <py:def function="stats_listing(teams, event={})">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Team Number</th>
+                    <py:if test="event and 'rankings' in event and event['rankings']">
+                        <th>Rank</th>
+                        <th class="hidden-sm hidden-xs">Played</th>
+                    </py:if>
+                    <py:if test="event and 'stats' in event and event['stats']">
+                        <th title="Offensive Power Rating">OPR</th>
+                        <th title="Defensive Power Rating">DPR</th>
+                        <th class="hidden-xs" title="Calculated Contribution to Winning Margin">CCWM</th>
+                    </py:if>
+                </tr>
+            </thead>
+            <tbody>
+                <tr py:for="team in teams">
+                    <td>
+                        <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}">${team['team_number']}</a>
+                        <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
+                    </td>
+                    <py:if test="event and 'rankings' in event and event['rankings']" py:with="team_number = str(team['team_number'])">
+                        <td>${event['rankings'][team_number]['rank'] if team_number in event['rankings'] else '--'}</td>
+                        <td class="hidden-sm hidden-xs">${event['rankings'][team_number]['played'] if team_number in event['rankings'] else 0}</td>
+                    </py:if>
+                    <py:if test="event and 'stats' in event and event['stats']" py:with="team_number = str(team['team_number'])">
+                        <td>${round(event['stats']['oprs'][team_number],2) if team_number in event['stats']['oprs'] else '--'}</td>
+                        <td>${round(event['stats']['dprs'][team_number],2) if team_number in event['stats']['dprs'] else '--'}</td>
+                        <td class="hidden-xs">${round(event['stats']['ccwms'][team_number],2) if team_number in event['stats']['ccwms'] else '--'}</td>
+                    </py:if>
+                </tr>
+            </tbody>
+        </table>
+    </py:def>
+
+
+    <py:def function="flag_icon_css(country_name)">
+        flag-icon
+        <py:choose test="country_name">
+            <py:when test="'Australia'">flag-icon-au</py:when>
+            <py:when test="'Bosnia-Herzegovina'">flag-icon-ba</py:when>
+            <py:when test="'Brazil'">flag-icon-br</py:when>
+            <py:when test="'Canada'">flag-icon-ca</py:when>
+            <py:when test="'Chile'">flag-icon-cl</py:when>
+            <py:when test="'China'">flag-icon-cn</py:when>
+            <py:when test="'Colombia'">flag-icon-co</py:when>
+            <py:when test="'Czech Republic'">flag-icon-cz</py:when>
+            <py:when test="'Denmark'">flag-icon-dk</py:when>
+            <py:when test="'Dominican Republic'">flag-icon-do</py:when>
+            <py:when test="'Ecuador'">flag-icon-ec</py:when>
+            <py:when test="'France'">flag-icon-fr</py:when>
+            <py:when test="'Germany'">flag-icon-de</py:when>
+            <py:when test="'India'">flag-icon-in</py:when>
+            <py:when test="'Israel'">flag-icon-il</py:when>
+            <py:when test="'Japan'">flag-icon-jp</py:when>
+            <py:when test="'Kazakhstan'">flag-icon-kz</py:when>
+            <py:when test="'Mexico'">flag-icon-mx</py:when>
+            <py:when test="'Morocco'">flag-icon-ma</py:when>
+            <py:when test="'Netherlands'">flag-icon-nl</py:when>
+            <py:when test="'Pakistan'">flag-icon-pk</py:when>
+            <py:when test="'Philippines'">flag-icon-ph</py:when>
+            <py:when test="'Poland'">flag-icon-pl</py:when>
+            <py:when test="'Singapore'">flag-icon-sg</py:when>
+            <py:when test="'Spain'">flag-icon-es</py:when>
+            <py:when test="'Switzerland'">flag-icon-ch</py:when>
+            <py:when test="'Taiwan'">flag-icon-tw</py:when>
+            <py:when test="'Turkey'">flag-icon-tr</py:when>
+            <py:when test="'USA'">flag-icon-us</py:when>
+            <py:when test="'United Arab Emirates'">flag-icon-ae</py:when>
+            <py:when test="'United Kingdom'">flag-icon-gb</py:when>
+            <py:when test="'Vietnam'">flag-icon-vn</py:when>
+        </py:choose>
+    </py:def>
+</html>

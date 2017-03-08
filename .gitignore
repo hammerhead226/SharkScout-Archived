@@ -87,3 +87,13 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+# JetBrains PyCharm
+.idea/
+
+# SharkScout
+mongo/
+sessions/
+*.bat
+*.js

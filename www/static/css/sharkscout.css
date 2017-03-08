@@ -1,0 +1,247 @@
+/***** Bootstrap Overrides *****/
+
+.navbar {
+    border-radius: 0;
+}
+
+/* Allow left-floated navbar-toggle, square up the margins */
+.navbar-toggle {
+    float: left;
+    margin-left: 8px;
+    margin-right: 0;
+}
+* + .navbar-toggle {
+    float: right;
+    margin-left: 0;
+    margin-right: 8px;
+}
+
+/* Allow nested navbar */
+.navbar .navbar {
+    margin-bottom: 0;
+}
+
+/* btn spacing */
+.btn + .btn,
+.btn + .modal + .btn {
+    margin-left: 8px;
+}
+
+/* Set nav-tabs/tab-page defaults */
+.tab-page:not(.active) {
+    display: none;
+}
+
+.btn-group .input-group input[type="number"] {
+    min-width: 50px;
+}
+
+/* Get rid of unnecessary top margin/padding */
+* > h1:first-child, * > .h1:first-child,
+* > h2:first-child, * > .h2:first-child,
+* > h3:first-child, * > .h3:first-child,
+* > .pagination:first-child {
+    margin-top: 0;
+}
+.table:last-child {
+    margin-bottom: 0;
+}
+
+/* Force .text-center */
+.text-center th {
+    text-align: center;
+}
+
+.table th[rowspan],
+.table td[rowspan] {
+    vertical-align: middle !important;
+}
+
+
+/***** Bootstrap Additions *****/
+
+.no-margin {
+    margin: 0 !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+
+.inline-min {
+    position: relative;
+    width: auto;
+    float: left;
+}
+.inline-min + .inline-min {
+    margin-left: 10px;
+}
+/* Terrible width:auto hack */
+.input-group.inline-min {
+    max-width: 0;
+}
+.input-group.inline-min .form-control,
+.input-group.inline-min .selectize-input {
+    min-width: 100px;
+}
+/* Selectize fix */
+.inline-min .selectize-dropdown.form-control {
+    position: absolute;
+}
+
+.footer-spacer {
+    height: 50px;
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border-color: #e7e7e7;
+    text-align: center;
+    font-style: italic;
+}
+
+
+
+/***** DataTables Overrides *****/
+
+/* Get rid of unnecessary top margin/padding */
+table.dataTable:first-child {
+    margin-top: 0 !important;
+}
+table.dataTable:last-child {
+    margin-bottom: 0 !important;
+}
+
+
+/***** Font Awesome Overrides *****/
+
+/* Allow 1x sized stacked icons */
+.fa-1x {
+    font-size: 1em;
+}
+.fa-1x.fa-stack {
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+}
+.fa-stack-half {
+    /* standard */
+    position: absolute;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    line-height: inherit;
+    /* custom */
+    font-size: 0.5em;
+}
+
+
+/***** loaders Additions *****/
+
+.loaders-2x.line-scale-pulse-out-rapid > div {
+    width: calc(4px * 2);
+    height: calc(35px * 2);
+    border-radius: calc(2px * 2);
+    margin: calc(2px * 2);
+}
+
+
+/***** Custom *****/
+
+/* Defaults */
+html {
+    height: 100%;
+}
+body {
+    position: relative;
+    min-height: 100%;
+}
+
+/* CSS tricks */
+.center-viewport {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Get rid of number input up/downs */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance:textfield;
+}
+
+
+/***** Custom Styling *****/
+
+/* navbar-brand, navbar-text styling */
+.navbar-brand,
+.navbar-text {
+    margin: 0;
+    padding: 8px 15px 8px 8px;
+    font-size: 34px;
+    line-height: 34px;
+}
+.navbar-brand .fa,
+.navbar-brand .fa-stack {
+    /*vertical-align: text-top;*/
+}
+
+
+/* Overlay mask element */
+.mask {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.50);
+}
+
+/* FIRST colors */
+/* Alliance colors for Bootstrap tables */
+.table > tbody > tr.red,
+.table > tbody > tr > td.red {
+    background-color: #FFEEEE;
+}
+.table-striped > tbody > tr.red:nth-of-type(2n+1),
+.table-striped > tbody > tr:nth-of-type(2n+1) > td.red {
+    background-color: #FFE5E5;
+}
+.table > tbody > tr.blue,
+.table > tbody > tr > td.blue {
+    background-color: #EEEEFF;
+}
+.table-striped > tbody > tr.blue:nth-of-type(2n+1),
+.table-striped > tbody > tr:nth-of-type(2n+1) > td.blue {
+    background-color: #E5E5FF;
+}
+/* Alliance colors for Bootstrap btn-group */
+.btn-group.red .btn,
+.btn.red {
+    background-color: #FFEEEE;
+}
+.btn-group.red .btn.active,
+.btn.red.active {
+    background-color: #FF0000;
+}
+.btn-group.blue .btn,
+.btn.blue {
+    background-color: #EEEEFF;
+}
+.btn-group.blue .btn.active,
+.btn.blue.active {
+    background-color: #3333FF;
+}
+/* Blue banners */
+.fa.fa-bookmark {
+    color: #0066b3;
+}

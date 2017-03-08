@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <?python
+        import json
+    ?>
+
+    <h1 py:if="not session['user_name']">
+        Please set your name in "settings".
+    </h1>
+
+    <form class="form-horizontal" onsubmit="scouting_pit(this); return false;" py:if="session['user_name']">
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Event</label>
+            <div class="col-xs-9">
+                <input type="hidden" name="event_key" value="${page['event']['key']}" required="required"></input>
+                <label class="control-label"><a href="/event/${page['event']['key']}">${page['event']['name']}</a></label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Team</label>
+            <div class="col-xs-9">
+                <py:choose>
+                    <py:when test="page['team']">
+                        <div class="input-group inline-min">
+                            <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                            <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
+                            <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
+                        </div>
+                    </py:when>
+                    <py:otherwise>
+                        <input type="hidden" name="team_key"></input>
+                        <py:choose>
+                            <div class="input-group inline-min" py:when="page['teams']">
+                                <select name="team_number" class="form-control" data-selectize-create="true" required="required" serialize="false">
+                                    <option value=""></option>
+                                    <option value="${team['team_number']}" py:for="team in page['teams']">${team['team_number']}</option>
+                                </select>
+                            </div>
+                            <div class="input-group inline-min" py:otherwise="">
+                                <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                                <input type="number" name="team_number" class="form-control" required="required" serialize="false"></input>
+                            </div>
+                        </py:choose>
+                    </py:otherwise>
+                </py:choose>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Current Scouter</label>
+            <div class="col-xs-9">
+                <input type="text" name="scouter" class="form-control" value="${session['user_name']}" required="required" disabled="disabled"></input>
+            </div>
+        </div>
+
+        <input type="hidden" name="saved" value="${json.dumps(page['saved'], default=lambda o: str(o))}" serialize="false"></input>
+
+        <hr />
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Robot Weight</label>
+            <div class="col-xs-9">
+                <input type="number" name="robot_weight" class="form-control" required="required"></input>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Drivetrain</label>
+            <div class="col-xs-9">
+                <select name="drivetrain" class="form-control" required="required">
+                    <option value=""></option>
+                    <option value="tank">Tank</option>
+                    <option value="mecanum">Mecanum</option>
+                    <option value="swerve">Swerve</option>
+                    <option value="butterfly">Butterfly / Octocanum</option>
+                    <option value="omni">Other Omnidirection</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Drivetrain Build Experience</label>
+            <div class="col-xs-9">
+                <textarea name="drivetrain_experience" class="form-control" required="required"></textarea>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Ball Capacity</label>
+            <div class="col-xs-9">
+                <input type="number" name="ball_capacity" class="form-control" required="required"></input>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Ball Scoring Capabilities</label>
+            <div class="col-xs-9">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="ball_scoring_capabilities[]" value="boiler"></input> High Goal
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="ball_scoring_capabilities[]" value="middle"></input> Low Goal
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">High Goal Position</label>
+            <div class="col-xs-9">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="high_goal_position[]" value="boiler"></input> Airship
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="high_goal_position[]" value="middle"></input> Boiler
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="high_goal_position[]" value="chute"></input> Other
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Avg. High Goals per Match</label>
+            <div class="col-xs-9">
+                <input type="number" name="avg_high_goals" class="form-control" required="required"></input>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Avg. Low Goals per Match</label>
+            <div class="col-xs-9">
+                <input type="number" name="avg_low_goals" class="form-control" required="required"></input>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Avg. Gears per Match</label>
+            <div class="col-xs-9">
+                <input type="number" name="avg_gears" class="form-control" required="required"></input>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Can Climb</label>
+            <div class="col-xs-9">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="scaled" value="N" autocomplete="off" required="required"></input> No
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="scaled" value="Y" autocomplete="off" required="required"></input> Yes
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Defense Ability</label>
+            <div class="col-xs-9">
+                Bad&nbsp;
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="0" autocomplete="off" required="required"></input> N/A
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="1" autocomplete="off" required="required"></input> 1
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 2
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 3
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 4
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 5
+                    </label>
+                </div>
+                &nbsp;Good
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Auton Strategy</label>
+            <div class="col-xs-9">
+                <textarea name="auton_strategy" class="form-control"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Tele-Op Strategy</label>
+            <div class="col-xs-9">
+                <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Common Robot Problems</label>
+            <div class="col-xs-9">
+                <textarea name="common_robot_problems" class="form-control" required="required"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Driver Practice (Time)</label>
+            <div class="col-xs-9">
+                <textarea name="driver_practice" class="form-control" required="required"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-xs-offset-3 col-xs-9">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </form>
+</html>

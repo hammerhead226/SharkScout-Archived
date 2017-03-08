@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html py:attrs="{'manifest':'/manifest' if page['__CACHE__'] else ''}" xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/">
+    <head>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+
+        <title>
+            SharkScout
+            ${'&raquo; ' + page['__TEMPLATE__'].replace('_',' ').title() if page['__TEMPLATE__'] != 'index' else ''}
+            <py:if test="'team_page' in page">
+                &raquo;
+                ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*1000}
+                -
+                ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
+            </py:if>
+            ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
+            ${'&raquo; ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
+            ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
+        </title>
+
+        <link href="/static/css/bootstrap-3.3.7.min.css" rel="stylesheet"></link>
+        <link href="/static/css/selectize-0.12.4.bootstrap3.css" rel="stylesheet"></link>
+        <link href="/static/DataTables-1.10.13/datatables.min.css" rel="stylesheet"></link>
+        <link href="/static/css/font-awesome-4.7.0.min.css" rel="stylesheet"></link>
+        <link href="/static/css/font-awesome-animation-0.0.10.min.css" rel="stylesheet"></link>
+        <link href="/static/css/loaders-0.1.2.min.css" rel="stylesheet"></link>
+        <link href="/static/css/flag-icon-2.7.0.min.css" rel="stylesheet"></link>
+        <link href="/static/css/sharkscout.css" rel="stylesheet"></link>
+    </head>
+
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a href="/" class="navbar-brand">
+                        <span class="fa fa-binoculars"></span>
+                        SharkScout
+                    </a>
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event','scout_pit','scout_match'] else ''}">
+                            <a href="/events">
+                                <span class="fa fa-calendar"></span>&nbsp;&nbsp;Events
+                            </a>
+                        </li>
+                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['teams','team'] else ''}">
+                            <a href="/teams">
+                                <span class="fa fa-users"></span>&nbsp;&nbsp;Teams
+                            </a>
+                        </li>
+                    </ul>
+
+                    <span class="pull-right">
+                        <p class="navbar-text" py:if="page['__CACHE__']">
+                            <span id="cache-downloading" class="fa fa-life-ring fa-spin" title="Updating Cache" style="display:none;"></span>
+                            <span id="cache-cached" class="fa fa-life-ring" title="Cached"></span>
+                            <span id="cache-updateready" class="fa fa-life-ring faa-pulse animated" title="Cache Updated" style="display:none;"></span>
+                            <span id="cache-error" class="fa fa-life-ring faa-flash animated" title="Error Updating Cache" style="display:none;"></span>
+                        </p>
+                        <!--<button type="button" class="btn btn-default navbar-btn faa-parent animated-hover" onclick="$(this).find('form').submit();">
+                            <span class="fa ${'fa-toggle-on' if page['__CACHE__'] else 'fa-toggle-off'} faa-horizontal"></span>&nbsp;&nbsp;Toggle Caching
+                            <form action="/settings" method="post">
+                                <input type="hidden" name="cache" value="${'False' if page['__CACHE__'] else 'True'}"></input>
+                            </form>
+                        </button>-->
+
+                        <button type="button" class="btn btn-primary navbar-btn faa-parent animated-hover" data-toggle="modal" data-target="#settings">
+                            <span class="fa fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
+                        </button>
+                        <div id="settings" class="modal fade" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <form class="form-horizontal" action="/settings" method="post">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                                            <h4 class="modal-title"><span class="fa fa-cog"></span>&nbsp;&nbsp;Settings</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">Team Number</label>
+                                                <div class="col-sm-9">
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon"><span class="fa fa-hashtag"></span></span>
+                                                        <input type="number" name="team_number" class="form-control" required="required" placeholder="Number" value="${session['team_number']}"></input>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <label class="col-sm-3 control-label">Scouter Name</label>
+                                                <div class="col-sm-9">
+                                                    <input type="text" name="user_name" class="form-control" required="required" placeholder="Name" value="${session['user_name']}"></input>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </span>
+                </div>
+            </div>
+        </nav>
+
+        <script src="/static/js/jquery-3.1.1.min.js"></script>
+        <script src="/static/js/lodash.core-4.17.4.min.js"></script>
+        <script src="/static/js/store-1.3.20.min.js"></script>
+        <script src="/static/js/bootstrap-3.3.7.min.js"></script>
+        <script src="/static/js/selectize-0.12.4-standalone.min.js"></script>
+        <script src="/static/DataTables-1.10.13/datatables.min.js"></script>
+        <script src="/static/js/sharkscout.js"></script>
+
+        <div class="container-fluid" py:content="page['__CONTENT__']"></div>
+
+        <div class="footer-spacer"></div>
+        <footer class="footer">
+            <div class="container-fluid">
+                SharkScout &bull;
+                <a href="http://hammerhead226.org/" target="_blank">226 Hammerheads</a>
+            </div>
+        </footer>
+
+        <div class="mask">
+            <div class="center-viewport">
+                <div class="line-scale-pulse-out-rapid loaders-2x">
+                    <div py:for="i in range(0,5)"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

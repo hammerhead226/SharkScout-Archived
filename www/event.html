@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="macros.html"></xi:include>
+
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <span class="dropdown">
+                <span class="fa fa-calendar"></span>&nbsp;
+                <a href="#" onclick="return false;" data-toggle="dropdown">
+                    ${page['event']['year']} Event Info
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li py:for="event in page['years']"  py:attrs="{'class':'disabled' if int(event['year']) == int(page['event']['year']) else ''}">
+                        <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
+                    </li>
+                </ul>
+            </span>
+            <a href="/update/event/${page['event']['key']}" onclick="return loader(this);" class="pull-right">
+                <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+            </a>
+        </div>
+        <div class="panel-body">
+            ${event_info(page['event'])}
+        </div>
+    </div>
+
+    <div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+                <a href="#matches" role="tab" data-toggle="tab">
+                    <span class="fa fa-futbol-o"></span>&nbsp;&nbsp;Matches
+                    <span class="badge">${len(page['event']['matches']) if 'matches' in page['event'] else 0}</span>
+                </a>
+            </li>
+            <li role="presentation" py:if="'teams' in page['event'] and page['event']['teams']">
+                <a href="#teams" role="tab" data-toggle="tab">
+                    <span class="fa fa-users"></span>&nbsp;&nbsp;Teams
+                    <span class="badge">${len(page['event']['teams'])}</span>
+                </a>
+            </li>
+        </ul>
+        <br />
+        <div class="tab-content">
+            <div id="matches" role="tabpanel" class="tab-page active">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span class="fa fa-futbol-o"></span>&nbsp;&nbsp;Match Listing
+                        <a href="/update/event/${page['event']['key']}" onclick="return loader(this);" class="pull-right">
+                            <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+                        </a>
+                    </div>
+                    <div class="panel-body">
+                        <div class="clearfix">
+                            <div class="pull-left">
+                                <a href="/scout/match/${page['event']['key']}" class="btn btn-primary">
+                                    <span class="fa fa-binoculars"></span>&nbsp;&nbsp;Match Scout
+                                </a>
+                            </div>
+                            <div class="pull-right" py:if="'matches' in page['event'] and page['event']['matches']">
+                                <a href="/download/matches/${page['event']['key']}" class="btn btn-primary">
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Match List
+                                </a>
+                                <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary">
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Scouting
+                                </a>
+                            </div>
+                        </div>
+                        <py:if test="'matches' in page['event'] and page['event']['matches']">
+                            <br />
+                            ${match_listing(page['event']['matches'])}
+                        </py:if>
+                    </div>
+                </div>
+            </div>
+            <div id="teams" role="tabpanel" class="tab-page" py:if="'teams' in page['event'] and page['event']['teams']">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span class="fa fa-users"></span>&nbsp;&nbsp;Team Listing
+                        <a href="/update/event/${page['event']['key']}" onclick="return loader(this);" class="pull-right">
+                            <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+                        </a>
+                    </div>
+                    <div class="panel-body" py:if="'teams' in page['event'] and page['event']['teams']">
+                        <div class="clearfix">
+                            <div class="pull-left">
+                                <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary">
+                                    <span class="fa fa-binoculars"></span>&nbsp;&nbsp;Pit Scout
+                                </a>
+                            </div>
+                            <div class="pull-right">
+                                <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary">
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Scouting
+                                </a>
+                            </div>
+                        </div>
+                        <br />
+                        ${team_listing(page['event']['teams'], page['event'])}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</html>

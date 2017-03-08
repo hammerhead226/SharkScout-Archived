@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <?python from datetime import date ?>
+    <xi:include href="macros.html"></xi:include>
+
+    <h1>
+        ${page['year']} Event Listing
+        <span class="badge">${len(page['events'])} events</span>
+    </h1>
+
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <span class="dropdown">
+                <span class="fa fa-calendar"></span>&nbsp;
+                <a href="#" onclick="return false;" data-toggle="dropdown">
+                    ${page['year']} Events
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li py:for="year in page['stats']['years']" py:attrs="{'class':'disabled' if int(year) == int(page['year']) else ''}">
+                        <a href="/events/${year}">${year} Events</a>
+                    </li>
+                </ul>
+            </span>
+
+            <span class="dropdown pull-right">
+                <a href="#" onclick="return false;" data-toggle="dropdown">
+                    <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li py:for="year in range(date.today().year+1, 1991, -1)">
+                        <a href="/update/events/${year}" onclick="return loader(this);">
+                            ${year}
+                            <span class="fa fa-asterisk" py:strip="int(year) != int(page['year'])"></span>
+                        </a>
+                    </li>
+                </ul>
+            </span>
+        </div>
+        <div class="panel-body">
+            <py:if test="page['attending']">
+                <h2 py:choose="">
+                    <py:when test="int(page['year']) >= date.today().year">Attending</py:when>
+                    <py:otherwise>Attended</py:otherwise>
+                </h2>
+                ${event_listing(page['attending'])}
+                <h2>All Events</h2>
+            </py:if>
+            ${event_listing(page['events'])}
+        </div>
+    </div>
+</html>

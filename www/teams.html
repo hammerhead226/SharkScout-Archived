@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/"  xmlns:xi="http://www.w3.org/2001/XInclude">
+    <?python import math ?>
+    <xi:include href="macros.html"></xi:include>
+
+    <h1>
+        Team Listing
+        <span class="badge">${len(page['teams'])} teams</span>
+    </h1>
+
+    <div class="panel panel-default">
+        <div class="panel-heading clearfix">
+            <span class="dropdown">
+                <span class="fa fa-users"></span>&nbsp;
+                <a href="#" onclick="return false;" data-toggle="dropdown">
+                    Teams
+                    ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*1000}
+                    -
+                    ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li py:for="team_page in range(0, math.floor(page['stats']['max']/1000)+1)" py:attrs="{'class':'disabled' if int(team_page) == int(page['team_page']) else ''}">
+                        <a href="/teams/${team_page}">
+                            ${page['stats']['min'] if team_page &lt; page['stats']['min'] else team_page*1000}
+                            -
+                            ${page['stats']['max'] if (team_page+1)*1000-1 &gt; page['stats']['max'] else (team_page+1)*1000-1}
+                        </a>
+                    </li>
+                </ul>
+            </span>
+            <a href="/update/teams" onclick="return loader(this);" class="pull-right">
+                <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+            </a>
+        </div>
+        <div class="panel-body">
+            ${team_listing(page['teams'])}
+        </div>
+    </div>
+</html>
