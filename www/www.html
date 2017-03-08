@@ -18,14 +18,14 @@
             ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
         </title>
 
-        <link href="/static/css/bootstrap-3.3.7.min.css" rel="stylesheet"></link>
-        <link href="/static/css/selectize-0.12.4.bootstrap3.css" rel="stylesheet"></link>
-        <link href="/static/DataTables-1.10.13/datatables.min.css" rel="stylesheet"></link>
-        <link href="/static/css/font-awesome-4.7.0.min.css" rel="stylesheet"></link>
-        <link href="/static/css/font-awesome-animation-0.0.10.min.css" rel="stylesheet"></link>
-        <link href="/static/css/loaders-0.1.2.min.css" rel="stylesheet"></link>
-        <link href="/static/css/flag-icon-2.7.0.min.css" rel="stylesheet"></link>
-        <link href="/static/css/sharkscout.css" rel="stylesheet"></link>
+        <link rel="stylesheet" href="/static/css/bootstrap-3.3.7.min.css"></link>
+        <link rel="stylesheet" href="/static/css/selectize-0.12.4.bootstrap3.css"></link>
+        <link rel="stylesheet" href="/static/DataTables-1.10.13/datatables.min.css"></link>
+        <link rel="stylesheet" href="/static/css/font-awesome-4.7.0.min.css"></link>
+        <link rel="stylesheet" href="/static/css/font-awesome-animation-0.0.10.min.css"></link>
+        <link rel="stylesheet" href="/static/css/loaders-0.1.2.min.css"></link>
+        <link rel="stylesheet" href="/static/css/flag-icon-2.7.0.min.css"></link>
+        <link rel="stylesheet" href="/static/css/sharkscout.css"></link>
     </head>
 
     <body>
@@ -70,9 +70,6 @@
                             </form>
                         </button>-->
 
-                        <button type="button" class="btn btn-primary navbar-btn faa-parent animated-hover" data-toggle="modal" data-target="#settings">
-                            <span class="fa fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
-                        </button>
                         <div id="settings" class="modal fade" tabindex="-1" role="dialog">
                             <div class="modal-dialog" role="document">
                                 <form class="form-horizontal" action="/settings" method="post">
@@ -106,18 +103,21 @@
                                 </form>
                             </div>
                         </div>
+                        <button type="button" class="btn btn-primary navbar-btn faa-parent animated-hover" data-toggle="modal" data-target="#settings">
+                            <span class="fa fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
+                        </button>
                     </span>
                 </div>
             </div>
         </nav>
 
-        <script src="/static/js/jquery-3.1.1.min.js"></script>
-        <script src="/static/js/lodash.core-4.17.4.min.js"></script>
-        <script src="/static/js/store-1.3.20.min.js"></script>
-        <script src="/static/js/bootstrap-3.3.7.min.js"></script>
-        <script src="/static/js/selectize-0.12.4-standalone.min.js"></script>
-        <script src="/static/DataTables-1.10.13/datatables.min.js"></script>
-        <script src="/static/js/sharkscout.js"></script>
+        <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
+        <script type="text/javascript" src="/static/js/lodash.core-4.17.4.min.js"></script>
+        <script type="text/javascript" src="/static/js/store-1.3.20.min.js"></script>
+        <script type="text/javascript" src="/static/js/bootstrap-3.3.7.min.js"></script>
+        <script type="text/javascript" src="/static/js/selectize-0.12.4-standalone.min.js"></script>
+        <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
+        <script type="text/javascript" src="/static/js/sharkscout.js"></script>
 
         <div class="container-fluid" py:content="page['__CONTENT__']"></div>
 
