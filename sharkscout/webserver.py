@@ -25,7 +25,7 @@ class WebServer(threading.Thread):
 
         self.cherry_config = {
             'global': {
-                'server.socket_host': '127.0.0.1',
+                'server.socket_host': '0.0.0.0',
                 'server.socket_port': 2260,
                 'engine.autoreload.on': False
             },
@@ -37,7 +37,7 @@ class WebServer(threading.Thread):
             },
             '/static': {
                 'tools.staticdir.on': True,
-                'tools.staticdir.dir': os.path.join(os.path.dirname(sys.argv[0]), 'www/static')
+                'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static'))
             },
             '/ws': {
                 'tools.websocket.on': True,
