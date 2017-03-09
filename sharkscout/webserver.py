@@ -19,7 +19,7 @@ import sharkscout
 
 class WebServer(threading.Thread):
     def __init__(self):
-        sessions_path = os.path.join(os.path.dirname(sys.argv[0]), 'sessions')
+        sessions_path = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'sessions'))
         if not os.path.exists(sessions_path):
             os.mkdir(sessions_path)
 
@@ -71,7 +71,7 @@ class CherryServer(object):
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
 
-        page['__CACHE__'] = cherrypy.session.get('cache')
+        page['__CACHE__'] = cherrypy.session['cache']
         page['__TEMPLATE__'] = template
         try:
             def strip(stream):
@@ -98,7 +98,9 @@ class CherryServer(object):
         return self.template_loader.load('www.html').generate(page=page, session=cherrypy.session).render('html', doctype='html')
 
     def refresh(self):
-        raise cherrypy.HTTPRedirect(cherrypy.session.get('refresh'))
+        if 'refresh' in cherrypy.session:
+            raise cherrypy.HTTPRedirect(cherrypy.session['refresh'])
+        raise cherrypy.HTTPRedirect('/')
 
 
 class Index(CherryServer):
@@ -157,7 +159,7 @@ class Index(CherryServer):
             'year': year,
             'stats': sharkscout.Mongo().events_stats(year),
             'events': events,
-            'attending': [e for e in events if 'teams' in e and 'frc' + cherrypy.session.get('team_number') in e['teams']]
+            'attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']]
         }
         return self.render('events', page)
 
@@ -357,7 +359,6 @@ class Download(CherryServer):
 
 class WebSocketServer(ws4py.websocket.WebSocket):
     def opened(self):
-        print(dict(cherrypy.session))
         print('Opened', self)
 
     def received_message(self, message):

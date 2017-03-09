@@ -299,7 +299,7 @@
         <h5 py:if="team['website']"><span class="fa fa-globe"></span>&nbsp;&nbsp;<a href="${team['website']}" target="_blank">${team['website']}</a></h5>
         <h5><span class="fa fa-lightbulb-o fa-rotate-180"></span>&nbsp;&nbsp;<a href="hhttps://www.thebluealliance.com/team/${team['team_number']}" target="_blank">The Blue Alliance</a></h5>
         <h5 py:if="team['location']"><span class="fa fa-map-marker"></span>&nbsp;&nbsp;<a href="https://www.google.com/maps/search/${team['location']}" target="_blank">${team['location']}</a></h5>
-        <h5><span class="fa fa-child"></span>&nbsp;&nbsp;Rookie Year: ${team['rookie_year']}</h5>
+        <h5 py:if="team['rookie_year']"><span class="fa fa-child"></span>&nbsp;&nbsp;Rookie Year: ${team['rookie_year']}</h5>
         <!--<h5><span class="fa fa-bookmark"></span></h5>-->
     </py:def>
 

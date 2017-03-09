@@ -14,11 +14,9 @@ class Mongo(object):
         self.client = pymongo.MongoClient()
 
         self.shark_scout = self.client.shark_scout
-        self.ss_scouting = self.shark_scout.scouting
-
-        self.the_blue_alliance = self.client.the_blue_alliance
-        self.tba_events = self.the_blue_alliance.events
-        self.tba_teams = self.the_blue_alliance.teams
+        self.tba_events = self.shark_scout.tba_events
+        self.tba_teams = self.shark_scout.tba_teams
+        self.scouting = self.shark_scout.scouting
 
         self.tba_api = sharkscout.TheBlueAlliance()
 
@@ -37,8 +35,8 @@ class Mongo(object):
 
     # Ensure indexes on MongoDB
     def index(self):
-        self.ss_scouting.create_index('event_key')
-        self.ss_scouting.create_index([
+        self.scouting.create_index('event_key')
+        self.scouting.create_index([
             ('event_key', pymongo.ASCENDING),
             ('team_key', pymongo.ASCENDING)
         ], unique=True)
@@ -124,7 +122,7 @@ class Mongo(object):
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
-        matches = list(self.ss_scouting.aggregate([{'$match': {
+        matches = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$unwind': {
             'path': '$matches'
@@ -197,7 +195,7 @@ class Mongo(object):
         return {m['key']: m['team_keys'] for m in self.scouting_matches(event_key)}
 
     def scouting_matches_raw(self, event_key):
-        return list(self.ss_scouting.aggregate([{'$match': {
+        return list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$unwind': {
             'path': '$matches'
@@ -207,7 +205,7 @@ class Mongo(object):
 
     # Return scouting data given an event key, match key, and team key
     def scouting_match(self, event_key, match_key, team_key):
-        scouting = list(self.ss_scouting.aggregate([{'$match': {
+        scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key,
             'team_key': team_key
         }}, {'$project': {
@@ -234,7 +232,7 @@ class Mongo(object):
     # Upsert scouted data
     def scouting_match_update(self, data):
         # Update if existing
-        result = self.ss_scouting.update_one({
+        result = self.scouting.update_one({
             'event_key': data['event_key'],
             'team_key': data['team_key'],
             'matches.match_key': data['match_key']
@@ -243,7 +241,7 @@ class Mongo(object):
         }})
         if not result.matched_count:
             # Insert otherwise
-            result = self.ss_scouting.update_one({
+            result = self.scouting.update_one({
                 'event_key': data['event_key'],
                 'team_key': data['team_key'],
             }, {'$push': {
@@ -252,7 +250,7 @@ class Mongo(object):
         return (result.upserted_id or result.matched_count or result.modified_count)
 
     def scouting_pit(self, event_key, team_key):
-        scouting = list(self.ss_scouting.aggregate([{'$match': {
+        scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key,
             'team_key': team_key
         }}, {'$match': {
@@ -265,7 +263,7 @@ class Mongo(object):
         return scouting
 
     def scouting_pit_teams(self, event_key):
-        scouting = list(self.ss_scouting.aggregate([{'$match': {
+        scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$match': {
             'pit': {'$exists': True}
@@ -277,7 +275,7 @@ class Mongo(object):
         return scouting
 
     def scouting_pit_update(self, data):
-        result = self.ss_scouting.update_one({
+        result = self.scouting.update_one({
             'event_key': data['event_key'],
             'team_key': data['team_key'],
         }, {'$set': {

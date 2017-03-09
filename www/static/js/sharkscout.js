@@ -139,21 +139,27 @@ function serialize(form) {
     var obj = {};
     $(form).find('input, select, textarea').not('[serialize="false"]').each(function() {
         var $input = $(this);
+        var key = $input.attr('name') || $input.id;
+
+        // Init arrays
+        if(key.substring(key.length-2) == '[]') {
+            if(!_.isArray(obj[key])) {
+                obj[key.substring(0,key.length-2)] = [];
+            }
+        }
+
+        // Skip inputs that shouldn't be recorded
         if($input.is('[type="checkbox"], [type="radio"]') && !$input.is(':checked')) {
             return;
         }
 
-        var key = $input.attr('name') || $input.id;
+        // Record values
         if(key) {
             var val = $input.val();
             val = !isNaN(val) ? +val : val;
             if($input.is('[type="checkbox"]') && key.substring(key.length-2) == '[]') {
                 // Handle multi-checkboxes
-                key = key.substring(0, key.length-2);
-                if(!_.isArray(obj[key])) {
-                    obj[key] = [];
-                }
-                obj[key].push(val);
+                obj[key.substring(0,key.length-2)].push(val);
             } else {
                 // Handle everything else
                 obj[key] = val;

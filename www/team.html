@@ -35,7 +35,7 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li py:for="year in range(date.today().year+1, page['team']['rookie_year']-1, -1)">
+                    <li py:for="year in range(date.today().year+1, (page['team']['rookie_year'] or 1997)-1, -1)">
                         <a href="/update/team/${page['team']['key']}/events/${year}" onclick="return loader(this);">
                             ${year} Events
                             <span class="fa fa-asterisk" py:strip="int(year) != int(page['year'])"></span>

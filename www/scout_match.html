@@ -160,13 +160,13 @@
             <label class="col-xs-3 control-label">Gear Scored</label>
             <div class="col-xs-9">
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="gear_scored[]" value="boiler"></input> Boiler
+                    <input type="checkbox" name="auton_gear_scored[]" value="boiler"></input> Boiler
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="gear_scored[]" value="middle"></input> Middle
+                    <input type="checkbox" name="auton_gear_scored[]" value="middle"></input> Middle
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="gear_scored[]" value="chute"></input> Chute
+                    <input type="checkbox" name="auton_gear_scored[]" value="chute"></input> Chute
                 </label>
             </div>
         </div>
@@ -318,6 +318,55 @@
                     </label>
                     <label class="btn btn-default">
                         <input type="radio" name="low_goals" value="125+" autocomplete="off" required="required"></input> 125+
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Gears Scored</label>
+            <div class="col-xs-9">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="0" autocomplete="off" required="required"></input> 0
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="1" autocomplete="off" required="required"></input> 1
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="2" autocomplete="off" required="required"></input> 2
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="3" autocomplete="off" required="required"></input> 3
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="4" autocomplete="off" required="required"></input> 4
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="5" autocomplete="off" required="required"></input> 5
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="6" autocomplete="off" required="required"></input> 6
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="7" autocomplete="off" required="required"></input> 7
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="8" autocomplete="off" required="required"></input> 8
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="9" autocomplete="off" required="required"></input> 9
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="10" autocomplete="off" required="required"></input> 10
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="11" autocomplete="off" required="required"></input> 11
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="12" autocomplete="off" required="required"></input> 12
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="gears" value="13+" autocomplete="off" required="required"></input> 13+
                     </label>
                 </div>
             </div>
@@ -506,13 +555,13 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Offense Comments</label>
             <div class="col-xs-9">
-                <textarea name="comments" class="form-control" required="required"></textarea>
+                <textarea name="comments_offense" class="form-control" required="required"></textarea>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Defense Comments</label>
             <div class="col-xs-9">
-                <textarea name="comments" class="form-control" required="required"></textarea>
+                <textarea name="comments_defense" class="form-control" required="required"></textarea>
             </div>
         </div>
 
