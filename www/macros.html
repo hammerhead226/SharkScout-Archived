@@ -20,7 +20,7 @@
                     <td>${event['week']}</td>
                     <td>
                         <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
-                            <span class="fa fa-hourglass-o" title="Happening Now"></span>&nbsp;
+                            <span class="fa fa-hourglass-half" title="Happening Now"></span>&nbsp;
                         </py:if>
                         <py:choose test="event['event_type']">
                             <py:when test="2"><span class="fa fa-paper-plane" title="District Championship"></span>&nbsp;</py:when>
@@ -50,7 +50,7 @@
     <py:def function="event_info(event, team={})">
         <h2>
             <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
-                <span class="fa fa-hourglass-o" title="Happening Now"></span>&nbsp;
+                <span class="fa fa-hourglass-half" title="Happening Now"></span>&nbsp;
             </py:if>
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
             <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
@@ -73,39 +73,7 @@
         <h5 py:if="event['website']"><span class="fa fa-globe"></span>&nbsp;&nbsp;<a href="${event['website']}" target="_blank">${event['website']}</a></h5>
         <h5><span class="fa fa-lightbulb-o fa-rotate-180"></span>&nbsp;&nbsp;<a href="https://www.thebluealliance.com/event/${event['key']}" target="_blank">The Blue Alliance</a></h5>
         <h5 py:if="event['facebook_eid']"><span class="fa fa-facebook-official"></span>&nbsp;&nbsp;<a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">https://www.facebook.com/events/${event['facebook_eid']}</a></h5>
-        <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">
-            <py:choose>
-                <py:when test="webcast['type'] == 'twitch'"><span class="fa fa-twitch"></span>&nbsp;</py:when>
-                <py:when test="webcast['type'] == 'youtube'"><span class="fa fa-youtube"></span>&nbsp;</py:when>
-                <py:otherwise><span class="fa fa-video-camera"></span>&nbsp;</py:otherwise>
-            </py:choose>
-            <py:choose test="webcast['type']">
-                <py:when test="'html5'">
-                    <a href="${webcast['channel']}" target="_blank">${webcast['channel']}</a>
-                </py:when>
-                <py:when test="'iframe'">
-                    <?python webcast['channel'] = re.search(r'src="(.*?)"', webcast['channel']).group(1) ?>
-                    <a href="${webcast['channel']}" target="_blank">${webcast['channel']}</a>
-                </py:when>
-                <py:when test="'livestream'">
-                    <a href="https://livestream.com/accounts/${webcast['channel']}/events/${webcast['file']}" target="_blank">https://livestream.com/accounts/${webcast['channel']}/events/${webcast['file']}</a>
-                </py:when>
-                <py:when test="'twitch'">
-                    <a href="https://www.twitch.tv/${webcast['channel']}" target="_blank">${webcast['channel']}</a>
-                </py:when>
-                <py:when test="'ustream'">
-                    <a href="http://www.ustream.tv/recorded/${webcast['channel']}" target="_blank">http://www.ustream.tv/recorded/${webcast['channel']}</a>
-                </py:when>
-                <py:when test="'youtube'">
-                    <a href="https://www.youtube.com/watch?v=${webcast['channel']}" target="_blank">https://www.youtube.com/watch?v=${webcast['channel']}</a>
-                </py:when>
-                <py:otherwise>
-                    ${webcast['type']}
-                    ${webcast['channel'] if 'channel' in webcast else ''}
-                    ${webcast['file'] if 'file' in webcast else ''}
-                </py:otherwise>
-            </py:choose>
-        </h5>
+        <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">${video_icon(webcast, 'both', 'title')}</h5>
         <py:if test="team">
             <br />
             <py:if test="'rankings' in event and str(team['team_number']) in event['rankings']" py:with="ranking = event['rankings'][str(team['team_number'])]">
@@ -198,6 +166,7 @@
                                 <py:if test="match['comp_level'] in ['ef','qf','sf','f']">${match['set_number']} Match</py:if>
                                 ${match['match_number']}
                             </a>
+                            <py:for each="video in match['videos']" py:if="'videos' in match">&nbsp;${video_icon(video, 'icon')}</py:for>
                         </td>
                         <py:for each="alliance in alliances">
                             <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
@@ -212,7 +181,7 @@
                             </td>
                             <td class="${alliance}" py:for="i in range(0, (alliances_teams[alliance]) - len(match['alliances'][alliance]['teams']))">&nbsp;</td>
                         </py:for>
-                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="alliance in alliances" py:if="max_score">${match['alliances'][alliance]['score']}</td>
+                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="alliance in alliances" py:if="max_score">${match['alliances'][alliance]['score'] if match['alliances'][alliance]['score'] > 0 else ''}</td>
                     </tr>
                     <!--! Collapsed table -->
                     <tr class="hidden-md hidden-lg" py:for="alliance in alliances">
@@ -239,7 +208,7 @@
                                 <span class="fa fa-check" py:if="'scouting' in match and team in match['scouting']"></span>
                             </a>
                         </td>
-                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:if="max_score">${match['alliances'][alliance]['score']}</td>
+                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:if="max_score">${match['alliances'][alliance]['score'] if match['alliances'][alliance]['score'] > 0 else ''}</td>
                     </tr>
                 </py:for>
             </tbody>
@@ -377,5 +346,46 @@
             <py:when test="'United Kingdom'">flag-icon-gb</py:when>
             <py:when test="'Vietnam'">flag-icon-vn</py:when>
         </py:choose>
+    </py:def>
+
+    <py:def function="video_icon(video, show='both', href='both')">
+        <?python
+            link = ''
+            icon = 'fa fa-video-camera'
+            title = ''
+
+            if video['type'] == 'html5':
+                link = video['channel']
+            elif video['type'] == 'iframe':
+                link = re.search(r'src="(.*?)"', video['channel']).group(1)
+            elif video['type'] == 'livestream':
+                link = 'https://livestream.com/accounts/' + video['channel'] + '/events/' + video['file']
+            elif video['type'] == 'twitch':
+                link = 'https://www.twitch.tv/' + video['channel']
+                icon = 'fa fa-twitch'
+                title = video['channel']
+            elif video['type'] == 'ustream':
+                link = 'http://www.ustream.tv/recorded/' + video['channel']
+            elif video['type'] == 'youtube':
+                link = 'https://www.youtube.com/watch?v=' + (video['channel'] if 'channel' in video else '') + (video['key'] if 'key' in video else '')
+                icon = 'fa fa-youtube'
+
+            if link[0:2] == '//':
+                link = 'http:' + link
+
+            if not title:
+                title = link
+            if not title:
+                title = video['type'] + (' ' + video['channel'] if 'channel' in video else '') + (' ' + video['file'] if 'file' in video else '')
+        ?>
+
+        <a href="${link}" target="_blank" py:strip="not link or href != 'both'">
+            <a href="${link}" target="_blank" py:strip="not link or href != 'icon'">
+                <py:if test="show in ['both','icon']"><span class="${icon}"></span><py:if test="show in ['both','title']">&nbsp;</py:if></py:if>
+            </a>
+            <a href="${link}" target="_blank" py:strip="not link or href != 'title'">
+                <py:if test="show in ['both','title']">${title}</py:if>
+            </a>
+        </a>
     </py:def>
 </html>

@@ -251,6 +251,10 @@ $(document).ready(function() {
             $(this).children('li').children('a').first().click();
         }
     });
+    // Click the appropriate nav-tab tab if there's a hash in URL
+    if(window.location.hash && $('#'+window.location.hash.substring(1)+'.tab-page:not(.active)').length) {
+        $('ul.nav-tabs > li > a[href="' + window.location.hash + '"]').click();
+    }
 
     // Initialize selectize on all <select>s (if not IE because native form validation fails?)
     if(!detectIE()) {

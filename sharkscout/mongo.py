@@ -283,12 +283,69 @@ class Mongo(object):
         }}, upsert=True)
         return (result.upserted_id or result.matched_count or result.modified_count)
 
+    def scouting_stats(self, event_key, matches=0):
+        return list(self.tba_events.aggregate([
+            # Get matches from TBA data (so they're in order)
+            {'$match': {'key': event_key}},
+            {'$unwind': '$matches'},
+            {'$replaceRoot': {'newRoot': '$matches'}},
+            # Match to scouting information, return scouting data
+            {'$lookup': {
+                'from': 'scouting',
+                'localField': 'event_key',
+                'foreignField': 'event_key',
+                'as': 'scouting'
+            }},
+            {'$unwind': '$scouting'},
+            {'$unwind': '$scouting.matches'},
+            {'$redact': {'$cond': {
+                'if': {'$eq': ['$key', '$scouting.matches.match_key']},
+                'then': '$$DESCEND',
+                'else': '$$PRUNE'
+            }}},
+            {'$project': {
+                'team_key': '$scouting.team_key',
+                'pit': '$scouting.pit',
+                'match': '$scouting.matches'
+            }},
+            {'$group': {
+                '_id': '$team_key',
+                'pit': {'$first': '$pit'},
+                'matches': {'$push': '$match'}
+            }},
+            # Run statistics groupings
+            {'$project': {
+                'pit': '$pit',
+                'matches': {'$slice': [
+                    '$matches',
+                    0 if int(matches) >= 0 else int(matches),
+                    abs(int(matches)) or sys.maxsize
+                ]}
+            }},
+            {'$unwind': '$matches'},
+            {'$group': {
+                '_id': '$_id',
+                'climber': {'$first': '$pit.climber'},
+                'drivetrain': {'$first': '$pit.drivetrain'},
+                'auton_gear_avg': {'$avg': {'$size': '$matches.auton_gear_scored'}},
+                'gears_avg': {'$avg': '$matches.gears'},
+                'defense_avg': {'$avg': '$matches.defense'},
+                'speed_avg': {'$avg': '$matches.speed'},
+                'agility_avg': {'$avg': '$matches.agility'},
+                'comments_offense': {'$push': '$matches.comments_offense'},
+                'comments_defense': {'$push': '$matches.comments_defense'},
+            }},
+            {'$sort': {
+                '_id': 1
+            }}
+        ]))
+
     # List of all teams
     def teams(self):
         return list(self.tba_teams.find())
 
     # List of all teams, paged
-    def teams_paged(self, page, limit=1000):
+    def teams_paged(self, page, limit=500):
         min_num = int(page) * limit
         max_num = (int(page) + 1) * limit - 1
         return list(self.tba_teams.find({'team_number': {'$gte': min_num, '$lte': max_num}}))

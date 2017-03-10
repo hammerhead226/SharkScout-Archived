@@ -165,12 +165,14 @@ class Index(CherryServer):
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    def event(self, event_key):
+    def event(self, event_key, stats_matches=0):
         event = sharkscout.Mongo().event(event_key)
         if not event:
             raise cherrypy.HTTPRedirect('/events')
         page = {
             'event': event,
+            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
+            'stats_matches': int(stats_matches),
             'years': sharkscout.Mongo().event_years(event['event_code'])
         }
         return self.render('event', page)
