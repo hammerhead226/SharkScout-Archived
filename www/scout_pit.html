@@ -12,7 +12,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Event</label>
             <div class="col-xs-9">
-                <input type="hidden" name="event_key" value="${page['event']['key']}" required="required"></input>
+                <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
                 <label class="control-label"><a href="/event/${page['event']['key']}">${page['event']['name']}</a></label>
             </div>
         </div>
@@ -24,21 +24,21 @@
                         <div class="input-group inline-min">
                             <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
                             <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
-                            <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
+                            <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" disabled="disabled" serialize="false"></input>
                         </div>
                     </py:when>
                     <py:otherwise>
                         <input type="hidden" name="team_key"></input>
                         <py:choose>
                             <div class="input-group inline-min" py:when="page['teams']">
-                                <select name="team_number" class="form-control" data-selectize-create="true" required="required" serialize="false">
+                                <select name="team_number" class="form-control" data-selectize-create="true" serialize="false">
                                     <option value=""></option>
                                     <option value="${team['team_number']}" py:for="team in page['teams']">${team['team_number']}</option>
                                 </select>
                             </div>
                             <div class="input-group inline-min" py:otherwise="">
                                 <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
-                                <input type="number" name="team_number" class="form-control" required="required" serialize="false"></input>
+                                <input type="number" name="team_number" class="form-control" serialize="false"></input>
                             </div>
                         </py:choose>
                     </py:otherwise>
@@ -48,7 +48,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Current Scouter</label>
             <div class="col-xs-9">
-                <input type="text" name="scouter" class="form-control" value="${session['user_name']}" required="required" disabled="disabled"></input>
+                <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
             </div>
         </div>
 
@@ -59,13 +59,13 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Robot Weight</label>
             <div class="col-xs-9">
-                <input type="number" name="robot_weight" class="form-control" required="required"></input>
+                <input type="number" name="robot_weight" class="form-control"></input>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Drivetrain</label>
             <div class="col-xs-9">
-                <select name="drivetrain" class="form-control" required="required">
+                <select name="drivetrain" class="form-control">
                     <option value=""></option>
                     <option value="tank">Tank</option>
                     <option value="mecanum">Mecanum</option>
@@ -78,7 +78,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Drivetrain Build Experience</label>
             <div class="col-xs-9">
-                <textarea name="drivetrain_experience" class="form-control" required="required"></textarea>
+                <textarea name="drivetrain_experience" class="form-control"></textarea>
             </div>
         </div>
 
@@ -87,7 +87,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Ball Capacity</label>
             <div class="col-xs-9">
-                <input type="number" name="ball_capacity" class="form-control" required="required"></input>
+                <input type="number" name="ball_capacity" class="form-control"></input>
             </div>
         </div>
         <div class="form-group">
@@ -118,13 +118,13 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Avg. High Goals per Match</label>
             <div class="col-xs-9">
-                <input type="number" name="avg_high_goals" class="form-control" required="required"></input>
+                <input type="number" name="avg_high_goals" class="form-control"></input>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Avg. Low Goals per Match</label>
             <div class="col-xs-9">
-                <input type="number" name="avg_low_goals" class="form-control" required="required"></input>
+                <input type="number" name="avg_low_goals" class="form-control"></input>
             </div>
         </div>
 
@@ -133,21 +133,21 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Avg. Gears per Match</label>
             <div class="col-xs-9">
-                <input type="number" name="avg_gears" class="form-control" required="required"></input>
+                <input type="number" name="avg_gears" class="form-control"></input>
             </div>
         </div>
 
         <hr />
 
         <div class="form-group">
-            <label class="col-xs-3 control-label">Can Climb</label>
+            <label class="col-xs-3 control-label">Has Climber</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="climber" value="N" autocomplete="off" required="required"></input> No
+                        <input type="radio" name="climber" value="N" autocomplete="off"></input> No
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="climber" value="Y" autocomplete="off" required="required"></input> Yes
+                        <input type="radio" name="climber" value="Y" autocomplete="off"></input> Yes
                     </label>
                 </div>
             </div>
@@ -161,22 +161,22 @@
                 Bad&nbsp;
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="0" autocomplete="off" required="required"></input> N/A
+                        <input type="radio" name="defense" value="0" autocomplete="off"></input> N/A
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="defense" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Good
@@ -191,19 +191,19 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Tele-Op Strategy</label>
             <div class="col-xs-9">
-                <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
+                <textarea name="teleop_strategy" class="form-control"></textarea>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Common Robot Problems</label>
             <div class="col-xs-9">
-                <textarea name="common_robot_problems" class="form-control" required="required"></textarea>
+                <textarea name="common_robot_problems" class="form-control"></textarea>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Driver Practice (Time)</label>
             <div class="col-xs-9">
-                <textarea name="driver_practice" class="form-control" required="required"></textarea>
+                <textarea name="driver_practice" class="form-control"></textarea>
             </div>
         </div>
 

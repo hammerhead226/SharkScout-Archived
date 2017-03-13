@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <?python import re ?>
     <xi:include href="macros.html"></xi:include>
 
     <div class="panel panel-default">
@@ -65,10 +66,10 @@
                             </div>
                             <div class="pull-right" py:if="'matches' in page['event'] and page['event']['matches']">
                                 <a href="/download/matches/${page['event']['key']}" class="btn btn-primary">
-                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Match List
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Match List
                                 </a>
                                 <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary">
-                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Scouting
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Match Scouting
                                 </a>
                             </div>
                         </div>
@@ -96,7 +97,7 @@
                             </div>
                             <div class="pull-right">
                                 <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary">
-                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Download Scouting
+                                    <span class="fa fa-download"></span>&nbsp;&nbsp;Pit Scouting
                                 </a>
                             </div>
                         </div>
@@ -144,7 +145,7 @@
                             <thead>
                                 <tr>
                                     <th>Team Number</th>
-                                    <th py:for="key in keys">${key.replace('_',' ').title()}</th>
+                                    <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
                                 </tr>
                             </thead>
                             <tbody>

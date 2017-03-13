@@ -178,6 +178,10 @@ function deserialize(form, data) {
         // Massage values into an array
         var values = _.isArray(data[name]) ? data[name] : [data[name]];
         for(key in values) {
+            // Don't do anything if missing value
+            if(values[key] == '') {
+                continue;
+            }
             // Find the correct element
             var $tag = $('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
             if($tag.closest('.btn-group .btn.disabled').length) {

@@ -159,14 +159,17 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Gear Scored</label>
             <div class="col-xs-9">
-                <label class="checkbox-inline">
+                <!--<label class="checkbox-inline">
                     <input type="checkbox" name="auton_gear_scored[]" value="boiler"></input> Boiler
-                </label>
+                </label>-->
                 <label class="checkbox-inline">
                     <input type="checkbox" name="auton_gear_scored[]" value="middle"></input> Middle
                 </label>
-                <label class="checkbox-inline">
+                <!--<label class="checkbox-inline">
                     <input type="checkbox" name="auton_gear_scored[]" value="chute"></input> Chute
+                </label>-->
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="auton_gear_scored[]" value="side"></input> Side
                 </label>
             </div>
         </div>
@@ -232,17 +235,17 @@
             <label class="col-xs-3 control-label">High Goal Position</label>
             <div class="col-xs-9">
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="boiler"></input> Airship
+                    <input type="checkbox" name="high_goal_position[]" value="airship"></input> Airship
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="middle"></input> Boiler
+                    <input type="checkbox" name="high_goal_position[]" value="boiler"></input> Boiler
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="chute"></input> Other
+                    <input type="checkbox" name="high_goal_position[]" value="other"></input> Other
                 </label>
             </div>
         </div>
-        <div class="form-group">
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">High Goal Accuracy</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -269,12 +272,15 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="form-group">
             <label class="col-xs-3 control-label">High Goal Speed</label>
             <div class="col-xs-9">
                 Slow&nbsp;
                 <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="high_goal_speed" value="0" autocomplete="off" required="required"></input> N/A
+                    </label>
                     <label class="btn btn-default">
                         <input type="radio" name="high_goal_speed" value="1" autocomplete="off" required="required"></input> 1
                     </label>
@@ -371,7 +377,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">Dropped Gears @ Loading Station</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -410,8 +416,8 @@
                     </label>
                 </div>
             </div>
-        </div>
-        <div class="form-group">
+        </div>-->
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">Dropped Gears @ Airship</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -450,13 +456,13 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>-->
 
         <hr />
 
         <h2 class="col-xs-offset-3 col-xs-9">End Game</h2>
         <div class="form-group">
-            <label class="col-xs-3 control-label">Scaled</label>
+            <label class="col-xs-3 control-label">Climbed</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">

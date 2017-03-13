@@ -325,15 +325,48 @@ class Mongo(object):
             {'$unwind': '$matches'},
             {'$group': {
                 '_id': '$_id',
-                'climber': {'$first': '$pit.climber'},
-                'drivetrain': {'$first': '$pit.drivetrain'},
-                'auton_gear_avg': {'$avg': {'$size': '$matches.auton_gear_scored'}},
-                'gears_avg': {'$avg': '$matches.gears'},
-                'defense_avg': {'$avg': '$matches.defense'},
-                'speed_avg': {'$avg': '$matches.speed'},
-                'agility_avg': {'$avg': '$matches.agility'},
-                'comments_offense': {'$push': '$matches.comments_offense'},
-                'comments_defense': {'$push': '$matches.comments_defense'},
+                # General
+                '0_drivetrain': {'$first': '$pit.drivetrain'},
+                # '1_def_avg': {'$avg': '$matches.defense'},
+                # '2_speed_avg': {'$avg': '$matches.speed'},
+                # '3_agility_avg': {'$avg': '$matches.agility'},
+                # Auton
+                '100_auton_strat': {'$first': '$pit.auton_strategy'},
+                '101_auton_base_line_avg': {'$avg': {'$cond': {
+                    'if': {'$eq': ['$matches.auton_crossed_baseline', 'Y']},
+                    'then': 1,
+                    'else': 0
+                }}},
+                '102_auton_gear_avg': {'$avg': {'$size': '$matches.auton_gear_scored'}},
+                # Teleop
+                '200_teleop_strat': {'$first': '$pit.teleop_strategy'},
+                '201_gears_min': {'$min': '$matches.gears'},
+                '202_gears_max': {'$max': '$matches.gears'},
+                '203_gears_avg': {'$avg': '$matches.gears'},
+                '204_high_goals': {'$push': '$matches.high_goals'},
+                '205_high_loc': {'$push': '$matches.high_goal_position'},
+                # End Game
+                '300_climber': {'$first': '$pit.climber'},
+                '301_climb_attempt_avg': {'$avg': {'$cond': {
+                    'if': {'$ne': ['$matches.scaled', 'N']},
+                    'then': 1,
+                    'else': 0
+                }}},
+                '302_climb_success': {'$sum': {'$divide': [
+                    {'$sum': {'$cond': {
+                        'if': {'$eq': ['$matches.scaled', 'Y']},
+                        'then': 1,
+                        'else': 0
+                    }}},
+                    {'$sum': {'$add': [{'$cond': {
+                        'if': {'$ne': ['$matches.scaled', 'N']},
+                        'then': 1,
+                        'else': 0
+                    }}, 0.000001]}}
+                ]}},
+                # Comments
+                '400_off_comments': {'$push': '$matches.comments_offense'},
+                '401_def_comments': {'$push': '$matches.comments_defense'}
             }},
             {'$sort': {
                 '_id': 1

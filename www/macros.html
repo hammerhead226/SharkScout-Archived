@@ -128,7 +128,7 @@
                 for alliance in alliances:
                     alliances_teams[alliance] = max([len(m['alliances'][alliance]['teams']) for m in matches]) or 1
                 # Find max score
-                max_score = max([max([m['alliances'][a]['score'] for a in m['alliances']]) for m in matches])
+                max_score = max(max([max([m['alliances'][a]['score'] for a in m['alliances']]) for m in matches]), 0)
             ?>
             <thead>
                 <tr class="visible-md visible-lg">
