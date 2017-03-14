@@ -247,7 +247,7 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        return self.render('scout_match', page)
+        return self.render('scouting/' + str(event['year']) + '/match', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -270,7 +270,7 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        return self.render('scout_pit', page)
+        return self.render('scouting/' + str(event['year']) + '/pit', page)
 
 
 class Update(CherryServer):

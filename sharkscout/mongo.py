@@ -284,7 +284,7 @@ class Mongo(object):
         return (result.upserted_id or result.matched_count or result.modified_count)
 
     def scouting_stats(self, event_key, matches=0):
-        return list(self.tba_events.aggregate([
+        aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
             {'$unwind': '$matches'},
@@ -322,7 +322,9 @@ class Mongo(object):
                     abs(int(matches)) or sys.maxsize
                 ]}
             }},
-            {'$unwind': '$matches'},
+            {'$unwind': '$matches'}
+        ]
+        aggregation.extend([
             {'$group': {
                 '_id': '$_id',
                 # General
@@ -352,26 +354,30 @@ class Mongo(object):
                     'then': 1,
                     'else': 0
                 }}},
-                '302_climb_success': {'$sum': {'$divide': [
-                    {'$sum': {'$cond': {
-                        'if': {'$eq': ['$matches.scaled', 'Y']},
-                        'then': 1,
-                        'else': 0
-                    }}},
-                    {'$sum': {'$add': [{'$cond': {
-                        'if': {'$ne': ['$matches.scaled', 'N']},
-                        'then': 1,
-                        'else': 0
-                    }}, 0.000001]}}
-                ]}},
+                '_scaled_Y': {'$sum': {'$cond': {
+                    'if': {'$eq': ['$matches.scaled', 'Y']},
+                    'then': 1,
+                    'else': 0
+                }}},
+                '_scaled_A': {'$sum': {'$cond': {
+                    'if': {'$ne': ['$matches.scaled', 'N']},
+                    'then': 1,
+                    'else': 0.000001  # prevent divide by zero
+                }}},
                 # Comments
                 '400_off_comments': {'$push': '$matches.comments_offense'},
                 '401_def_comments': {'$push': '$matches.comments_defense'}
             }},
+            {'$addFields': {
+                '302_climb_success': {'$divide': ['$_scaled_Y', '$_scaled_A']}
+            }}
+        ])
+        aggregation.extend([
             {'$sort': {
                 '_id': 1
             }}
-        ]))
+        ])
+        return list(self.tba_events.aggregate(aggregation))
 
     # List of all teams
     def teams(self):

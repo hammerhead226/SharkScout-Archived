@@ -85,6 +85,28 @@
         <hr />
 
         <div class="form-group">
+            <label class="col-xs-3 control-label">Has Pneumatics</label>
+            <div class="col-xs-9">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="pneumatics" value="N" autocomplete="off"></input> No
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="pneumatics" value="Y" autocomplete="off"></input> Yes
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Pneumatics Purpose</label>
+            <div class="col-xs-9">
+                <textarea name="pneumatics_purpose" class="form-control"></textarea>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="form-group">
             <label class="col-xs-3 control-label">Ball Capacity</label>
             <div class="col-xs-9">
                 <input type="number" name="ball_capacity" class="form-control"></input>
@@ -94,10 +116,10 @@
             <label class="col-xs-3 control-label">Ball Scoring Capabilities</label>
             <div class="col-xs-9">
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="ball_scoring_capabilities[]" value="boiler"></input> High Goal
+                    <input type="checkbox" name="ball_scoring_capabilities[]" value="high"></input> High Goal
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="ball_scoring_capabilities[]" value="middle"></input> Low Goal
+                    <input type="checkbox" name="ball_scoring_capabilities[]" value="low"></input> Low Goal
                 </label>
             </div>
         </div>
@@ -105,13 +127,13 @@
             <label class="col-xs-3 control-label">High Goal Position</label>
             <div class="col-xs-9">
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="boiler"></input> Airship
+                    <input type="checkbox" name="high_goal_position[]" value="airship"></input> Airship
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="middle"></input> Boiler
+                    <input type="checkbox" name="high_goal_position[]" value="boiler"></input> Boiler
                 </label>
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="high_goal_position[]" value="chute"></input> Other
+                    <input type="checkbox" name="high_goal_position[]" value="other"></input> Other
                 </label>
             </div>
         </div>
@@ -152,6 +174,12 @@
                 </div>
             </div>
         </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Avg. Climb Time</label>
+            <div class="col-xs-9">
+                <input type="number" name="climb_time" class="form-control"></input>
+            </div>
+        </div>
 
         <hr />
 
@@ -170,13 +198,13 @@
                         <input type="radio" name="defense" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 3
+                        <input type="radio" name="defense" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 4
+                        <input type="radio" name="defense" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 5
+                        <input type="radio" name="defense" value="5" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Good

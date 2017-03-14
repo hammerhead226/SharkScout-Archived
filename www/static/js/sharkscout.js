@@ -156,7 +156,7 @@ function serialize(form) {
         // Record values
         if(key) {
             var val = $input.val();
-            val = !isNaN(val) ? +val : val;
+            val = val && !isNaN(val) ? +val : val;
             if($input.is('[type="checkbox"]') && key.substring(key.length-2) == '[]') {
                 // Handle multi-checkboxes
                 obj[key.substring(0,key.length-2)].push(val);
@@ -166,6 +166,7 @@ function serialize(form) {
             }
         }
     });
+    console.log(obj);
     return obj;
 }
 
@@ -173,15 +174,12 @@ function deserialize(form, data) {
     if(!_.isObject(data) && _.isString(data)) {
         data = JSON.parse(data);
     }
+    console.log(data);
 
     for(var name in data) {
         // Massage values into an array
         var values = _.isArray(data[name]) ? data[name] : [data[name]];
         for(key in values) {
-            // Don't do anything if missing value
-            if(values[key] == '') {
-                continue;
-            }
             // Find the correct element
             var $tag = $('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
             if($tag.closest('.btn-group .btn.disabled').length) {
@@ -259,6 +257,18 @@ $(document).ready(function() {
     if(window.location.hash && $('#'+window.location.hash.substring(1)+'.tab-page:not(.active)').length) {
         $('ul.nav-tabs > li > a[href="' + window.location.hash + '"]').click();
     }
+    // Clicks on nav-tab tab will put it in the window location
+    $('ul.nav-tabs > li > a[href^="#"]').click(function() {
+        var href = $(this).attr('href');
+        var $tab_page = $('#'+href.substring(1)+'.tab-page');
+        if($tab_page.length && !$tab_page.hasClass('active')) {
+            if(window.history.pushState) {
+                window.history.pushState(null, null, href);
+            } else {
+                window.location.hash = href;
+            }
+        }
+    });
 
     // Initialize selectize on all <select>s (if not IE because native form validation fails?)
     if(!detectIE()) {
@@ -276,11 +286,28 @@ $(document).ready(function() {
     }
 
     // Initialize DataTable on all Bootstrap <table>s
-    $('table.table').filter(function(){return !$(this).find('*[colspan],*[rowspan]').length;}).DataTable({
-        'paging': false,  // disable paging
-        'info': false,  // disable footer (not needed with no paging)
-        'filter': false,  // disable filtering
-        'order': [],  // disable initial sorting
+    $('table.table').filter(function(){return !$(this).find('*[colspan],*[rowspan]').length;}).each(function() {
+        var $table = $(this);
+        var table = $table.DataTable({
+            'paging': false,  // disable paging
+            'info': false,  // disable footer (not needed with no paging)
+            'filter': false,  // disable filtering
+            'order': [],  // disable initial sorting
+            'fixedHeader': true
+        });
+        // Handle DataTable FixedHeader with nav-tab changes
+        var $tab_toggle = $('a[href="#' + $table.closest('.tab-page').attr('id') + '"][data-toggle="tab"]');
+        if($tab_toggle.length) {
+            $tab_toggle.on('shown.bs.tab', function() {
+                table.fixedHeader.enable();
+            });
+            $tab_toggle.on('hide.bs.tab', function() {
+                table.fixedHeader.disable();
+            });
+            if(!$tab_toggle.is(':visible')) {
+                table.fixedHeader.disable();
+            }
+        }
     });
 
     // Handle form key building

@@ -122,11 +122,11 @@
                                 <a href="/event/${page['event']['key']}#stats" class="btn ${'btn-default' if page['stats_matches'] == 0 else 'btn-primary'}">
                                     <span class="fa fa-chevron-up"></span>&nbsp;&nbsp;All Matches
                                 </a>
-                                <a href="/event/${page['event']['key']}/3#stats" class="btn ${'btn-default' if page['stats_matches'] == 3 else 'btn-primary'}">
-                                    <span class="fa fa-chevron-left"></span>&nbsp;&nbsp;First 3 Matches
+                                <a href="/event/${page['event']['key']}/5#stats" class="btn ${'btn-default' if page['stats_matches'] == 5 else 'btn-primary'}">
+                                    <span class="fa fa-chevron-left"></span>&nbsp;&nbsp;First 5 Matches
                                 </a>
-                                <a href="/event/${page['event']['key']}/-3#stats" class="btn ${'btn-default' if page['stats_matches'] == -3 else 'btn-primary'}">
-                                    <span class="fa fa-chevron-right"></span>&nbsp;&nbsp;Last 3 Matches
+                                <a href="/event/${page['event']['key']}/-5#stats" class="btn ${'btn-default' if page['stats_matches'] == -5 else 'btn-primary'}">
+                                    <span class="fa fa-chevron-right"></span>&nbsp;&nbsp;Last 5 Matches
                                 </a>
                             </div>
                             <div class="pull-right">
@@ -138,7 +138,7 @@
                                 keys = []
                                 for team in page['stats']:
                                     for key in team:
-                                        if key != '_id' and key not in keys:
+                                        if not key.startswith('_') and key not in keys:
                                             keys.append(key)
                                 keys = sorted(keys)
                             ?>

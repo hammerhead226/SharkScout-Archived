@@ -44,7 +44,7 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event','scout_pit','scout_match'] else ''}">
+                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event'] or page['__TEMPLATE__'].startswith('scouting/') else ''}">
                             <a href="/events">
                                 <span class="fa fa-calendar"></span>&nbsp;&nbsp;Events
                             </a>

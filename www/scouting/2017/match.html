@@ -159,21 +159,18 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Gear Scored</label>
             <div class="col-xs-9">
-                <!--<label class="checkbox-inline">
+                <label class="checkbox-inline">
                     <input type="checkbox" name="auton_gear_scored[]" value="boiler"></input> Boiler
-                </label>-->
+                </label>
                 <label class="checkbox-inline">
                     <input type="checkbox" name="auton_gear_scored[]" value="middle"></input> Middle
                 </label>
-                <!--<label class="checkbox-inline">
-                    <input type="checkbox" name="auton_gear_scored[]" value="chute"></input> Chute
-                </label>-->
                 <label class="checkbox-inline">
-                    <input type="checkbox" name="auton_gear_scored[]" value="side"></input> Side
+                    <input type="checkbox" name="auton_gear_scored[]" value="chute"></input> Chute
                 </label>
             </div>
         </div>
-        <div class="form-group">
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">Released a Hopper</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -185,7 +182,7 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="form-group">
             <label class="col-xs-3 control-label">Crossed Baseline</label>
             <div class="col-xs-9">
@@ -197,6 +194,12 @@
                         <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off" required="required"></input> Yes
                     </label>
                 </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Auton Strategy</label>
+            <div class="col-xs-9">
+                <textarea name="auton_strategy" class="form-control" required="required"></textarea>
             </div>
         </div>
 
@@ -357,22 +360,7 @@
                         <input type="radio" name="gears" value="7" autocomplete="off" required="required"></input> 7
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="8" autocomplete="off" required="required"></input> 8
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="gears" value="9" autocomplete="off" required="required"></input> 9
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="gears" value="10" autocomplete="off" required="required"></input> 10
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="gears" value="11" autocomplete="off" required="required"></input> 11
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="gears" value="12" autocomplete="off" required="required"></input> 12
-                    </label>
-                    <label class="btn btn-default">
-                        <input type="radio" name="gears" value="13+" autocomplete="off" required="required"></input> 13+
+                        <input type="radio" name="gears" value="8+" autocomplete="off" required="required"></input> 8+
                     </label>
                 </div>
             </div>
@@ -457,6 +445,12 @@
                 </div>
             </div>
         </div>-->
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Tele-Op Strategy</label>
+            <div class="col-xs-9">
+                <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
+            </div>
+        </div>
 
         <hr />
 
@@ -469,10 +463,10 @@
                         <input type="radio" name="scaled" value="N" autocomplete="off" required="required"></input> No
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="scaled" value="Y" autocomplete="off" required="required"></input> Yes
+                        <input type="radio" name="scaled" value="A" autocomplete="off" required="required"></input> Attempted
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="scaled" value="A" autocomplete="off" required="required"></input> Attempted
+                        <input type="radio" name="scaled" value="Y" autocomplete="off" required="required"></input> Yes
                     </label>
                 </div>
             </div>
