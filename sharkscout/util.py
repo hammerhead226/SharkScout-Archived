@@ -5,6 +5,10 @@ import re
 
 class Util(object):
     @staticmethod
+    def isnumeric(val):
+        return str(val).lstrip('-').replace('.', '', 1).isdigit()
+
+    @staticmethod
     def pid(bin):
         for proc in psutil.process_iter():
             try:

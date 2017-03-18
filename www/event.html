@@ -130,39 +130,15 @@
                                 </a>
                             </div>
                             <div class="pull-right">
+                                <a href="/download/stats/${page['event']['key']}/${page['stats_matches'] or 0}" class="btn btn-primary">
+                                    <span class="fa fa-download"></span>&nbsp;
+                                    ${'All' if page['stats_matches'] == 0 else ('First' if page['stats_matches'] > 0 else 'Last') + ' ' + str(abs(page['stats_matches']))}
+                                    Matches
+                                </a>
                             </div>
                         </div>
                         <br />
-                        <table class="table table-bordered table-striped">
-                            <?python
-                                keys = []
-                                for team in page['stats']:
-                                    for key in team:
-                                        if not key.startswith('_') and key not in keys:
-                                            keys.append(key)
-                                keys = sorted(keys)
-                            ?>
-                            <thead>
-                                <tr>
-                                    <th>Team Number</th>
-                                    <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr py:for="team in page['stats']">
-                                    <td>${''.join([c for c in team['_id'] if c.isdigit()])}</td>
-                                    <td py:for="key in keys" py:choose="">
-                                        <ul py:when="type(team[key]) is list">
-                                            <li py:for="item in team[key]">${item}</li>
-                                        </ul>
-                                        <py:otherwise py:choose="">
-                                            <py:when test="str(team[key]).lstrip('-').replace('.','',1).isdigit()">${round(team[key],2)}</py:when>
-                                            <py:otherwise>${team[key]}</py:otherwise>
-                                        </py:otherwise>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        ${stats_listing(page['stats'])}
                     </div>
                 </div>
             </div>

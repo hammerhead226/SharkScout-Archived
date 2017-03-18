@@ -1,16 +1,14 @@
 import cherrypy
 import csv
-from datetime import date
+from datetime import datetime, date
 import genshi.core
 import genshi.template
 import json
 import os
-import random
-import string
+import re
 import sys
 import tempfile
 import threading
-import time
 import ws4py.server.cherrypyserver
 import ws4py.websocket
 
@@ -179,6 +177,33 @@ class Index(CherryServer):
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
+    def stats(self, event_key, match_key):
+        event = sharkscout.Mongo().event(event_key)
+        if event_key and not event:
+            raise cherrypy.HTTPRedirect('/event/' + event_key)
+
+        matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
+        if match_key and not matches:
+            raise cherrypy.HTTPRedirect('/event/' + event_key)
+        match = matches[0] if matches else {}
+        if 'alliances' not in match:
+            raise cherrypy.HTTPRedirect('/event/' + event_key)
+
+        stats = sharkscout.Mongo().scouting_stats(event_key)
+
+        alliance_stats = {}
+        for alliance in match['alliances']:
+            alliance_stats[alliance] = [s for s in stats if s['_id'] in match['alliances'][alliance]['teams']]
+
+        page = {
+            'event': event,
+            'match': match,
+            'alliance_stats': alliance_stats
+        }
+        return self.render('stats', page)
+
+    @cherrypy.expose
+    @cherrypy.tools.allow(methods=['GET'])
     def teams(self, team_page=0):
         page = {
             'team_page': int(team_page),
@@ -314,18 +339,20 @@ class Download(CherryServer):
         # Enforce a list
         if type(items) is dict:
             items = [items[k] for k in items]
+
         # Find all possible keys, sort them
         keys = []
         for item in items:
             for key in item:
-                if key not in keys:
+                if not key.startswith('_') and key not in keys:
                     keys.append(key)
         keys = sorted(keys)
+
         # Open up the temp file for CSV writing
-        filename = tempfile.gettempdir() + '/' + prefix + ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8)) + '.csv'
+        filename = tempfile.gettempdir() + '/' + prefix + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
         with open(filename, 'w', newline='') as temp:
             writer = csv.DictWriter(temp, fieldnames=keys)
-            writer.writeheader()
+            writer.writerow({k: re.sub(r'^[0-9]+_+', '', k) for k in keys})
             # Write each row
             for item in items:
                 row = {}
@@ -357,6 +384,12 @@ class Download(CherryServer):
         elif type == 'pit':
             teams = sharkscout.Mongo().scouting_pit_teams(event_key)
             return self._csv(event_key + '_scouting_pit_', teams)
+
+    @cherrypy.expose
+    @cherrypy.tools.allow(methods=['GET'])
+    def stats(self, event_key, stats_matches):
+        stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)
+        return self._csv(event_key + '_scouting_stats_', stats)
 
 
 class WebSocketServer(ws4py.websocket.WebSocket):

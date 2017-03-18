@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="macros.html"></xi:include>
+
+    <h2>
+        <a href="/event/${page['event']['key']}">
+            <span class="fa fa-arrow-left"></span>&nbsp;
+            ${page['event']['year']} ${page['event']['name']}
+        </a>
+    </h2>
+    <h3>${match_name(page['match'])}</h3>
+    <h4>${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}</h4>
+    <br />
+
+    <div class="panel panel-default ${alliance}" py:for="alliance in page['alliance_stats']">
+        <div class="panel-heading clearfix">
+            <span class="fa fa-bar-chart"></span>&nbsp;&nbsp;${alliance.title()} Alliance
+        </div>
+        <div class="panel-body">
+            ${stats_listing(page['alliance_stats'][alliance])}
+        </div>
+    </div>
+</html>

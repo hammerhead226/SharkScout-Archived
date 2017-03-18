@@ -13,7 +13,12 @@
             <label class="col-xs-3 control-label">Event</label>
             <div class="col-xs-9">
                 <input type="hidden" name="event_key" value="${page['event']['key']}" required="required"></input>
-                <label class="control-label"><a href="/event/${page['event']['key']}">${page['event']['name']}</a></label>
+                <label class="control-label">
+                    <a href="/event/${page['event']['key']}">
+                        <span class="fa fa-arrow-left"></span>&nbsp;
+                        ${page['event']['year']} ${page['event']['name']}
+                    </a>
+                </label>
             </div>
         </div>
         <div class="form-group">

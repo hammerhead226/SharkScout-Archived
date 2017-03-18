@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html py:attrs="{'manifest':'/manifest' if page['__CACHE__'] else ''}" xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/">
+<html py:attrs="{'manifest':'/manifest' if page['__CACHE__'] else ''}" xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/"  xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="macros.html"></xi:include>
+
     <head>
         <meta charset="utf-8"></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
@@ -14,6 +16,7 @@
                 ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
             </py:if>
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
+            ${'&raquo; ' if 'match' in page else ''}${match_name(page['match']) if 'match' in page else ''}
             ${'&raquo; ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
             ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
         </title>
@@ -44,7 +47,7 @@
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
-                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event'] or page['__TEMPLATE__'].startswith('scouting/') else ''}">
+                        <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event','stats'] or page['__TEMPLATE__'].startswith('scouting/') else ''}">
                             <a href="/events">
                                 <span class="fa fa-calendar"></span>&nbsp;&nbsp;Events
                             </a>

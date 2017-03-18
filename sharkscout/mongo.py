@@ -377,7 +377,14 @@ class Mongo(object):
                 '_id': 1
             }}
         ])
-        return list(self.tba_events.aggregate(aggregation))
+
+        stats = list(self.tba_events.aggregate(aggregation))
+        for idx, team in enumerate(stats):
+            for key in team:
+                if sharkscout.Util.isnumeric(team[key]):
+                    stats[idx][key] = round(team[key], 2)
+
+        return stats
 
     # List of all teams
     def teams(self):

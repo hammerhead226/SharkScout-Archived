@@ -225,19 +225,23 @@ input[type="number"] {
 /* FIRST colors */
 /* Alliance colors for Bootstrap tables */
 .table > tbody > tr.red,
-.table > tbody > tr > td.red {
+.table > tbody > tr > td.red,
+.red .table > tbody > tr {
     background-color: #FFEEEE;
 }
 .table-striped > tbody > tr.red:nth-of-type(2n+1),
-.table-striped > tbody > tr:nth-of-type(2n+1) > td.red {
+.table-striped > tbody > tr:nth-of-type(2n+1) > td.red,
+.red .table-striped > tbody > tr:nth-of-type(2n+1) {
     background-color: #FFE5E5;
 }
 .table > tbody > tr.blue,
-.table > tbody > tr > td.blue {
+.table > tbody > tr > td.blue,
+.blue .table > tbody > tr {
     background-color: #EEEEFF;
 }
 .table-striped > tbody > tr.blue:nth-of-type(2n+1),
-.table-striped > tbody > tr:nth-of-type(2n+1) > td.blue {
+.table-striped > tbody > tr:nth-of-type(2n+1) > td.blue,
+.blue .table-striped > tbody > tr:nth-of-type(2n+1) {
     background-color: #E5E5FF;
 }
 /* Alliance colors for Bootstrap btn-group */
@@ -256,6 +260,15 @@ input[type="number"] {
 .btn-group.blue .btn.active,
 .btn.blue.active {
     background-color: #3333FF;
+}
+/* Alliance colors for panel-heading */
+.panel.red > .panel-heading,
+.panel > .panel-heading.red {
+    background-color: #FFCCCC;
+}
+.panel.blue > .panel-heading,
+.panel > .panel-heading.blue {
+    background-color: #CCCCFF;
 }
 /* Blue banners */
 .fa.fa-bookmark {
