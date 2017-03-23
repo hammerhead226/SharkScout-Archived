@@ -18,14 +18,17 @@ var queue = function(key, val) {
     } else {
         // 'key' and 'val params, set property value
         q[key] = val;
+        $('#icon-queue').removeClass('animated').stop().fadeIn();
         return store.set('queue', q);
     }
 }
 
+
+var ws_online = true;
+
 function openSocket() {
     var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws'
     var submitInterval;
-    var $icon = $('#icon-no-websocket');
 
     if(window.WebSocket) {
         var ws = new WebSocket(webSocket);
@@ -38,6 +41,7 @@ function openSocket() {
             for(var key in queue()) {
                 if(queue(key).length) {
                     ws.send(JSON.stringify(queue()));
+                    $('#icon-queue').addClass('animated')
                     return;
                 }
             }
@@ -45,7 +49,8 @@ function openSocket() {
         submitInterval = setInterval(submit, 5000);
         submit();
 
-        $icon.stop().fadeOut();
+        $('#icon-no-websocket').stop().fadeOut();
+        ws_online = true;
     }
 
     ws.onmessage = function(e) {
@@ -65,11 +70,19 @@ function openSocket() {
                 }
             }
         }
+        // Detect empty queue, hide queue icon if empty
+        for(var key in queue()) {
+            if(queue(key).legnth) {
+                return;
+            }
+        }
+        $('#icon-queue').removeClass('animated').stop().fadeOut();
     }
 
     ws.onclose = function(e) {
         clearInterval(submitInterval);
-        $icon.stop().fadeIn();
+        $('#icon-no-websocket').stop().fadeIn();
+        ws_online = false;
         setTimeout(openSocket, 1000);
     }
 }
@@ -79,42 +92,14 @@ $(document).ready(function() {
 });
 
 
-
-if(window.applicationCache) {
-    window.applicationCache.addEventListener('downloading', function(e) {
-        $('#cache-downloading').show().siblings().hide();
-    }, false);
-    window.applicationCache.addEventListener('progress', function(e) {
-        $('#cache-downloading').show().siblings().hide();
-    }, false);
-    window.applicationCache.addEventListener('cached', function(e) {
-        $('#cache-cached').show().siblings().hide();
-    }, false);
-    window.applicationCache.addEventListener('noupdate', function(e) {
-        $('#cache-cached').show().siblings().hide();
-    }, false);
-    window.applicationCache.addEventListener('updateready', function(e) {
-        $('#cache-updateready').show().siblings().hide();
-    }, false);
-    window.applicationCache.addEventListener('error', function(e) {
-        $('#cache-error').show().siblings().hide();
-        console.log(e);
-    }, false);
-}
-
-
 function _scouting(ref, key) {
-    console.log(typeof(ref));
-    console.log(ref.nodeType);
     if(typeof(ref) == 'object' && ref.nodeType === 1) {
         var obj = serialize(ref);
         var scouting = queue(key);
-        console.log(scouting);
 
         // Duplicate check
         for(var i = 0; i < scouting.length; i++) {
             if(_.isEqual(scouting[i], obj)) {
-                console.log('dup');
                 return;
             }
         }
@@ -122,7 +107,16 @@ function _scouting(ref, key) {
         scouting.push(obj);
         queue(key, scouting);
 
-        window.location.href = '/event/' + $(ref).find('[name="event_key"]').val();
+        if(ws_online) {
+            window.location.href = '/event/' + $(ref).find('[name="event_key"]').val();
+        } else {
+            $('#queued').show();
+            setTimeout(function() {
+                $('#queued').stop().fadeOut();
+            }, 5000);
+            $(ref)[0].reset();
+            $('body').scrollTop(0);
+        }
     }
 }
 
@@ -131,7 +125,6 @@ function scouting_match(ref) {
 }
 
 function scouting_pit(ref) {
-    console.log(ref);
     _scouting(ref, 'scouting_pit');
 }
 
@@ -166,7 +159,6 @@ function serialize(form) {
             }
         }
     });
-    console.log(obj);
     return obj;
 }
 
@@ -174,7 +166,6 @@ function deserialize(form, data) {
     if(!_.isObject(data) && _.isString(data)) {
         data = JSON.parse(data);
     }
-    console.log(data);
 
     for(var name in data) {
         // Massage values into an array
@@ -205,6 +196,14 @@ function deserialize(form, data) {
 
 // Initialize page
 $(document).ready(function() {
+    // Block page changes when offline
+    $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]').not('[offline], a[target="_blank"]').click(function(e) {
+        if(!ws_online) {
+            $('#offline').modal();
+            e.preventDefault();
+        }
+    });
+
     // btn-group behavior
     $('.btn-group[data-toggle="buttons"] > .btn').click(function(e) {
         var $btn = $(this);

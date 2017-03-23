@@ -9,12 +9,18 @@
     </h1>
 
     <form class="form-horizontal" onsubmit="scouting_pit(this); return false;" py:if="session['user_name']">
+        <div id="queued" class="alert alert-sm alert-success alert-dismissible" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span class="fa fa-check"></span>&nbsp;
+            Submission successfully queued.
+        </div>
+
         <div class="form-group">
             <label class="col-xs-3 control-label">Event</label>
             <div class="col-xs-9">
                 <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
                 <label class="control-label">
-                    <a href="/event/${page['event']['key']}">
+                    <a href="/event/${page['event']['key']}#teams">
                         <span class="fa fa-arrow-left"></span>&nbsp;
                         ${page['event']['year']} ${page['event']['name']}
                     </a>
@@ -35,13 +41,13 @@
                     <py:otherwise>
                         <input type="hidden" name="team_key"></input>
                         <py:choose>
-                            <div class="input-group inline-min" py:when="page['teams']">
-                                <select name="team_number" class="form-control" data-selectize-create="true" serialize="false">
+                            <div class="input-group" py:when="page['teams']">
+                                <select name="team_number" class="form-control" data-selectize-create="true" serialize="false" required="required">
                                     <option value=""></option>
-                                    <option value="${team['team_number']}" py:for="team in page['teams']">${team['team_number']}</option>
+                                    <option value="${team['team_number']}" py:for="team in page['teams']">${team['team_number']} - ${team['nickname']}</option>
                                 </select>
                             </div>
-                            <div class="input-group inline-min" py:otherwise="">
+                            <div class="input-group" py:otherwise="">
                                 <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
                                 <input type="number" name="team_number" class="form-control" serialize="false"></input>
                             </div>
@@ -242,7 +248,7 @@
 
         <div class="form-group">
             <div class="col-xs-offset-3 col-xs-9">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary" offline="offline">Submit</button>
             </div>
         </div>
     </form>

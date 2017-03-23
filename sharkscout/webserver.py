@@ -64,12 +64,11 @@ class CherryServer(object):
     def render(self, template, page={}):
         cherrypy.session['refresh'] = cherrypy.request.path_info
 
-        session_enforce = ['team_number', 'user_name', 'cache']
+        session_enforce = ['team_number', 'user_name']
         for key in session_enforce:
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
 
-        page['__CACHE__'] = cherrypy.session['cache']
         page['__TEMPLATE__'] = template
         try:
             def strip(stream):

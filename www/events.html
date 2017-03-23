@@ -18,21 +18,24 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li py:for="year in page['stats']['years']" py:attrs="{'class':'disabled' if int(year) == int(page['year']) else ''}">
-                        <a href="/events/${year}">${year} Events</a>
+                        <a href="/events/${year}">
+                            ${year} Events
+                            <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                        </a>
                     </li>
                 </ul>
             </span>
 
             <span class="dropdown pull-right">
-                <a href="#" onclick="return false;" data-toggle="dropdown">
-                    <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+                <a href="#" onclick="return false;" class="faa-parent animated-hover" data-toggle="dropdown">
+                    <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li py:for="year in range(date.today().year+1, 1991, -1)">
                         <a href="/update/events/${year}" onclick="return loader(this);">
                             ${year}
-                            <span class="fa fa-asterisk" py:strip="int(year) != int(page['year'])"></span>
+                            <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                         </a>
                     </li>
                 </ul>
