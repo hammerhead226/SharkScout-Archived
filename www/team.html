@@ -6,8 +6,8 @@
     <div class="panel panel-default">
         <div class="panel-heading clearfix">
             <span class="fa fa-users"></span>&nbsp;&nbsp;Team Info
-            <a href="/update/team/${page['team']['key']}" onclick="return loader(this);" class="pull-right">
-                <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+            <a href="/update/team/${page['team']['key']}" onclick="return loader(this);" class="pull-right faa-parent animated-hover">
+                <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
             </a>
         </div>
         <div class="panel-body">
@@ -25,20 +25,23 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li py:for="year in page['stats']['years']"  py:attrs="{'class':'disabled' if int(year) == int(page['year']) else ''}">
-                        <a href="/team/${page['team']['key']}/${year}">${year} Events</a>
+                        <a href="/team/${page['team']['key']}/${year}">
+                            ${year} Events
+                            <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                        </a>
                     </li>
                 </ul>
             </span>
             <span class="dropdown pull-right">
-                <a href="#" onclick="return false;" data-toggle="dropdown">
-                    <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+                <a href="#" onclick="return false;" class="faa-parent animated-hover" data-toggle="dropdown">
+                    <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li py:for="year in range(date.today().year+1, (page['team']['rookie_year'] or 1997)-1, -1)">
                         <a href="/update/team/${page['team']['key']}/events/${year}" onclick="return loader(this);">
                             ${year} Events
-                            <span class="fa fa-asterisk" py:strip="int(year) != int(page['year'])"></span>
+                            <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                         </a>
                     </li>
                 </ul>
@@ -46,7 +49,7 @@
         </div>
         <div class="panel-body" py:if="'events' in page['team']">
             <py:for each="event in page['team']['events']">
-                <hr py:strip="event == page['team']['events'][0]" />
+                <hr py:if="event != page['team']['events'][0]" />
                 <div class="row">
                     <div class="col-md-5">
                         ${event_info(event, page['team'])}

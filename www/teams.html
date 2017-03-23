@@ -25,12 +25,13 @@
                             ${page['stats']['min'] if team_page &lt; page['stats']['min'] else team_page*500}
                             -
                             ${page['stats']['max'] if (team_page+1)*500-1 &gt; page['stats']['max'] else (team_page+1)*500-1}
+                            <span class="fa fa-asterisk" py:if="int(team_page) == int(page['team_page'])"></span>
                         </a>
                     </li>
                 </ul>
             </span>
-            <a href="/update/teams" onclick="return loader(this);" class="pull-right">
-                <span class="fa fa-refresh"></span>&nbsp;&nbsp;Update
+            <a href="/update/teams" onclick="return loader(this);" class="pull-right faa-parent animated-hover">
+                <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
             </a>
         </div>
         <div class="panel-body">

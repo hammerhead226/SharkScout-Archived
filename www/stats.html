@@ -3,13 +3,12 @@
     <xi:include href="macros.html"></xi:include>
 
     <h2>
-        <a href="/event/${page['event']['key']}">
+        <a href="/event/${page['event']['key']}#matches">
             <span class="fa fa-arrow-left"></span>&nbsp;
             ${page['event']['year']} ${page['event']['name']}
         </a>
     </h2>
-    <h3>${match_name(page['match'])}</h3>
-    <h4>${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}</h4>
+    <h3>${match_name(page['match'])} &mdash; ${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}</h3>
     <br />
 
     <div class="panel panel-default ${alliance}" py:for="alliance in page['alliance_stats']">

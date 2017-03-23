@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html py:attrs="{'manifest':'/manifest' if page['__CACHE__'] else ''}" xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/"  xmlns:xi="http://www.w3.org/2001/XInclude">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/"  xmlns:xi="http://www.w3.org/2001/XInclude">
     <xi:include href="macros.html"></xi:include>
 
     <head>
@@ -16,7 +16,7 @@
                 ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
             </py:if>
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
-            ${'&raquo; ' if 'match' in page else ''}${match_name(page['match']) if 'match' in page else ''}
+            ${'&raquo; ' if 'match' in page and 'comp_level' in page['match'] else ''}${match_name(page['match']) if 'match' in page and 'comp_level' in page['match'] else ''}
             ${'&raquo; ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
             ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
         </title>
@@ -60,18 +60,13 @@
                     </ul>
 
                     <span class="navbar-right">
-                        <p class="navbar-text" py:if="page['__CACHE__']">
-                            <span id="cache-downloading" class="fa fa-life-ring fa-spin" title="Updating Cache" style="display:none;"></span>
-                            <span id="cache-cached" class="fa fa-life-ring" title="Cached"></span>
-                            <span id="cache-updateready" class="fa fa-life-ring faa-pulse animated" title="Cache Updated" style="display:none;"></span>
-                            <span id="cache-error" class="fa fa-life-ring faa-flash animated" title="Error Updating Cache" style="display:none;"></span>
+                        <p class="navbar-text">
+                            <span id="icon-queue" class="fa fa-upload faa-float" style="display:none;" title="Queued Data"></span>
+                            <span id="icon-no-websocket" class="fa-stack fa-stack-half faa-flash faa-slow animated" style="display:none;" title="No Connection">
+                                <span class="fa fa-signal fa-stack-1x"></span>
+                                <span class="fa fa-ban fa-rotate-90 fa-stack-2x text-danger"></span>
+                            </span>
                         </p>
-                        <!--<button type="button" class="btn btn-default navbar-btn faa-parent animated-hover" onclick="$(this).find('form').submit();">
-                            <span class="fa ${'fa-toggle-on' if page['__CACHE__'] else 'fa-toggle-off'} faa-horizontal"></span>&nbsp;&nbsp;Toggle Caching
-                            <form action="/settings" method="post">
-                                <input type="hidden" name="cache" value="${'False' if page['__CACHE__'] else 'True'}"></input>
-                            </form>
-                        </button>-->
 
                         <div id="settings" class="modal fade" tabindex="-1" role="dialog">
                             <div class="modal-dialog" role="document">
@@ -79,7 +74,10 @@
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
-                                            <h4 class="modal-title"><span class="fa fa-cog"></span>&nbsp;&nbsp;Settings</h4>
+                                            <h4 class="modal-title">
+                                                <span class="fa fa-cog"></span>&nbsp;
+                                                Settings
+                                            </h4>
                                         </div>
                                         <div class="modal-body">
                                             <div class="form-group">
@@ -128,9 +126,31 @@
         <footer class="footer">
             <div class="container-fluid">
                 SharkScout &bull;
-                <a href="http://hammerhead226.org/" target="_blank">226 Hammerheads</a>
+                <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fa fa-github"></span> GitHub</a> &bull;
+                <a href="http://hammerhead226.org/" target="_blank"><span class="fa fa-globe"></span>&nbsp;226 Hammerheads</a>
             </div>
         </footer>
+
+
+        <div id="offline" class="modal fade" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">
+                            <span class="fa fa-exclamation-triangle"></span>&nbsp;
+                            Action Prevented
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <h4>You are currently offline, this action has been prevented so you do not lose the current page.</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="mask">
             <div class="center-viewport">
