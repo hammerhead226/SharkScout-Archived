@@ -1,0 +1,38 @@
+@font-face {
+  font-family: 'icoshark';
+  src:
+    url('../fonts/icoshark.ttf?nw4w2p') format('truetype'),
+    url('../fonts/icoshark.woff?nw4w2p') format('woff'),
+    url('../fonts/icoshark.svg?nw4w2p#icoshark') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.is {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icoshark' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.is-logo:before {
+  content: "\e900";
+}
+.is-numbers:before {
+  content: "\e901";
+}
+.is-sharkie:before {
+  content: "\e902";
+}
+.is-sharkie-o:before {
+  content: "\e903";
+}
+

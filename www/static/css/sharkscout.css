@@ -106,13 +106,13 @@
 
 /* Footer */
 .footer-spacer {
-    height: 50px;
+    height: 70px;
 }
 .footer {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 50px;
+    height: 70px;
     padding: 15px;
     background-color: #f8f8f8;
     border-color: #e7e7e7;
@@ -143,7 +143,7 @@ table.dataTable:last-child {
 }
 
 
-/***** Font Awesome Overrides *****/
+/***** Font Awesome Overrides/Additions *****/
 
 /* Allow 1x sized stacked icons */
 .fa-stack-half {
@@ -164,6 +164,23 @@ table.dataTable:last-child {
     height: calc(35px * 2);
     border-radius: calc(2px * 2);
     margin: calc(2px * 2);
+}
+
+
+/***** icomoon Overrides/Additions *****/
+
+.if,
+.is {
+    vertical-align: text-top;
+}
+
+.if.if-lg,
+.is.is-lg {
+    font-size: 75px;
+}
+.if.if-xl,
+.is.is-xl {
+    font-size: 100px;
 }
 
 
@@ -206,10 +223,6 @@ input[type="number"] {
     padding: 8px 15px 8px 8px;
     font-size: 34px;
     line-height: 34px;
-}
-.navbar-brand .fa,
-.navbar-brand .fa-stack {
-    /*vertical-align: text-top;*/
 }
 
 

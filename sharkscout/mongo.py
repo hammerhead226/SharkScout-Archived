@@ -287,6 +287,7 @@ class Mongo(object):
         aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
+            {'$addFields': {'matches': {'$ifNull': ['$matches', [{'event_key': '$key'}]]}}},  # to allow $unwind
             {'$unwind': '$matches'},
             {'$replaceRoot': {'newRoot': '$matches'}},
             # Match to scouting information, return scouting data
@@ -297,6 +298,7 @@ class Mongo(object):
                 'as': 'scouting'
             }},
             {'$unwind': '$scouting'},
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{}]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},
@@ -325,6 +327,12 @@ class Mongo(object):
             {'$unwind': '$matches'}
         ]
         aggregation.extend([
+            # So $group operations can succeed
+            {'$addFields': {
+                'matches.auton_gear_scored': {'$ifNull': ['$matches.auton_gear_scored', []]},
+                'matches.scaled': {'$ifNull': ['$matches.scaled', 'N']}
+            }},
+            # Bulk of statistics
             {'$group': {
                 '_id': '$_id',
                 # General
