@@ -135,7 +135,7 @@ function serialize(form) {
         var key = $input.attr('name') || $input.id;
 
         // Init arrays
-        if(key.substring(key.length-2) == '[]') {
+        if(key && key.substring(key.length-2) == '[]') {
             if(!_.isArray(obj[key])) {
                 obj[key.substring(0,key.length-2)] = [];
             }

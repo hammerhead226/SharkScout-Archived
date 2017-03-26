@@ -341,15 +341,15 @@ class Mongo(object):
                 # '2_speed_avg': {'$avg': '$matches.speed'},
                 # '3_agility_avg': {'$avg': '$matches.agility'},
                 # Auton
-                '100_auton_strat': {'$first': '$pit.auton_strategy'},
-                '101_auton_base_line_avg': {'$avg': {'$cond': {
-                    'if': {'$eq': ['$matches.auton_crossed_baseline', 'Y']},
-                    'then': 1,
-                    'else': 0
-                }}},
+                '100_auton_strat': {'$push': '$matches.auton_strategy'},
+                # '101_auton_base_line_avg': {'$avg': {'$cond': {
+                #     'if': {'$eq': ['$matches.auton_crossed_baseline', 'Y']},
+                #     'then': 1,
+                #     'else': 0
+                # }}},
                 '102_auton_gear_avg': {'$avg': {'$size': '$matches.auton_gear_scored'}},
                 # Teleop
-                '200_teleop_strat': {'$first': '$pit.teleop_strategy'},
+                '200_teleop_strat': {'$push': '$matches.teleop_strategy'},
                 '201_gears_min': {'$min': '$matches.gears'},
                 '202_gears_max': {'$max': '$matches.gears'},
                 '203_gears_avg': {'$avg': '$matches.gears'},

@@ -20,7 +20,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Event</label>
             <div class="col-xs-9">
-                <input type="hidden" name="event_key" value="${page['event']['key']}" required="required"></input>
+                <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
                 <label class="control-label">
                     <a href="/event/${page['event']['key']}#matches">
                         <span class="fa fa-arrow-left"></span>&nbsp;
@@ -32,9 +32,9 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Match</label>
             <div class="col-xs-9" py:with="match_key = page['match']['key'] if 'key' in page['match'] else ''; match = match_key.replace(page['event']['key']+'_',''); comp_level = ''.join([c for c in match if not c.isdigit()]); match_number = ''.join([c for c in match if c.isdigit()]); set_number = page['match']['set_number'] if 'set_number' in page['match'] else ''">
-                <input type="hidden" name="match_key" value="${match_key}" required="required"></input>
+                <input type="hidden" name="match_key" value="${match_key}"></input>
                 <div class="input-group inline-min">
-                    <select name="comp_level" class="form-control" required="required" serialize="false" py:attrs="{'disabled':'disabled' if comp_level else ''}">
+                    <select name="comp_level" class="form-control" serialize="false" py:attrs="{'disabled':'disabled' if comp_level else ''}">
                         <option value="qm" py:attrs="{'selected':'selected' if comp_level=='qm' else ''}">Quals</option>
                         <option value="ef" py:attrs="{'selected':'selected' if comp_level=='ef' else ''}">Eights</option>
                         <option value="qf" py:attrs="{'selected':'selected' if comp_level=='qf' else ''}">Quarters</option>
@@ -44,11 +44,11 @@
                 </div>
                 <div class="input-group inline-min">
                     <div class="input-group-addon">Match</div>
-                    <input type="number" name="match_number" class="form-control" value="${match_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
+                    <input type="number" name="match_number" class="form-control" value="${match_number}" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
                 </div>
                 <div class="input-group inline-min" style="${'display:none;' if not comp_level else ''}" py:if="comp_level != 'qm'">
                     <div class="input-group-addon">Set</div>
-                    <input type="number" name="set_number" class="form-control" value="${set_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if set_number else ''}"></input>
+                    <input type="number" name="set_number" class="form-control" value="${set_number}" serialize="false" py:attrs="{'disabled':'disabled' if set_number else ''}"></input>
                 </div>
             </div>
         </div>
@@ -60,14 +60,14 @@
                         <div class="btn-toolbar inline-min" role="toolbar">
                             <div class="btn-group" role="group" data-toggle="buttons">
                                 <label class="btn ${'btn-primary active' if page['team']['color']==color else 'btn-default'} ${color} disabled" py:for="color in page['teams']">
-                                    <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required" py:attrs="{'checked':'checked' if page['team']['color']==color else ''}"></input> ${color.title()}
+                                    <input type="radio" name="team_color" value="${color}" autocomplete="off" py:attrs="{'checked':'checked' if page['team']['color']==color else ''}"></input> ${color.title()}
                                 </label>
                             </div>
                         </div>
                         <div class="input-group inline-min">
                             <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
                             <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
-                            <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
+                            <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" disabled="disabled" serialize="false"></input>
                         </div>
                     </py:when>
                     <py:otherwise>
@@ -76,8 +76,8 @@
                             <div class="btn-toolbar" role="toolbar" py:when="page['teams']">
                                 <div class="btn-group ${color}" role="group" py:for="color in page['teams']" data-toggle="buttons">
                                     <label class="btn btn-default" py:for="team_number in page['teams'][color]">
-                                        <input type="radio" name="team_number" value="${team_number}" autocomplete="off" required="required" serialize="false"></input> ${team_number}
-                                        <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required"></input>
+                                        <input type="radio" name="team_number" value="${team_number}" autocomplete="off" serialize="false"></input> ${team_number}
+                                        <input type="radio" name="team_color" value="${color}" autocomplete="off"></input>
                                     </label>
                                 </div>
                             </div>
@@ -85,7 +85,7 @@
                                 <div class="btn-toolbar inline-min" role="toolbar">
                                     <div class="btn-group" role="group" data-toggle="buttons">
                                         <label class="btn btn-default ${color}" py:for="color in (page['teams'] if page['teams'] else ['red','blue'])">
-                                            <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required"></input> ${color.title()}
+                                            <input type="radio" name="team_color" value="${color}" autocomplete="off"></input> ${color.title()}
                                         </label>
                                     </div>
                                 </div>
@@ -110,7 +110,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Current Scouter</label>
             <div class="col-xs-9">
-                <input type="text" name="scouter" class="form-control" value="${session['user_name']}" required="required" disabled="disabled"></input>
+                <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
             </div>
         </div>
 
@@ -124,22 +124,22 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="auton_high_goals" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="1-10" autocomplete="off" required="required"></input> 1 - 10
+                        <input type="radio" name="auton_high_goals" value="1-10" autocomplete="off"></input> 1 - 10
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="11-20" autocomplete="off" required="required"></input> 11 - 20
+                        <input type="radio" name="auton_high_goals" value="11-20" autocomplete="off"></input> 11 - 20
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="21-30" autocomplete="off" required="required"></input> 21 - 30
+                        <input type="radio" name="auton_high_goals" value="21-30" autocomplete="off"></input> 21 - 30
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="31-40" autocomplete="off" required="required"></input> 31 - 40
+                        <input type="radio" name="auton_high_goals" value="31-40" autocomplete="off"></input> 31 - 40
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_high_goals" value="41+" autocomplete="off" required="required"></input> 41+
+                        <input type="radio" name="auton_high_goals" value="41+" autocomplete="off"></input> 41+
                     </label>
                 </div>
             </div>
@@ -149,22 +149,22 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="auton_low_goals" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="1-10" autocomplete="off" required="required"></input> 1 - 10
+                        <input type="radio" name="auton_low_goals" value="1-10" autocomplete="off"></input> 1 - 10
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="11-20" autocomplete="off" required="required"></input> 11 - 20
+                        <input type="radio" name="auton_low_goals" value="11-20" autocomplete="off"></input> 11 - 20
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="21-30" autocomplete="off" required="required"></input> 21 - 30
+                        <input type="radio" name="auton_low_goals" value="21-30" autocomplete="off"></input> 21 - 30
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="31-40" autocomplete="off" required="required"></input> 31 - 40
+                        <input type="radio" name="auton_low_goals" value="31-40" autocomplete="off"></input> 31 - 40
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_low_goals" value="41+" autocomplete="off" required="required"></input> 41+
+                        <input type="radio" name="auton_low_goals" value="41+" autocomplete="off"></input> 41+
                     </label>
                 </div>
             </div>
@@ -188,10 +188,10 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_hopper_released" value="N" autocomplete="off" required="required"></input> No
+                        <input type="radio" name="auton_hopper_released" value="N" autocomplete="off"></input> No
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_hopper_released" value="Y" autocomplete="off" required="required"></input> Yes
+                        <input type="radio" name="auton_hopper_released" value="Y" autocomplete="off"></input> Yes
                     </label>
                 </div>
             </div>
@@ -201,10 +201,10 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_crossed_baseline" value="N" autocomplete="off" required="required"></input> No
+                        <input type="radio" name="auton_crossed_baseline" value="N" autocomplete="off"></input> No
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off" required="required"></input> Yes
+                        <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off"></input> Yes
                     </label>
                 </div>
             </div>
@@ -212,7 +212,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Auton Strategy</label>
             <div class="col-xs-9">
-                <textarea name="auton_strategy" class="form-control" required="required"></textarea>
+                <textarea name="auton_strategy" class="form-control"></textarea>
             </div>
         </div>
 
@@ -224,25 +224,25 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="high_goals" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="1-24" autocomplete="off" required="required"></input> 1 - 24
+                        <input type="radio" name="high_goals" value="1-24" autocomplete="off"></input> 1 - 24
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="25-49" autocomplete="off" required="required"></input> 25 - 49
+                        <input type="radio" name="high_goals" value="25-49" autocomplete="off"></input> 25 - 49
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="50-74" autocomplete="off" required="required"></input> 50 - 74
+                        <input type="radio" name="high_goals" value="50-74" autocomplete="off"></input> 50 - 74
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="75-99" autocomplete="off" required="required"></input> 75 - 99
+                        <input type="radio" name="high_goals" value="75-99" autocomplete="off"></input> 75 - 99
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="100-124" autocomplete="off" required="required"></input> 100 - 124
+                        <input type="radio" name="high_goals" value="100-124" autocomplete="off"></input> 100 - 124
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goals" value="125+" autocomplete="off" required="required"></input> 125+
+                        <input type="radio" name="high_goals" value="125+" autocomplete="off"></input> 125+
                     </label>
                 </div>
             </div>
@@ -266,25 +266,25 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="0" autocomplete="off" required="required"></input> 0%
+                        <input type="radio" name="high_goal_accuracy" value="0" autocomplete="off"></input> 0%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="1-19" autocomplete="off" required="required"></input> 1 - 19%
+                        <input type="radio" name="high_goal_accuracy" value="1-19" autocomplete="off"></input> 1 - 19%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="20-39" autocomplete="off" required="required"></input> 20 - 39%
+                        <input type="radio" name="high_goal_accuracy" value="20-39" autocomplete="off"></input> 20 - 39%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="40-59" autocomplete="off" required="required"></input> 40 - 59%
+                        <input type="radio" name="high_goal_accuracy" value="40-59" autocomplete="off"></input> 40 - 59%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="60-79" autocomplete="off" required="required"></input> 60 - 79%
+                        <input type="radio" name="high_goal_accuracy" value="60-79" autocomplete="off"></input> 60 - 79%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="80-99" autocomplete="off" required="required"></input> 80 - 99%
+                        <input type="radio" name="high_goal_accuracy" value="80-99" autocomplete="off"></input> 80 - 99%
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_accuracy" value="100" autocomplete="off" required="required"></input> 100%
+                        <input type="radio" name="high_goal_accuracy" value="100" autocomplete="off"></input> 100%
                     </label>
                 </div>
             </div>
@@ -295,22 +295,22 @@
                 Slow&nbsp;
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="0" autocomplete="off" required="required"></input> N/A
+                        <input type="radio" name="high_goal_speed" value="0" autocomplete="off"></input> N/A
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="high_goal_speed" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="high_goal_speed" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="high_goal_speed" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="high_goal_speed" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="high_goal_speed" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="high_goal_speed" value="5" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Fast
@@ -321,25 +321,25 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="low_goals" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="1-24" autocomplete="off" required="required"></input> 1 - 24
+                        <input type="radio" name="low_goals" value="1-24" autocomplete="off"></input> 1 - 24
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="25-49" autocomplete="off" required="required"></input> 25 - 49
+                        <input type="radio" name="low_goals" value="25-49" autocomplete="off"></input> 25 - 49
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="50-74" autocomplete="off" required="required"></input> 50 - 74
+                        <input type="radio" name="low_goals" value="50-74" autocomplete="off"></input> 50 - 74
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="75-99" autocomplete="off" required="required"></input> 75 - 99
+                        <input type="radio" name="low_goals" value="75-99" autocomplete="off"></input> 75 - 99
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="100-124" autocomplete="off" required="required"></input> 100 - 124
+                        <input type="radio" name="low_goals" value="100-124" autocomplete="off"></input> 100 - 124
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="low_goals" value="125+" autocomplete="off" required="required"></input> 125+
+                        <input type="radio" name="low_goals" value="125+" autocomplete="off"></input> 125+
                     </label>
                 </div>
             </div>
@@ -349,31 +349,31 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="gears" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="gears" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="gears" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="gears" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="gears" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="gears" value="5" autocomplete="off"></input> 5
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="6" autocomplete="off" required="required"></input> 6
+                        <input type="radio" name="gears" value="6" autocomplete="off"></input> 6
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="7" autocomplete="off" required="required"></input> 7
+                        <input type="radio" name="gears" value="7" autocomplete="off"></input> 7
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="gears" value="8+" autocomplete="off" required="required"></input> 8+
+                        <input type="radio" name="gears" value="8+" autocomplete="off"></input> 8+
                     </label>
                 </div>
             </div>
@@ -383,37 +383,37 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="dropped_gears__loading_station" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="dropped_gears__loading_station" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="dropped_gears__loading_station" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="dropped_gears__loading_station" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="dropped_gears__loading_station" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="dropped_gears__loading_station" value="5" autocomplete="off"></input> 5
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="6" autocomplete="off" required="required"></input> 6
+                        <input type="radio" name="dropped_gears__loading_station" value="6" autocomplete="off"></input> 6
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="7" autocomplete="off" required="required"></input> 7
+                        <input type="radio" name="dropped_gears__loading_station" value="7" autocomplete="off"></input> 7
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="8" autocomplete="off" required="required"></input> 8
+                        <input type="radio" name="dropped_gears__loading_station" value="8" autocomplete="off"></input> 8
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="9" autocomplete="off" required="required"></input> 9
+                        <input type="radio" name="dropped_gears__loading_station" value="9" autocomplete="off"></input> 9
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__loading_station" value="10+" autocomplete="off" required="required"></input> 10+
+                        <input type="radio" name="dropped_gears__loading_station" value="10+" autocomplete="off"></input> 10+
                     </label>
                 </div>
             </div>
@@ -423,37 +423,37 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="0" autocomplete="off" required="required"></input> 0
+                        <input type="radio" name="dropped_gears__airship" value="0" autocomplete="off"></input> 0
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="dropped_gears__airship" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="dropped_gears__airship" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="dropped_gears__airship" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="dropped_gears__airship" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="dropped_gears__airship" value="5" autocomplete="off"></input> 5
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="6" autocomplete="off" required="required"></input> 6
+                        <input type="radio" name="dropped_gears__airship" value="6" autocomplete="off"></input> 6
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="7" autocomplete="off" required="required"></input> 7
+                        <input type="radio" name="dropped_gears__airship" value="7" autocomplete="off"></input> 7
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="8" autocomplete="off" required="required"></input> 8
+                        <input type="radio" name="dropped_gears__airship" value="8" autocomplete="off"></input> 8
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="9" autocomplete="off" required="required"></input> 9
+                        <input type="radio" name="dropped_gears__airship" value="9" autocomplete="off"></input> 9
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="dropped_gears__airship" value="10+" autocomplete="off" required="required"></input> 10+
+                        <input type="radio" name="dropped_gears__airship" value="10+" autocomplete="off"></input> 10+
                     </label>
                 </div>
             </div>
@@ -461,7 +461,7 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Tele-Op Strategy</label>
             <div class="col-xs-9">
-                <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
+                <textarea name="teleop_strategy" class="form-control"></textarea>
             </div>
         </div>
 
@@ -473,13 +473,13 @@
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="scaled" value="N" autocomplete="off" required="required"></input> No
+                        <input type="radio" name="scaled" value="N" autocomplete="off"></input> No
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="scaled" value="A" autocomplete="off" required="required"></input> Attempted
+                        <input type="radio" name="scaled" value="A" autocomplete="off"></input> Attempted
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="scaled" value="Y" autocomplete="off" required="required"></input> Yes
+                        <input type="radio" name="scaled" value="Y" autocomplete="off"></input> Yes
                     </label>
                 </div>
             </div>
@@ -493,22 +493,22 @@
                 Bad&nbsp;
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="0" autocomplete="off" required="required"></input> N/A
+                        <input type="radio" name="defense" value="0" autocomplete="off"></input> N/A
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="defense" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="defense" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="defense" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="defense" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="defense" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="defense" value="5" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Good
@@ -520,19 +520,19 @@
                 Bad&nbsp;
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="speed" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="speed" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="speed" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="speed" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="speed" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="speed" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="speed" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="speed" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="speed" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="speed" value="5" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Good
@@ -544,19 +544,19 @@
                 Bad&nbsp;
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-default">
-                        <input type="radio" name="agility" value="1" autocomplete="off" required="required"></input> 1
+                        <input type="radio" name="agility" value="1" autocomplete="off"></input> 1
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="agility" value="2" autocomplete="off" required="required"></input> 2
+                        <input type="radio" name="agility" value="2" autocomplete="off"></input> 2
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="agility" value="3" autocomplete="off" required="required"></input> 3
+                        <input type="radio" name="agility" value="3" autocomplete="off"></input> 3
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="agility" value="4" autocomplete="off" required="required"></input> 4
+                        <input type="radio" name="agility" value="4" autocomplete="off"></input> 4
                     </label>
                     <label class="btn btn-default">
-                        <input type="radio" name="agility" value="5" autocomplete="off" required="required"></input> 5
+                        <input type="radio" name="agility" value="5" autocomplete="off"></input> 5
                     </label>
                 </div>
                 &nbsp;Good
@@ -568,13 +568,13 @@
         <div class="form-group">
             <label class="col-xs-3 control-label">Offense Comments</label>
             <div class="col-xs-9">
-                <textarea name="comments_offense" class="form-control" required="required"></textarea>
+                <textarea name="comments_offense" class="form-control"></textarea>
             </div>
         </div>
         <div class="form-group">
             <label class="col-xs-3 control-label">Defense Comments</label>
             <div class="col-xs-9">
-                <textarea name="comments_defense" class="form-control" required="required"></textarea>
+                <textarea name="comments_defense" class="form-control"></textarea>
             </div>
         </div>
 
