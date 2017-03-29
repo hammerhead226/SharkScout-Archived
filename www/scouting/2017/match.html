@@ -5,7 +5,7 @@
     ?>
 
     <h1 py:if="not session['user_name']">
-        Please set your name in "settings".
+        Please set your name in <a href="#settings" data-toggle="modal">settings</a>.
     </h1>
 
     <form class="form-horizontal" onsubmit="scouting_match(this); return false;" py:if="session['user_name']">
@@ -144,7 +144,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">Low Goals</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -168,19 +168,40 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="form-group">
             <label class="col-xs-3 control-label">Gear Scored</label>
             <div class="col-xs-9">
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="auton_gear_scored[]" value="boiler"></input> Boiler
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="auton_gear_scored[]" value="middle"></input> Middle
-                </label>
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="auton_gear_scored[]" value="chute"></input> Chute
-                </label>
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear" value="N" autocomplete="off"></input> No
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear" value="A" autocomplete="off"></input> Attempted
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear" value="Y" autocomplete="off"></input> Yes
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-xs-3 control-label">Gear Position</label>
+            <div class="col-xs-9">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear_position" value="" autocomplete="off"></input> N/A
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear_position" value="boiler" autocomplete="off"></input> Boiler
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear_position" value="middle" autocomplete="off"></input> Middle
+                    </label>
+                    <label class="btn btn-default">
+                        <input type="radio" name="auton_gear_position" value="chute" autocomplete="off"></input> Chute
+                    </label>
+                </div>
             </div>
         </div>
         <!--<div class="form-group">
@@ -289,7 +310,7 @@
                 </div>
             </div>
         </div>-->
-        <div class="form-group">
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">High Goal Speed</label>
             <div class="col-xs-9">
                 Slow&nbsp;
@@ -315,8 +336,8 @@
                 </div>
                 &nbsp;Fast
             </div>
-        </div>
-        <div class="form-group">
+        </div>-->
+        <!--<div class="form-group">
             <label class="col-xs-3 control-label">Low Goals</label>
             <div class="col-xs-9">
                 <div class="btn-group" data-toggle="buttons">
@@ -343,7 +364,7 @@
                     </label>
                 </div>
             </div>
-        </div>
+        </div>-->
         <div class="form-group">
             <label class="col-xs-3 control-label">Gears Scored</label>
             <div class="col-xs-9">
@@ -485,7 +506,7 @@
             </div>
         </div>
 
-        <hr />
+        <!--<hr />
 
         <div class="form-group">
             <label class="col-xs-3 control-label">Defense Ability</label>
@@ -561,7 +582,7 @@
                 </div>
                 &nbsp;Good
             </div>
-        </div>
+        </div>-->
 
         <hr />
 

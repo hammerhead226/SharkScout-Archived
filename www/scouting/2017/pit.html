@@ -5,7 +5,7 @@
     ?>
 
     <h1 py:if="not session['user_name']">
-        Please set your name in "settings".
+        Please set your name in <a href="#settings" data-toggle="modal">settings</a>.
     </h1>
 
     <form class="form-horizontal" onsubmit="scouting_pit(this); return false;" py:if="session['user_name']">

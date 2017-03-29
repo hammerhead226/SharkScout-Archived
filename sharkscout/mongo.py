@@ -297,8 +297,9 @@ class Mongo(object):
                 'foreignField': 'event_key',
                 'as': 'scouting'
             }},
+            {'$match': {'scouting': {'$ne': []}}},  # any scouting data exists at all
             {'$unwind': '$scouting'},
-            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{}]]}}},  # to allow $unwind
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': '$key'}]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},
@@ -329,7 +330,7 @@ class Mongo(object):
         aggregation.extend([
             # So $group operations can succeed
             {'$addFields': {
-                'matches.auton_gear_scored': {'$ifNull': ['$matches.auton_gear_scored', []]},
+                'matches.auton_gear': {'$ifNull': ['$matches.auton_gear', 'N']},
                 'matches.scaled': {'$ifNull': ['$matches.scaled', 'N']}
             }},
             # Bulk of statistics
@@ -337,17 +338,24 @@ class Mongo(object):
                 '_id': '$_id',
                 # General
                 '0_drivetrain': {'$first': '$pit.drivetrain'},
-                # '1_def_avg': {'$avg': '$matches.defense'},
-                # '2_speed_avg': {'$avg': '$matches.speed'},
-                # '3_agility_avg': {'$avg': '$matches.agility'},
                 # Auton
                 '100_auton_strat': {'$push': '$matches.auton_strategy'},
-                # '101_auton_base_line_avg': {'$avg': {'$cond': {
-                #     'if': {'$eq': ['$matches.auton_crossed_baseline', 'Y']},
-                #     'then': 1,
-                #     'else': 0
-                # }}},
-                '102_auton_gear_avg': {'$avg': {'$size': '$matches.auton_gear_scored'}},
+                '101_auton_gear_attempt_avg': {'$avg': {'$cond': {
+                    'if': {'$ne': ['$matches.auton_gear', 'N']},
+                    'then': 1,
+                    'else': 0
+                }}},
+                '_auton_gear_Y': {'$sum': {'$cond': {
+                    'if': {'$eq': ['$matches.auton_gear', 'Y']},
+                    'then': 1,
+                    'else': 0
+                }}},
+                '_auton_gear_A': {'$sum': {'$cond': {
+                    'if': {'$ne': ['$matches.auton_gear', 'N']},
+                    'then': 1,
+                    'else': 0.000001  # prevent divide by zero
+                }}},
+                '103_auton_gear_pos': {'$push': '$matches.auton_gear_position'},
                 # Teleop
                 '200_teleop_strat': {'$push': '$matches.teleop_strategy'},
                 '201_gears_min': {'$min': '$matches.gears'},
@@ -377,6 +385,7 @@ class Mongo(object):
                 '401_def_comments': {'$push': '$matches.comments_defense'}
             }},
             {'$addFields': {
+                '102_auton_gear_success': {'$divide': ['$_auton_gear_Y', '$_auton_gear_A']},
                 '302_climb_success': {'$divide': ['$_scaled_Y', '$_scaled_A']}
             }}
         ])

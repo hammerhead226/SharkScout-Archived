@@ -55,6 +55,12 @@ function openSocket() {
 
     ws.onmessage = function(e) {
         var data = JSON.parse(e.data);
+
+        // Show elements
+        if(data.show) {
+            $(data.show).show();
+        }
+
         // Dequeue messages
         if(data.dequeue) {
             for(var key in data.dequeue) {

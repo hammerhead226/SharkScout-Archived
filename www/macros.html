@@ -128,7 +128,7 @@
     </py:def>
 
     <py:def function="match_listing(matches)">
-        <table class="table table-bordered table-striped text-center">
+        <table class="table table-bordered table-striped text-center match-listing">
             <?python
                 # Find all alliances
                 alliances = []
@@ -168,7 +168,7 @@
             <tbody>
                 <py:for each="match in matches">
                     <!--! Full table -->
-                    <tr class="visible-md visible-lg">
+                    <tr class="visible-md visible-lg ${match['key']}">
                         <td>
                             <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout"><span class="fa fa-binoculars"></span></a>&nbsp;
                             <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="fa fa-bar-chart"></span></a>&nbsp;
@@ -179,13 +179,13 @@
                         </td>
                         <td>${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
                         <py:for each="alliance in alliances">
-                            <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
+                            <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                                 <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
                                     ${team_number}
                                     <span class="fa fa-home" py:if="int(team_number) == int(session['team_number'] or 0)"></span>
                                     <span class="fa fa-asterisk" py:if="'team' in page and int(team_number) == int(page['team']['team_number'])"></span>
                                     <span class="fa fa-trophy" py:if="team in winners" title="Event Winner"></span>
-                                    <span class="fa fa-check" py:if="'scouting' in match and team in match['scouting']"></span>
+                                    <span class="fa fa-check" style="display:${'' if 'scouting' in match and team in match['scouting'] else 'none'}"></span>
                                 </a>
                             </td>
                             <td class="${alliance}" py:for="i in range(0, (alliances_teams[alliance]) - len(match['alliances'][alliance]['teams']))">&nbsp;</td>
@@ -193,7 +193,7 @@
                         <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="alliance in alliances" py:if="max_score">${match['alliances'][alliance]['score'] if match['alliances'][alliance]['score'] > 0 else ''}</td>
                     </tr>
                     <!--! Collapsed table -->
-                    <tr class="hidden-md hidden-lg ${'border-bottom-dark' if alliance == alliances[::-1][0] else ''}" py:for="alliance in alliances">
+                    <tr class="hidden-md hidden-lg ${match['key']} ${'border-bottom-dark' if alliance == alliances[::-1][0] else ''}" py:for="alliance in alliances">
                         <td py:if="alliance == alliances[0]">
                             <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout">
                                 ${match_name(match)}
@@ -202,13 +202,13 @@
                         <td rowspan="${len(alliances)-1}" py:if="alliance == alliances[1]">
                             ${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}
                         </td>
-                        <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
+                        <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                             <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
                                 ${team_number}
                                 <span class="fa fa-home" py:if="int(team_number) == int(session['team_number'] or 0)"></span>
                                 <span class="fa fa-asterisk" py:if="'team' in page and int(team_number) == int(page['team']['team_number'])"></span>
                                 <span class="fa fa-trophy" py:if="team in winners" title="Event Winner"></span>
-                                <span class="fa fa-check" py:if="'scouting' in match and team in match['scouting']"></span>
+                                <span class="fa fa-check" style="display:${'' if 'scouting' in match and team in match['scouting'] else 'none'}"></span>
                             </a>
                         </td>
                         <td class="${alliance}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:if="max_score">${match['alliances'][alliance]['score'] if match['alliances'][alliance]['score'] > 0 else ''}</td>
@@ -228,7 +228,7 @@
                         keys.append(key)
             keys = sorted(keys)
         ?>
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
                     <th>Team Number</th>
@@ -251,7 +251,7 @@
 
 
     <py:def function="team_listing(teams, event={})">
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped team-listing">
             <thead>
                 <tr>
                     <th py:if="event">Pit Scout</th>
@@ -261,11 +261,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr py:for="team in teams">
+                <tr class="${team['key']}" py:for="team in teams">
                     <td py:if="event">
                         <a href="/scout/pit/${event['key']}/${team['key']}">
                             Pit Scout
-                            <span class="fa fa-check" py:if="'scouting' in team"></span>
+                            <span class="fa fa-check" style="display:${'' if 'scouting' in team else 'none'}"></span>
                         </a>
                     </td>
                     <td>

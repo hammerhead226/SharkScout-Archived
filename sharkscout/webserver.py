@@ -5,7 +5,9 @@ import genshi.core
 import genshi.template
 import json
 import os
+import random
 import re
+import string
 import sys
 import tempfile
 import threading
@@ -55,6 +57,8 @@ class WebServer(threading.Thread):
 
 
 class CherryServer(object):
+    static_hash = None
+
     def __init__(self):
         self.template_loader = genshi.template.TemplateLoader(
             os.path.join(os.path.dirname(sys.argv[0]), 'www'),
@@ -92,7 +96,28 @@ class CherryServer(object):
             page['__CONTENT__'] = genshi.core.Markup(self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session).filter(strip).render('html'))
         except genshi.template.loader.TemplateNotFound:
             raise cherrypy.HTTPRedirect('/')
-        return self.template_loader.load('www.html').generate(page=page, session=cherrypy.session).render('html', doctype='html')
+
+        # Add a random hash to <link href=""> and <script src="">
+        def static_hash(stream):
+            if self.__class__.static_hash is None:
+                self.__class__.static_hash = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+            ns = None
+            for kind, data, pos in stream:
+                if kind is genshi.core.START_NS:
+                    ns = data[1]
+                if kind is genshi.core.START:
+                    tag = data
+                    if type(tag) is tuple:
+                        tag = tag[0]
+                    tag = str(tag).replace('{' + ns + '}', '')
+                    if tag in ['link', 'script']:
+                        data_1 = list(data[1])
+                        for idx, attr in enumerate(data_1):
+                            if attr[0] in ['href', 'src']:
+                                data_1[idx] = (attr[0], attr[1] + '?' + self.__class__.static_hash)
+                        data = (data[0], genshi.core.Attrs(data_1))
+                yield kind, data, pos
+        return self.template_loader.load('www.html').generate(page=page, session=cherrypy.session).filter(static_hash).render('html', doctype='html')
 
     def refresh(self):
         if 'refresh' in cherrypy.session:
@@ -346,6 +371,7 @@ class Download(CherryServer):
                 if not key.startswith('_') and key not in keys:
                     keys.append(key)
         keys = sorted(keys)
+        keys.insert(0, '_id')
 
         # Open up the temp file for CSV writing
         filename = tempfile.gettempdir() + '/' + prefix + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
@@ -392,7 +418,10 @@ class Download(CherryServer):
 
 
 class WebSocketServer(ws4py.websocket.WebSocket):
+    sockets = []
+
     def opened(self):
+        self.__class__.sockets.append(self)
         print('Opened', self)
 
     def received_message(self, message):
@@ -405,16 +434,29 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             if 'scouting_match' in message:
                 for data in message['scouting_match']:
                     if sharkscout.Mongo().scouting_match_update(data):
-                        self.send(json.dumps({'dequeue': {'scouting_match': data}}))
+                        self.send({'dequeue': {'scouting_match': data}})
+                        self.blast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
 
             # Pit scouting upserts
             if 'scouting_pit' in message:
                 for data in message['scouting_pit']:
                     if sharkscout.Mongo().scouting_pit_update(data):
-                        self.send(json.dumps({'dequeue': {'scouting_pit': data}}))
+                        self.send({'dequeue': {'scouting_pit': data}})
+                        self.blast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
 
         except json.JSONDecodeError as e:
             print(e)
 
     def closed(self, code, reason=None):
+        if self in self.__class__.sockets:
+            self.__class__.sockets.remove(self)
         print('Closed', self)
+
+    def send(self, payload, binary=False):
+        if type(payload) is dict:
+            payload = json.dumps(payload)
+        super(self.__class__, self).send(payload, binary)
+
+    def blast(self, payload):
+        for socket in self.__class__.sockets:
+            socket.send(payload)
