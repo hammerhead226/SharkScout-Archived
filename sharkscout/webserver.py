@@ -371,7 +371,8 @@ class Download(CherryServer):
                 if not key.startswith('_') and key not in keys:
                     keys.append(key)
         keys = sorted(keys)
-        keys.insert(0, '_id')
+        if '_id' in sharkscout.Util.flatten(items):
+            keys.insert(0, '_id')
 
         # Open up the temp file for CSV writing
         filename = tempfile.gettempdir() + '/' + prefix + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'

@@ -328,6 +328,14 @@ class Mongo(object):
             {'$unwind': '$matches'}
         ]
         aggregation.extend([
+            # Fill in some match data with pit data
+            {'$addFields': {
+                'matches.auton_strategy': {'$ifNull': ['$matches.auton_strategy', '$pit.auton_strategy']},
+                'matches.teleop_strategy': {'$ifNull': ['$matches.teleop_strategy', '$pit.teleop_strategy']},
+                'matches.gears': {'$ifNull': ['$matches.gears', '$pit.avg_gears']},
+                'matches.high_goals': {'$ifNull': ['$matches.high_goals', '$pit.avg_high_goals']},
+                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']}
+            }},
             # So $group operations can succeed
             {'$addFields': {
                 'matches.auton_gear': {'$ifNull': ['$matches.auton_gear', 'N']},
@@ -361,11 +369,13 @@ class Mongo(object):
                 '201_gears_min': {'$min': '$matches.gears'},
                 '202_gears_max': {'$max': '$matches.gears'},
                 '203_gears_avg': {'$avg': '$matches.gears'},
-                '204_high_goals': {'$push': '$matches.high_goals'},
-                '205_high_loc': {'$push': '$matches.high_goal_position'},
+                '204_gear_drop_loading_avg': {'$avg': '$matches.dropped_gears__loading_station'},
+                '205_gear_drop_airship_avg': {'$avg': '$matches.dropped_gears__airship'},
+                '300_high_goals': {'$push': '$matches.high_goals'},
+                '301_high_loc': {'$push': '$matches.high_goal_position'},
                 # End Game
-                '300_climber': {'$first': '$pit.climber'},
-                '301_climb_attempt_avg': {'$avg': {'$cond': {
+                '400_climber': {'$first': '$pit.climber'},
+                '401_climb_attempt_avg': {'$avg': {'$cond': {
                     'if': {'$ne': ['$matches.scaled', 'N']},
                     'then': 1,
                     'else': 0
@@ -381,12 +391,13 @@ class Mongo(object):
                     'else': 0.000001  # prevent divide by zero
                 }}},
                 # Comments
-                '400_off_comments': {'$push': '$matches.comments_offense'},
-                '401_def_comments': {'$push': '$matches.comments_defense'}
+                '500_off_comments': {'$push': '$matches.comments_offense'},
+                '501_def_comments': {'$push': '$matches.comments_defense'}
             }},
+            # Do some extra math that can't be done during $group
             {'$addFields': {
-                '102_auton_gear_success': {'$divide': ['$_auton_gear_Y', '$_auton_gear_A']},
-                '302_climb_success': {'$divide': ['$_scaled_Y', '$_scaled_A']}
+                '102_auton_gear_success_avg': {'$divide': ['$_auton_gear_Y', '$_auton_gear_A']},
+                '402_climb_success_avg': {'$divide': ['$_scaled_Y', '$_scaled_A']}
             }}
         ])
         aggregation.extend([

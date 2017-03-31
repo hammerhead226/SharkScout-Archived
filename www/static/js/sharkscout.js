@@ -113,7 +113,7 @@ function _scouting(ref, key) {
         scouting.push(obj);
         queue(key, scouting);
 
-        if(ws_online) {
+        if(ws_online && window.navigator.onLine) {
             window.location.href = '/event/' + $(ref).find('[name="event_key"]').val();
         } else {
             $('#queued').show();
@@ -204,7 +204,7 @@ function deserialize(form, data) {
 $(document).ready(function() {
     // Block page changes when offline
     $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]').not('[offline], a[target="_blank"]').click(function(e) {
-        if(!ws_online) {
+        if(!ws_online || !window.navigator.onLine) {
             $('#offline').modal();
             e.preventDefault();
         }

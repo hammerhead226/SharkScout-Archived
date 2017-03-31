@@ -1,9 +1,18 @@
+import collections
 import os
 import psutil
 import re
 
 
 class Util(object):
+    @staticmethod
+    def flatten(iterable):
+        for item in iterable:
+            if isinstance(item, collections.Iterable) and not isinstance(item, (str, bytes)):
+                yield from Util.flatten(item)
+            else:
+                yield item
+
     @staticmethod
     def isnumeric(val):
         return str(val).lstrip('-').replace('.', '', 1).isdigit()
