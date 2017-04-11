@@ -311,6 +311,12 @@ class Mongo(object):
                 'pit': '$scouting.pit',
                 'match': '$scouting.matches'
             }},
+            {'$group': {  # get rid of duplicate rows caused by scouting.matches $ifNull above
+                '_id': {'team_key': '$team_key', 'match_key': '$match.match_key'},
+                'team_key': {'$first': '$team_key'},
+                'pit': {'$first': '$pit'},
+                'match': {'$first': '$match'}
+            }},
             {'$group': {
                 '_id': '$team_key',
                 'pit': {'$first': '$pit'},
@@ -334,7 +340,8 @@ class Mongo(object):
                 'matches.teleop_strategy': {'$ifNull': ['$matches.teleop_strategy', '$pit.teleop_strategy']},
                 'matches.gears': {'$ifNull': ['$matches.gears', '$pit.avg_gears']},
                 'matches.high_goals': {'$ifNull': ['$matches.high_goals', '$pit.avg_high_goals']},
-                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']}
+                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']},
+                'matches.climb_time': {'$ifNull': ['$matches.climb_time', '$pit.climb_time']}
             }},
             # So $group operations can succeed
             {'$addFields': {
@@ -390,6 +397,7 @@ class Mongo(object):
                     'then': 1,
                     'else': 0.000001  # prevent divide by zero
                 }}},
+                '403_climb_time_avg': {'$avg': '$matches.climb_time'},
                 # Comments
                 '500_off_comments': {'$push': '$matches.comments_offense'},
                 '501_def_comments': {'$push': '$matches.comments_defense'}
