@@ -126,6 +126,8 @@ class Mongo(object):
             'event_key': event_key
         }}, {'$unwind': {
             'path': '$matches'
+        }}, {'$match': {  # sanity check
+            'matches.match_key': {'$ne': ''}
         }}, {'$group': {
             '_id': '$matches.match_key',
             'team_keys': {'$addToSet': '$team_key'},
@@ -299,7 +301,7 @@ class Mongo(object):
             }},
             {'$match': {'scouting': {'$ne': []}}},  # any scouting data exists at all
             {'$unwind': '$scouting'},
-            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': '$key'}]]}}},  # to allow $unwind
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': {'$concat':['$event_key','_qm1']}}]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},
@@ -310,12 +312,6 @@ class Mongo(object):
                 'team_key': '$scouting.team_key',
                 'pit': '$scouting.pit',
                 'match': '$scouting.matches'
-            }},
-            {'$group': {  # get rid of duplicate rows caused by scouting.matches $ifNull above
-                '_id': {'team_key': '$team_key', 'match_key': '$match.match_key'},
-                'team_key': {'$first': '$team_key'},
-                'pit': {'$first': '$pit'},
-                'match': {'$first': '$match'}
             }},
             {'$group': {
                 '_id': '$team_key',
