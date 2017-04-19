@@ -4,7 +4,7 @@
 
     <head>
         <meta charset="utf-8"></meta>
-        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
 
         <title>
             SharkScout
@@ -17,7 +17,7 @@
             </py:if>
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
             ${'&raquo; ' if 'match' in page and 'comp_level' in page['match'] else ''}${match_name(page['match']) if 'match' in page and 'comp_level' in page['match'] else ''}
-            ${'&raquo; ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
+            ${'&raquo; Team ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
             ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
         </title>
 
@@ -62,14 +62,6 @@
                     </ul>
 
                     <span class="navbar-right">
-                        <p class="navbar-text">
-                            <span id="icon-queue" class="fa fa-upload faa-float" style="display:none;" title="Queued Data"></span>
-                            <span id="icon-no-websocket" class="fa-stack fa-stack-half faa-flash faa-slow animated" style="display:none;" title="No Connection">
-                                <span class="fa fa-signal fa-stack-1x"></span>
-                                <span class="fa fa-ban fa-rotate-90 fa-stack-2x text-danger"></span>
-                            </span>
-                        </p>
-
                         <div id="settings" class="modal fade" tabindex="-1" role="dialog">
                             <div class="modal-dialog" role="document">
                                 <form class="form-horizontal" action="/settings" method="post">
@@ -122,7 +114,9 @@
         <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
 
+
         <div class="container-fluid" py:content="page['__CONTENT__']"></div>
+
 
         <div class="footer-spacer"></div>
         <footer class="footer">
@@ -136,7 +130,6 @@
                 <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
             </div>
         </footer>
-
 
         <div id="offline" class="modal fade" tabindex="-1" role="dialog">
             <div class="modal-dialog" role="document">
@@ -156,6 +149,14 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <div class="center-viewport click-through opacity-25">
+            <!--!<span id="icon-queue" class="fa fa-upload faa-float" style="display:none;" title="Queued Data"></span>-->
+            <span id="icon-no-websocket" class="fa-stack fa-stack-half font-25vh" style="display:none;" title="No Connection">
+                <span class="fa fa-signal fa-stack-1x"></span>
+                <span class="fa fa-ban fa-rotate-90 fa-stack-2x text-danger"></span>
+            </span>
         </div>
 
         <div class="mask">

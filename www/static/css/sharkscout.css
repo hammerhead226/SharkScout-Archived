@@ -152,6 +152,14 @@ table.dataTable:last-child {
     font-size: 0.5em;
 }
 
+/* Fix line-height when fa-stack gets a font-size */
+.fa-stack .fa-stack-1x {
+    line-height: 2em;
+}
+.fa-stack .fa-stack-2x {
+    line-height: 1em;
+}
+
 .navbar-text .fa-stack {
     vertical-align: bottom;
 }
@@ -195,6 +203,19 @@ body {
     min-height: 100%;
 }
 
+.click-through {
+    pointer-events: none;
+}
+
+.opacity-25 {
+    opacity: 0.25;
+    filter: alpha(opacity=25);
+}
+
+.font-25vh {
+    font-size: calc(25vh);
+}
+
 /* CSS tricks */
 .center-viewport {
     position: fixed;
@@ -210,7 +231,7 @@ input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
 }
 input[type="number"] {
-    -moz-appearance:textfield;
+    -moz-appearance: textfield;
 }
 
 

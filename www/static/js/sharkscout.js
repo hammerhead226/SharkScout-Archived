@@ -1,33 +1,44 @@
-var queue = function(key, val) {
+var storage = function(container, key, val) {
     // Grab store, enforce it to be an object
-    var q = store.get('queue');
-    if(!_.isObject(q)) {
-        q = {};
+    var c = store.get(container);
+    if(!_.isObject(c)) {
+        c = {};
     }
     if(typeof(val) == 'undefined') {
         if(typeof(key) == 'undefined') {
-            // No params, return queue
-            return q;
+            // No params, return container
+            return c;
         } else {
             // 'key' param, return property value
-            if(!_.isArray(q[key])) {
-                q[key] = [];
-            }
-            return q[key];
+            return c[key];
         }
     } else {
-        // 'key' and 'val params, set property value
-        q[key] = val;
-        $('#icon-queue').removeClass('animated').stop().fadeIn();
-        return store.set('queue', q);
+        // 'key' and 'val' params, set property value
+        c[key] = val;
+        return store.set(container, c);
     }
-}
+};
+var forms = function(key, val) {
+    return storage('forms', key, val);
+};
+var queue = function(key, val) {
+    if(typeof(val) != 'undefined') {
+        $('#icon-queue').removeClass('animated').stop().fadeIn();
+    }
+    val = storage('queue', key, val);
+    // 'key' param, enforce property value is an array
+    if(typeof(val) == 'undefined' && typeof(key) != 'undefined' && !_.isArray(val)) {
+        val = [];
+    }
+    return val;
+};
 
 
 var ws_online = true;
 
 function openSocket() {
     var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws'
+    var pingInterval;
     var submitInterval;
 
     if(window.WebSocket) {
@@ -37,6 +48,13 @@ function openSocket() {
     }
 
     ws.onopen = function() {
+        // Keep testing the WebSocket connection
+        var ping = function() {
+            ws.send(JSON.stringify({'ping':'ping'}));
+        }
+        pingInterval = setInterval(ping, 1000);
+        ping();
+
         var submit = function() {
             for(var key in queue()) {
                 if(queue(key).length) {
@@ -51,7 +69,7 @@ function openSocket() {
 
         $('#icon-no-websocket').stop().fadeOut();
         ws_online = true;
-    }
+    };
 
     ws.onmessage = function(e) {
         var data = JSON.parse(e.data);
@@ -83,16 +101,17 @@ function openSocket() {
             }
         }
         $('#icon-queue').removeClass('animated').stop().fadeOut();
-    }
+    };
 
     ws.onclose = function(e) {
+        clearInterval(pingInterval);
         clearInterval(submitInterval);
+
         $('#icon-no-websocket').stop().fadeIn();
         ws_online = false;
         setTimeout(openSocket, 1000);
-    }
+    };
 }
-
 $(document).ready(function() {
     openSocket();
 });
@@ -123,6 +142,9 @@ function _scouting(ref, key) {
             $(ref)[0].reset();
             $('body').scrollTop(0);
         }
+
+        // Clear stored temporary form data
+        forms(window.location.pathname, {});
     }
 }
 
@@ -305,6 +327,7 @@ $(document).ready(function() {
         if($tab_toggle.length) {
             $tab_toggle.on('shown.bs.tab', function() {
                 table.fixedHeader.enable();
+                table.columns.adjust().draw();
             });
             $tab_toggle.on('hide.bs.tab', function() {
                 table.fixedHeader.disable();
@@ -336,6 +359,13 @@ $(document).ready(function() {
     if($saved.length) {
         deserialize($saved.closest('form'), $saved.val());
     }
+
+    // Store temporary form data on change, and restore it on page load (make navigation non-destructive)
+    $('form[persistent="true"]').first().each(function() {
+        deserialize(this, forms(window.location.pathname));
+    }).find('input, select, textarea').change(function() {
+        forms(window.location.pathname, serialize($(this).closest('form')));
+    });
 });
 
 

@@ -203,6 +203,9 @@ class Mongo(object):
             'path': '$matches'
         }}, {'$replaceRoot': {
             'newRoot': '$matches'
+        }}, {'$sort': {
+            'match_key': 1,
+            'team_key': 1
         }}]))
 
     # Return scouting data given an event key, match key, and team key
@@ -271,6 +274,8 @@ class Mongo(object):
             'pit': {'$exists': True}
         }}, {'$replaceRoot': {
             'newRoot': '$pit'
+        }}, {'$sort': {
+            'team_key': 1
         }}]))
         if scouting:
             scouting = {t['team_key']: t for t in scouting}

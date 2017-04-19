@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/">
+    <?python
+        import json
+    ?>
+
+    <h1 py:if="not session['user_name']">
+        Please set your name in <a href="#settings" data-toggle="modal">settings</a>.
+    </h1>
+
+    <form class="form-horizontal" onsubmit="scouting_pit(this); return false;" py:if="session['user_name']" persistent="true">
+        <div id="queued" class="alert alert-sm alert-success alert-dismissible" role="alert" style="display:none;">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <span class="fa fa-check"></span>&nbsp;
+            Submission successfully queued.
+        </div>
+
+        <div class="container-fluid" py:content="page['__FORM__']"></div>
+    </form>
+</html>

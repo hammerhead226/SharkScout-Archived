@@ -65,37 +65,36 @@ class CherryServer(object):
             auto_reload=True
         )
 
-    def render(self, template, page={}):
+    def display(self, template, page={}):
         cherrypy.session['refresh'] = cherrypy.request.path_info
-
         session_enforce = ['team_number', 'user_name']
         for key in session_enforce:
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
 
         page['__TEMPLATE__'] = template
-        try:
-            def strip(stream):
-                ns = None
-                for kind, data, pos in stream:
-                    # Strip <!DOCTYPE>
-                    if kind is genshi.core.DOCTYPE:
-                        continue
-                    if kind is genshi.core.START_NS:
-                        ns = data[1]
-                    # Strip <html>
-                    if ns is not None:
-                        if kind is genshi.core.START or kind is genshi.core.END:
-                            tag = data
-                            if type(tag) is tuple:
-                                tag = tag[0]
-                            tag = str(tag).replace('{' + ns + '}', '')
-                            if tag == 'html':
-                                continue
-                    yield kind, data, pos
-            page['__CONTENT__'] = genshi.core.Markup(self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session).filter(strip).render('html'))
-        except genshi.template.loader.TemplateNotFound:
-            raise cherrypy.HTTPRedirect('/')
+        page['__CONTENT__'] = self.render(template, page)
+        return self.render('www', page, False)
+
+    def render(self, template, page={}, strip_html=True):
+        def strip(stream):
+            ns = None
+            for kind, data, pos in stream:
+                # Strip <!DOCTYPE>
+                if kind is genshi.core.DOCTYPE:
+                    continue
+                if kind is genshi.core.START_NS:
+                    ns = data[1]
+                # Strip <html>
+                if ns is not None:
+                    if kind is genshi.core.START or kind is genshi.core.END:
+                        tag = data
+                        if type(tag) is tuple:
+                            tag = tag[0]
+                        tag = str(tag).replace('{' + ns + '}', '')
+                        if tag == 'html':
+                            continue
+                yield kind, data, pos
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
@@ -117,7 +116,15 @@ class CherryServer(object):
                                 data_1[idx] = (attr[0], attr[1] + '?' + self.__class__.static_hash)
                         data = (data[0], genshi.core.Attrs(data_1))
                 yield kind, data, pos
-        return self.template_loader.load('www.html').generate(page=page, session=cherrypy.session).filter(static_hash).render('html', doctype='html')
+
+        # Generate the basic stream
+        stream = self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session)
+        # Filter the stream
+        stream = stream.filter(static_hash)
+        if strip_html:
+            stream = stream.filter(strip)
+        # Render the stream
+        return genshi.core.Markup(stream.render('html'))
 
     def refresh(self):
         if 'refresh' in cherrypy.session:
@@ -161,7 +168,7 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def index(self):
-        return self.render('index')
+        return self.display('index')
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
@@ -181,9 +188,10 @@ class Index(CherryServer):
             'year': year,
             'stats': sharkscout.Mongo().events_stats(year),
             'events': events,
-            'attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']]
+            'attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']],
+            'active': [e for e in events if datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()]
         }
-        return self.render('events', page)
+        return self.display('events', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -197,7 +205,7 @@ class Index(CherryServer):
             'stats_matches': int(stats_matches),
             'years': sharkscout.Mongo().event_years(event['event_code'])
         }
-        return self.render('event', page)
+        return self.display('event', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -224,7 +232,7 @@ class Index(CherryServer):
             'match': match,
             'alliance_stats': alliance_stats
         }
-        return self.render('stats', page)
+        return self.display('stats', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -234,7 +242,7 @@ class Index(CherryServer):
             'stats': sharkscout.Mongo().teams_stats(),
             'teams': sharkscout.Mongo().teams_paged(team_page)
         }
-        return self.render('teams', page)
+        return self.display('teams', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -249,7 +257,7 @@ class Index(CherryServer):
             'stats': sharkscout.Mongo().team_stats(team_key),
             'team': team
         }
-        return self.render('team', page)
+        return self.display('team', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -296,7 +304,8 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        return self.render('scouting/' + str(event['year']) + '/match', page)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
+        return self.display('scout_match', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
@@ -319,7 +328,8 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        return self.render('scouting/' + str(event['year']) + '/pit', page)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
+        return self.display('scout_pit', page)
 
 
 class Update(CherryServer):
@@ -362,7 +372,7 @@ class Download(CherryServer):
     def _csv(self, prefix, items):
         # Enforce a list
         if type(items) is dict:
-            items = [items[k] for k in items]
+            items = [items[k] for k in sorted(items)]
 
         # Find all possible keys, sort them
         keys = []
@@ -429,7 +439,8 @@ class WebSocketServer(ws4py.websocket.WebSocket):
         message = message.data.decode()
         try:
             message = json.loads(message)
-            print(message)
+            if not 'ping' in message:
+                print(message)
 
             # Match scouting upserts
             if 'scouting_match' in message:
