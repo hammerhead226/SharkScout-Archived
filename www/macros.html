@@ -6,10 +6,10 @@
     ?>
 
     <py:def function="event_listing(events)">
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped" py:with="show_weeks = len([e for e in events if e['week']])">
             <thead>
                 <tr>
-                    <th>Week</th>
+                    <th py:if="show_weeks">Week</th>
                     <th>Name</th>
                     <th>Location</th>
                     <th>Dates</th>
@@ -17,7 +17,7 @@
             </thead>
             <tbody>
                 <tr py:for="event in events">
-                    <td>${event['week']}</td>
+                    <td py:if="show_weeks">${event['week']}</td>
                     <td>
                         <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                             <span class="fa fa-hourglass-half" title="Happening Now"></span>&nbsp;
@@ -231,13 +231,13 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
-                    <th>Team Number</th>
+                    <th>Team</th>
                     <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr py:for="team in stats">
-                    <td>${''.join([c for c in team['_id'] if c.isdigit()])}</td>
+                    <td>${team['_id']}</td>
                     <td py:for="key in keys" py:choose="">
                         <ul py:when="type(team[key]) is list">
                             <li py:for="item in team[key]">${item}</li>

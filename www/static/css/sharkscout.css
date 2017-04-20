@@ -26,6 +26,9 @@
 .btn + .modal + .btn {
     margin-left: 8px;
 }
+.navbar-toggle + .btn.pull-right {
+    margin-right: 8px;
+}
 
 /* Set nav-tabs/tab-page defaults */
 .tab-page:not(.active) {
@@ -59,7 +62,12 @@
 }
 .table th > ul,
 .table td > ul {
-    padding-left: 15px;
+    margin: 0;
+    padding-left: 20px;
+}
+.table th > ul > li,
+.table td > ul > li {
+    text-indent: -5px;
 }
 .table-bordered .border-bottom-dark th,
 .table-bordered .border-bottom-dark td {
@@ -179,6 +187,7 @@ table.dataTable:last-child {
 
 .if,
 .is {
+    display: inline-block;
     vertical-align: text-top;
 }
 

@@ -439,7 +439,12 @@ class WebSocketServer(ws4py.websocket.WebSocket):
         message = message.data.decode()
         try:
             message = json.loads(message)
-            if not 'ping' in message:
+
+            if 'ping' in message:
+                message.pop('ping', None)
+                self.send({'pong':'pong'})
+
+            if message:
                 print(message)
 
             # Match scouting upserts

@@ -294,7 +294,10 @@ class Mongo(object):
         aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
-            {'$addFields': {'matches': {'$ifNull': ['$matches', [{'event_key': '$key'}]]}}},  # to allow $unwind
+            {'$addFields': {'matches': {'$ifNull': ['$matches', [{
+                'key': {'$concat': ['$key', '_qm1']},  # to allow $redact $key=$scouting.matches.match_key
+                'event_key': '$key'  # to allow $unwind:$matches
+            }]]}}},
             {'$unwind': '$matches'},
             {'$replaceRoot': {'newRoot': '$matches'}},
             # Match to scouting information, return scouting data
@@ -323,9 +326,24 @@ class Mongo(object):
                 'pit': {'$first': '$pit'},
                 'matches': {'$push': '$match'}
             }},
+            # Add in team information
+            {'$lookup': {
+                'from': 'tba_teams',
+                'localField': '_id',
+                'foreignField': 'key',
+                'as': 'team'
+            }},
+            {'$addFields': {
+                'team': {'$arrayElemAt': ['$team', 0]}
+            }},
+            {'$group': {
+                '_id': '$team.team_number',
+                'team': {'$first': '$team'},
+                'pit': {'$first': '$pit'},
+                'matches': {'$first': '$matches'}
+            }},
             # Run statistics groupings
-            {'$project': {
-                'pit': '$pit',
+            {'$addFields': {
                 'matches': {'$slice': [
                     '$matches',
                     0 if int(matches) >= 0 else int(matches),
@@ -335,14 +353,17 @@ class Mongo(object):
             {'$unwind': '$matches'}
         ]
         aggregation.extend([
+            # Enforce pit data to exist
+            {'$addFields': {
+                'pit.robot_height': {'$ifNull': ['$pit.robot_height', '']}
+            }},
             # Fill in some match data with pit data
             {'$addFields': {
                 'matches.auton_strategy': {'$ifNull': ['$matches.auton_strategy', '$pit.auton_strategy']},
                 'matches.teleop_strategy': {'$ifNull': ['$matches.teleop_strategy', '$pit.teleop_strategy']},
                 'matches.gears': {'$ifNull': ['$matches.gears', '$pit.avg_gears']},
                 'matches.high_goals': {'$ifNull': ['$matches.high_goals', '$pit.avg_high_goals']},
-                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']},
-                'matches.climb_time': {'$ifNull': ['$matches.climb_time', '$pit.climb_time']}
+                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']}
             }},
             # So $group operations can succeed
             {'$addFields': {
@@ -351,39 +372,49 @@ class Mongo(object):
             }},
             # Bulk of statistics
             {'$group': {
-                '_id': '$_id',
+                '_id': {'$concat': [
+                    {'$substr':['$team.team_number',0,-1]},
+                    ' - ',
+                    '$team.nickname'
+                ]},
                 # General
-                '0_drivetrain': {'$first': '$pit.drivetrain'},
+                '100_properties': {'$first': {'$concat': [
+                    '$pit.drivetrain',
+                    {'$cond': {
+                        'if': {'$ne': ['$pit.robot_height', '']},
+                        'then': {'$concat': [', ', '$pit.robot_height']},
+                        'else': ''
+                    }},
+                    {'$cond': {
+                        'if': {'$eq': ['$pit.climber', 'Y']},
+                        'then': ', climber',
+                        'else': ''
+                    }},
+                    {'$cond': {
+                        'if': {'$eq': ['$pit.ground_gear_pickup', 'Y']},
+                        'then': ', ground pickup',
+                        'else': ''
+                    }}
+                ]}},
                 # Auton
-                '100_auton_strat': {'$push': '$matches.auton_strategy'},
-                '101_auton_gear_attempt_avg': {'$avg': {'$cond': {
-                    'if': {'$ne': ['$matches.auton_gear', 'N']},
-                    'then': 1,
-                    'else': 0
-                }}},
-                '_auton_gear_Y': {'$sum': {'$cond': {
-                    'if': {'$eq': ['$matches.auton_gear', 'Y']},
-                    'then': 1,
-                    'else': 0
-                }}},
-                '_auton_gear_A': {'$sum': {'$cond': {
-                    'if': {'$ne': ['$matches.auton_gear', 'N']},
-                    'then': 1,
-                    'else': 0.000001  # prevent divide by zero
-                }}},
-                '103_auton_gear_pos': {'$push': '$matches.auton_gear_position'},
+                '200_auton_strat': {'$push': '$matches.auton_strategy'},
+                '201_auton_gear': {'$push': {'$concat': [
+                    '$matches.auton_gear',
+                    '@',
+                    '$matches.auton_gear_position',
+                ]}},
+                '204_auton_high_goals': {'$push': '$matches.auton_high_goals'},
                 # Teleop
-                '200_teleop_strat': {'$push': '$matches.teleop_strategy'},
-                '201_gears_min': {'$min': '$matches.gears'},
-                '202_gears_max': {'$max': '$matches.gears'},
-                '203_gears_avg': {'$avg': '$matches.gears'},
-                '204_gear_drop_loading_avg': {'$avg': '$matches.dropped_gears__loading_station'},
-                '205_gear_drop_airship_avg': {'$avg': '$matches.dropped_gears__airship'},
-                '300_high_goals': {'$push': '$matches.high_goals'},
-                '301_high_loc': {'$push': '$matches.high_goal_position'},
+                '300_teleop_strat': {'$push': '$matches.teleop_strategy'},
+                '301_gears_min': {'$min': '$matches.gears'},
+                '302_gears_max': {'$max': '$matches.gears'},
+                '303_gears_avg': {'$avg': '$matches.gears'},
+                '304_gear_drop_loading_avg': {'$avg': '$matches.dropped_gears__loading_station'},
+                '305_gear_drop_airship_avg': {'$avg': '$matches.dropped_gears__airship'},
+                '400_high_goals': {'$push': '$matches.high_goals'},
+                '401_high_loc': {'$push': '$matches.high_goal_position'},
                 # End Game
-                '400_climber': {'$first': '$pit.climber'},
-                '401_climb_attempt_avg': {'$avg': {'$cond': {
+                '500_climb_attempt_avg': {'$avg': {'$cond': {
                     'if': {'$ne': ['$matches.scaled', 'N']},
                     'then': 1,
                     'else': 0
@@ -398,15 +429,13 @@ class Mongo(object):
                     'then': 1,
                     'else': 0.000001  # prevent divide by zero
                 }}},
-                '403_climb_time_avg': {'$avg': '$matches.climb_time'},
                 # Comments
-                '500_off_comments': {'$push': '$matches.comments_offense'},
-                '501_def_comments': {'$push': '$matches.comments_defense'}
+                '600_off_comments': {'$push': '$matches.comments_offense'},
+                '601_def_comments': {'$push': '$matches.comments_defense'}
             }},
             # Do some extra math that can't be done during $group
             {'$addFields': {
-                '102_auton_gear_success_avg': {'$divide': ['$_auton_gear_Y', '$_auton_gear_A']},
-                '402_climb_success_avg': {'$divide': ['$_scaled_Y', '$_scaled_A']}
+                '501_climb_success_avg': {'$divide': ['$_scaled_Y', '$_scaled_A']}
             }}
         ])
         aggregation.extend([

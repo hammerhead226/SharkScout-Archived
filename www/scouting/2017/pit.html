@@ -53,6 +53,19 @@
     <hr />
 
     <div class="form-group">
+        <label class="col-xs-3 control-label">Robot Height</label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="robot_height" value="short" autocomplete="off"></input> Short
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="robot_height" value="tall" autocomplete="off"></input> Tall
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
         <label class="col-xs-3 control-label">Robot Weight</label>
         <div class="col-xs-9">
             <input type="number" name="robot_weight" class="form-control"></input>
@@ -66,10 +79,10 @@
         <div class="col-xs-9">
             <select name="drivetrain" class="form-control">
                 <option value=""></option>
-                <option value="tank">Tank</option>
+                <option value="tank">Tank / West Coast Drive</option>
                 <option value="mecanum">Mecanum</option>
                 <option value="swerve">Swerve</option>
-                <option value="butterfly">Butterfly / Octocanum</option>
+                <option value="butterfly">Butterfly / Octocanum / VersaDrop</option>
                 <option value="omni">Other Omnidirection</option>
             </select>
         </div>
@@ -151,6 +164,19 @@
 
     <hr />
 
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Ground Gear Pickup</label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="ground_gear_pickup" value="N" autocomplete="off"></input> No
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="ground_gear_pickup" value="Y" autocomplete="off"></input> Yes
+                </label>
+            </div>
+        </div>
+    </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Avg. Gears per Match

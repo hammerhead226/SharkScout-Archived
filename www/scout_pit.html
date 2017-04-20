@@ -9,11 +9,16 @@
     </h1>
 
     <form class="form-horizontal" onsubmit="scouting_pit(this); return false;" py:if="session['user_name']" persistent="true">
+        <div id="non-ascii" class="alert alert-sm alert-danger" role="alert" style="display:none;">
+            Special characters are not allowed in text boxes.
+        </div>
         <div id="queued" class="alert alert-sm alert-success alert-dismissible" role="alert" style="display:none;">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <span class="fa fa-check"></span>&nbsp;
             Submission successfully queued.
         </div>
+
+        <input type="hidden" name="saved" value="${json.dumps(page['saved'], default=lambda o: str(o))}" serialize="false"></input>
 
         <div class="container-fluid" py:content="page['__FORM__']"></div>
     </form>

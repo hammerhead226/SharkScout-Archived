@@ -35,10 +35,10 @@ var queue = function(key, val) {
 
 
 var ws_online = true;
-
 function openSocket() {
     var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws'
     var pingInterval;
+    var pingCount = 0;
     var submitInterval;
 
     if(window.WebSocket) {
@@ -50,9 +50,16 @@ function openSocket() {
     ws.onopen = function() {
         // Keep testing the WebSocket connection
         var ping = function() {
+            // Too many pings were not ponged, assume disconnected
+            if(pingCount >= 5) {
+                // ws.close() doesn't work, it asks host to close
+                ws.onclose();
+                return;
+            }
             ws.send(JSON.stringify({'ping':'ping'}));
+            pingCount++;
         }
-        pingInterval = setInterval(ping, 1000);
+        pingInterval = setInterval(ping, 500);
         ping();
 
         var submit = function() {
@@ -73,6 +80,11 @@ function openSocket() {
 
     ws.onmessage = function(e) {
         var data = JSON.parse(e.data);
+
+        // Record if our ping was ponged
+        if(data.pong) {
+            pingCount--;
+        }
 
         // Show elements
         if(data.show) {
@@ -122,6 +134,15 @@ function _scouting(ref, key) {
         var obj = serialize(ref);
         var scouting = queue(key);
 
+        // Non-ASCII check
+        for(var name in obj) {
+            if(String(obj[name]).match(/[^\x09-\x7E]/)) {
+                $('#non-ascii').fadeIn();
+                $('body').scrollTop(0);
+                return;
+            }
+        }
+
         // Duplicate check
         for(var i = 0; i < scouting.length; i++) {
             if(_.isEqual(scouting[i], obj)) {
@@ -132,7 +153,7 @@ function _scouting(ref, key) {
         scouting.push(obj);
         queue(key, scouting);
 
-        if(ws_online && window.navigator.onLine) {
+        if(ws_online) {
             window.location.href = '/event/' + $(ref).find('[name="event_key"]').val();
         } else {
             $('#queued').show();
@@ -226,7 +247,7 @@ function deserialize(form, data) {
 $(document).ready(function() {
     // Block page changes when offline
     $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]').not('[offline], a[target="_blank"]').click(function(e) {
-        if(!ws_online || !window.navigator.onLine) {
+        if(!ws_online) {
             $('#offline').modal();
             e.preventDefault();
         }
