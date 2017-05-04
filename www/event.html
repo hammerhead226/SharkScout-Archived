@@ -40,6 +40,12 @@
                     <span class="badge">${len(page['event']['teams'])}</span>
                 </a>
             </li>
+            <li role="presentation"  py:if="'alliances' in page['event'] and page['event']['alliances']">
+                <a href="#alliances" role="tab" data-toggle="tab">
+                    <span class="fa fa-handshake-o"></span>&nbsp;&nbsp;Alliances
+                    <span class="badge">${len(page['event']['alliances'])}</span>
+                </a>
+            </li>
             <li role="presentation" py:if="'stats' in page and page['stats']">
                 <a href="#stats" role="tab" data-toggle="tab">
                     <span class="fa fa-bar-chart"></span>&nbsp;&nbsp;Stats
@@ -105,6 +111,28 @@
                         ${team_listing(page['event']['teams'], page['event'])}
                     </div>
                 </div>
+            </div>
+            <div id="alliances" role="tabpanel" class="tab-page" py:if="'alliances' in page['event'] and page['event']['alliances']">
+                <table class="table table-bordered table-striped" py:with="picks = max([len(a['picks']) for a in page['event']['alliances']])">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Captain</th>
+                            <th py:for="pick in range(1, picks)">Pick ${pick}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr py:for="alliance in page['event']['alliances']">
+                            <td>${alliance['name']}</td>
+                            <td py:for="team_key in alliance['picks']" py:choose="">
+                                <py:when test="'teams' in page['event'] and page['event']['teams']">
+                                    <a href="/team/${team['key']}/${page['event']['year']}" py:with="team = [t for t in page['event']['teams'] if t['key'] == team_key][0]">${team['team_number']} - ${team['nickname']}</a>
+                                </py:when>
+                                <py:otherwise>${team_key}</py:otherwise>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
             <div id="stats" role="tabpanel" class="tab-page" py:if="'stats' in page and page['stats']">
                 <div class="panel panel-default">
