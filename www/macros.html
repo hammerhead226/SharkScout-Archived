@@ -76,16 +76,17 @@
         <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">${video_icon(webcast, 'both', 'title')}</h5>
         <py:if test="team">
             <py:if test="'rankings' in event and str(team['team_number']) in event['rankings']" py:with="ranking = event['rankings'][str(team['team_number'])]">
-                <br />
+                <br class="hide-following hide-last" />
                 <h5>
                     <span class="fa fa-sort-numeric-asc"></span>&nbsp;
                     <b>Rank ${ranking['rank']} / ${len(event['rankings'])}</b>
-                    with a record of <b>${ranking['wins']}-${ranking['losses']}-${ranking['ties']}</b>
+                    <py:if test="'wins' in ranking and 'losses' in ranking and 'ties' in ranking">with a record of <b>${int(ranking['wins'])}-${int(ranking['losses'])}-${int(ranking['ties'])}</b></py:if>
                     after <b>${ranking['played']} matches</b>
                 </h5>
             </py:if>
             <py:if test="'stats' in event and event['stats']">
-                <h5 py:if="'oprs' in event['stats']">
+                <br class="hide-next hide-following hide-last" />
+                <h5 py:if="'oprs' in event['stats'] and str(team['team_number']) in event['stats']['oprs']">
                     <span class="fa fa-crosshairs"></span>&nbsp;&nbsp;Offensive Power Rating:
                     <b>
                         Rank
@@ -93,7 +94,7 @@
                         / ${len(event['stats']['oprs'])}
                     </b>
                 </h5>
-                <h5 py:if="'dprs' in event['stats']">
+                <h5 py:if="'dprs' in event['stats'] and str(team['team_number']) in event['stats']['dprs']">
                     <span class="fa fa-shield"></span>&nbsp;&nbsp;Defensive Power Rating:
                     <b>
                         Rank
@@ -101,7 +102,7 @@
                         / ${len(event['stats']['dprs'])}
                     </b>
                 </h5>
-                <h5 py:if="'ccwms' in event['stats']">
+                <h5 py:if="'ccwms' in event['stats'] and str(team['team_number']) in event['stats']['ccwms']">
                     <span class="fa fa-thumbs-o-up"></span>&nbsp;&nbsp;Calculated Contribution to Winning Margin:
                     <b>
                         Rank
@@ -110,11 +111,11 @@
                     </b>
                 </h5>
             </py:if>
-            <py:if test="'awards' in event and event['awards']">
-                <br />
+            <py:if test="'awards' in event and event['awards'] and int(team['team_number']) in [int(r[0]['team_number'] or 0) for r in [a['recipient_list'] for a in event['awards']]]">
+                <br class="hide-next" />
                 <py:for each="award in event['awards']">
                     <py:for each="recipient in award['recipient_list']">
-                        <h5 py:if="int(recipient['team_number']) == int(team['team_number'])">
+                        <h5 py:if="int(recipient['team_number'] or 0) == int(team['team_number'])">
                             <span class="fa fa-trophy"></span>
                             <span class="fa fa-bookmark" py:if="award['award_type'] in [0,1,3]"></span>
                             &nbsp;${award['name']}
@@ -167,7 +168,7 @@
             <thead>
                 <tr class="visible-md visible-lg">
                     <th>Match</th>
-                    <th>Time</th>
+                    <th py:if="[m for m in matches if m['time']]">Time</th>
                     <th colspan="${alliances_teams[alliance]}" py:for="alliance in alliances">${alliance.title()} Alliance</th>
                     <th colspan="${len(alliances) or 1}" py:if="max_score">Scores</th>
                 </tr>
@@ -190,7 +191,7 @@
                                 &nbsp;${video_icon(video, 'icon')}
                             </py:for>
                         </td>
-                        <td>${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
+                        <td py:if="[m for m in matches if m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
                         <py:for each="alliance in alliances">
                             <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                                 <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
@@ -212,9 +213,7 @@
                                 ${match_name(match)}
                             </a>
                         </td>
-                        <td rowspan="${len(alliances)-1}" py:if="alliance == alliances[1]">
-                            ${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}
-                        </td>
+                        <td rowspan="${len(alliances)-1}" py:if="alliance == alliances[1] and [m for m in matches if m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
                         <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                             <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
                                 ${team_number}
@@ -392,7 +391,7 @@
         ?>
 
         <a href="${link}" target="_blank" py:strip="not link or href != 'both'">
-            <a href="${link}" target="_blank" py:strip="not link or href != 'icon'">
+            <a href="${link}" target="_blank" py:if="link or show == 'both'" py:strip="not link or href != 'icon'">
                 <py:if test="show in ['both','icon']"><span class="${icon}"></span><py:if test="show in ['both','title']">&nbsp;</py:if></py:if>
             </a>
             <a href="${link}" target="_blank" py:strip="not link or href != 'title'">

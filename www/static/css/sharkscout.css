@@ -95,6 +95,16 @@
     display: inline-flex;
 }
 
+.hide-next + .hide-next {
+    display: none;
+}
+.hide-following ~ .hide-following {
+    display: none;
+}
+.hide-last:last-child {
+    display: none;
+}
+
 .inline-min {
     position: relative;
     width: auto;
