@@ -380,7 +380,7 @@ class Mongo(object):
                 ]}},
                 # General
                 '100_properties': {'$first': {'$concat': [
-                    '$pit.drivetrain',
+                    {'$substr': ['$pit.drivetrain', 0, -1]},
                     {'$cond': {
                         'if': {'$ne': ['$pit.robot_height', '']},
                         'then': {'$concat': [', ', '$pit.robot_height']},
