@@ -337,7 +337,7 @@ class Mongo(object):
                 'team': {'$arrayElemAt': ['$team', 0]}
             }},
             {'$group': {
-                '_id': '$team.team_number',
+                '_id': '$_id',
                 'team': {'$first': '$team'},
                 'pit': {'$first': '$pit'},
                 'matches': {'$first': '$matches'}
@@ -372,11 +372,12 @@ class Mongo(object):
             }},
             # Bulk of statistics
             {'$group': {
-                '_id': {'$concat': [
-                    {'$substr':['$team.team_number',0,-1]},
+                '_id': '$_id',
+                '0_team': {'$first': {'$concat': [
+                    {'$substr': ['$team.team_number', 0, -1]},
                     ' - ',
                     '$team.nickname'
-                ]},
+                ]}},
                 # General
                 '100_properties': {'$first': {'$concat': [
                     '$pit.drivetrain',

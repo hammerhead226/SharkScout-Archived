@@ -109,17 +109,8 @@
                 <label class="btn btn-default">
                     <input type="radio" name="auton_high_goals" value="0" autocomplete="off"></input> 0
                 </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="auton_high_goals" value="1-10" autocomplete="off"></input> 1 - 10
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="auton_high_goals" value="11-20" autocomplete="off"></input> 11 - 20
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="auton_high_goals" value="21-30" autocomplete="off"></input> 21 - 30
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="auton_high_goals" value="31-40" autocomplete="off"></input> 31 - 40
+                <label class="btn btn-default" py:for="i in range(0, 4)">
+                    <input type="radio" name="auton_high_goals" value="${i*10+1}-${(i+1)*10}" autocomplete="off"></input> ${i*10+1} - ${(i+1)*10}
                 </label>
                 <label class="btn btn-default">
                     <input type="radio" name="auton_high_goals" value="41+" autocomplete="off"></input> 41+
@@ -239,23 +230,11 @@
                 <label class="btn btn-default">
                     <input type="radio" name="high_goals" value="0" autocomplete="off"></input> 0
                 </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="1-24" autocomplete="off"></input> 1 - 24
+                <label class="btn btn-default" py:for="i in range(0, 12)">
+                    <input type="radio" name="high_goals" value="${i*10+1}-${(i+1)*10}" autocomplete="off"></input> ${i*10+1} - ${(i+1)*10}
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="25-49" autocomplete="off"></input> 25 - 49
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="50-74" autocomplete="off"></input> 50 - 74
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="75-99" autocomplete="off"></input> 75 - 99
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="100-124" autocomplete="off"></input> 100 - 124
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="high_goals" value="125+" autocomplete="off"></input> 125+
+                    <input type="radio" name="high_goals" value="121+" autocomplete="off"></input> 121+
                 </label>
             </div>
         </div>

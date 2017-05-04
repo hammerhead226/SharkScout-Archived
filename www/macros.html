@@ -231,13 +231,11 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
-                    <th>Team</th>
                     <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr py:for="team in stats">
-                    <td>${team['_id']}</td>
                     <td py:for="key in keys" py:choose="">
                         <ul py:when="type(team[key]) is list">
                             <li py:for="item in team[key]">${item}</li>

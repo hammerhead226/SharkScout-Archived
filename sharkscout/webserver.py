@@ -67,16 +67,16 @@ class CherryServer(object):
 
     def display(self, template, page={}):
         cherrypy.session['refresh'] = cherrypy.request.path_info
-        session_enforce = ['team_number', 'user_name']
-        for key in session_enforce:
-            if key not in cherrypy.session:
-                cherrypy.session[key] = ''
 
         page['__TEMPLATE__'] = template
         page['__CONTENT__'] = self.render(template, page)
         return self.render('www', page, False)
 
     def render(self, template, page={}, strip_html=True):
+        for key in ['team_number', 'user_name']:
+            if key not in cherrypy.session:
+                cherrypy.session[key] = ''
+
         def strip(stream):
             ns = None
             for kind, data, pos in stream:
@@ -381,8 +381,6 @@ class Download(CherryServer):
                 if not key.startswith('_') and key not in keys:
                     keys.append(key)
         keys = sorted(keys)
-        if '_id' in sharkscout.Util.flatten(items):
-            keys.insert(0, '_id')
 
         # Open up the temp file for CSV writing
         filename = tempfile.gettempdir() + '/' + prefix + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
