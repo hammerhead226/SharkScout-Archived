@@ -52,6 +52,12 @@
                     <span class="badge">${len(page['stats'])}</span>
                 </a>
             </li>
+            <li role="presentation" py:if="'awards' in page['event'] and page['event']['awards']">
+                <a href="#awards" role="tab" data-toggle="tab">
+                    <span class="fa fa-trophy"></span>&nbsp;&nbsp;Awards
+                    <span class="badge">${len(page['event']['awards'])}</span>
+                </a>
+            </li>
         </ul>
         <br />
         <div class="tab-content">
@@ -116,7 +122,7 @@
                 <table class="table table-bordered table-striped" py:with="picks = max([len(a['picks']) for a in page['event']['alliances']])">
                     <thead>
                         <tr>
-                            <th>Name</th>
+                            <th>Alliance</th>
                             <th>Captain</th>
                             <th py:for="pick in range(1, picks)">Pick ${pick}</th>
                         </tr>
@@ -127,9 +133,11 @@
                             <td py:for="team_key in alliance['picks']" py:choose="">
                                 <py:when test="'teams' in page['event'] and page['event']['teams']">
                                     <a href="/team/${team['key']}/${page['event']['year']}" py:with="team = [t for t in page['event']['teams'] if t['key'] == team_key][0]">${team['team_number']} - ${team['nickname']}</a>
+                                    <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
                                 </py:when>
                                 <py:otherwise>${team_key}</py:otherwise>
                             </td>
+                            <td py:for="pick in range(1, picks - len(alliance['picks']))"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -169,6 +177,43 @@
                         ${stats_listing(page['stats'])}
                     </div>
                 </div>
+            </div>
+            <div id="awards" role="tabpanel" class="tab-page" py:if="'awards' in page['event'] and page['event']['awards']">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Award</th>
+                            <th>Winner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <py:for each="award in page['event']['awards']">
+                            <tr py:for="recipient in award['recipient_list']">
+                                <td>
+                                    <py:if test="award['award_type'] in [0,1,3]"><span class="fa fa-bookmark"></span>&nbsp;</py:if>
+                                    ${award['name']}
+                                </td>
+                                <td>
+                                    ${recipient['awardee']}
+                                    <span class="trim-text">
+                                        <span py:if="recipient['awardee'] and recipient['team_number']">(</span>
+                                        <py:choose>
+                                            <py:when test="recipient['team_number'] and 'teams' in page['event'] and page['event']['teams']">
+                                                <py:choose py:with="teams = [t for t in page['event']['teams'] if int(t['team_number']) == int(recipient['team_number'])]; team = teams[0] if len(teams) > 0 else []">
+                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${team['team_number']} - ${team['nickname']}</a>
+                                                    <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                                </py:choose>
+                                            </py:when>
+                                            <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                        </py:choose>
+                                        <span py:if="recipient['awardee'] and recipient['team_number']">)</span>
+                                    </span>
+                                    <span class="fa fa-home" py:if="int(recipient['team_number']) == int(session['team_number'] or 0)"></span>
+                                </td>
+                            </tr>
+                        </py:for>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

@@ -72,11 +72,11 @@
         <h5><span class="fa fa-map-marker"></span>&nbsp;&nbsp;<a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">${event['venue_address'] or event['location']}</a></h5>
         <h5 py:if="event['website']"><span class="fa fa-globe"></span>&nbsp;&nbsp;<a href="${event['website']}" target="_blank">${event['website']}</a></h5>
         <h5><span class="fa fa-lightbulb-o fa-rotate-180"></span>&nbsp;&nbsp;<a href="https://www.thebluealliance.com/event/${event['key']}" target="_blank">The Blue Alliance</a></h5>
-        <h5 py:if="event['facebook_eid']"><span class="fa fa-facebook-official"></span>&nbsp;&nbsp;<a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">https://www.facebook.com/events/${event['facebook_eid']}</a></h5>
+        <h5 py:if="event['facebook_eid']"><span class="fa fa-facebook-official"></span>&nbsp;&nbsp;<a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">Facebook</a></h5>
         <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">${video_icon(webcast, 'both', 'title')}</h5>
         <py:if test="team">
-            <br />
             <py:if test="'rankings' in event and str(team['team_number']) in event['rankings']" py:with="ranking = event['rankings'][str(team['team_number'])]">
+                <br />
                 <h5>
                     <span class="fa fa-sort-numeric-asc"></span>&nbsp;
                     <b>Rank ${ranking['rank']} / ${len(event['rankings'])}</b>
@@ -109,6 +109,19 @@
                         / ${len(event['stats']['ccwms'])}
                     </b>
                 </h5>
+            </py:if>
+            <py:if test="'awards' in event and event['awards']">
+                <br />
+                <py:for each="award in event['awards']">
+                    <py:for each="recipient in award['recipient_list']">
+                        <h5 py:if="int(recipient['team_number']) == int(team['team_number'])">
+                            <span class="fa fa-trophy"></span>
+                            <span class="fa fa-bookmark" py:if="award['award_type'] in [0,1,3]"></span>
+                            &nbsp;${award['name']}
+                            <py:if test="recipient['awardee']">&mdash; ${recipient['awardee']}</py:if>
+                        </h5>
+                    </py:for>
+                </py:for>
             </py:if>
         </py:if>
     </py:def>
