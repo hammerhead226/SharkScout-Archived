@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import concurrent.futures
 from datetime import date
 import logging
 import pynumparser
@@ -39,8 +40,10 @@ if __name__ == '__main__':
         print()
     if args.update_teams_info:
         print('Updating team info ...')
-        for team in tqdm(mongo.teams(), unit='team', leave=True):
-            mongo.team_update(team['key'])
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+            futures = {pool.submit(mongo.team_update, team['key']): team for team in mongo.teams()}
+            for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='team', leave=True):
+                pass
         print()
     # Event updates
     if args.update_events or args.update_events_info:
@@ -50,8 +53,10 @@ if __name__ == '__main__':
                 mongo.events_update(year)
             if year in args.update_events_info:
                 print('Updating ' + str(year) + ' events ...')
-                for event in tqdm(mongo.events(year), unit='event', leave=True):
-                    mongo.event_update(event['key'])
+                with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+                    futures = {pool.submit(mongo.event_update, event['key']): event for event in mongo.events(year)}
+                    for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
+                        pass
             print()
     # Exit if updated anything
     if [a for a in dir(args) if a.startswith('update_') and getattr(args, a)]:
