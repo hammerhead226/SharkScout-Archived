@@ -14,7 +14,7 @@ class TheBlueAlliance(object):
             self.app_id = app_id
             self.__class__.app_id = self.app_id
 
-    @backoff.on_exception(backoff.expo, requests.exceptions.Timeout, max_tries=3)
+    @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint):
         if self.app_id is None:
             return {}
