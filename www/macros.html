@@ -175,7 +175,7 @@
             <thead>
                 <tr class="visible-md visible-lg">
                     <th>Match</th>
-                    <th py:if="[m for m in matches if m['time']]">Time</th>
+                    <th py:if="[m for m in matches if 'time' in m and m['time']]">Time</th>
                     <th colspan="${alliances_teams[alliance]}" py:for="alliance in alliances">${alliance.title()} Alliance</th>
                     <th colspan="${len(alliances) or 1}" py:if="max_score">Scores</th>
                 </tr>
@@ -194,11 +194,13 @@
                             <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout"><span class="fa fa-binoculars"></span></a>&nbsp;
                             <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="fa fa-bar-chart"></span></a>&nbsp;
                             ${match_name(match)}
-                            <py:for each="video in match['videos']" py:if="'videos' in match">
-                                &nbsp;${video_icon(video, 'icon')}
-                            </py:for>
+                            <py:if test="'videos' in match">
+                                <py:for each="video in match['videos']">
+                                    &nbsp;${video_icon(video, 'icon')}
+                                </py:for>
+                            </py:if>
                         </td>
-                        <td py:if="[m for m in matches if m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
+                        <td py:if="[m for m in matches if 'time' in m and m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
                         <py:for each="alliance in alliances">
                             <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                                 <py:with vars="team_number = re.sub(r'[^0-9]', '', team)">
@@ -220,7 +222,7 @@
                                 ${match_name(match)}
                             </a>
                         </td>
-                        <td rowspan="${len(alliances)-1}" py:if="alliance == alliances[1] and [m for m in matches if m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
+                        <td rowspan="${len(alliances)-1}" py:if="alliance == alliances[1] and [m for m in matches if 'time' in m and m['time']]">${datetime.fromtimestamp(match['time']).strftime('%I:%M %p')}</td>
                         <td class="${alliance} ${team}" py:attrs="{'style':'font-weight:bold;' if int(match['alliances'][alliance]['score']) &gt; max([int(match['alliances'][a]['score']) for a in match['alliances'] if a != alliance]) else ''}" py:for="team in match['alliances'][alliance]['teams']">
                             <a href="/scout/match/${match['event_key']}/${match['key']}/${team}" title="Match Scout" py:with="team_number = re.sub(r'[^0-9]', '', team)">
                                 ${team_number}
