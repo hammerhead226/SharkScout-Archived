@@ -176,7 +176,11 @@ class Mongo(object):
                 match['alliances'][alliance]['score'] = 0
                 match['alliances'][alliance]['teams'] = sorted(match['alliances'][alliance]['teams'])
             # Parse match key into comp_level, match_number, set_number
-            result = re.match(r'^[^_]+_([^0-9]+)([0-9]+)m?([0-9]+)?', match['key'])
+            match_key_regex = re.compile('^[^_]+_([^0-9]+)([0-9]+)m?([0-9]+)?')
+            result = re.match(match_key_regex, match['key'])
+            if result is None:  # quietly accept poorly-formatted match keys
+                match['key'] = match['event_key'] + '_qm0'
+                result = re.match(match_key_regex, match['key'])
             match['comp_level'] = result.group(1)
             match['match_number'] = int(result.group(2))
             if result.group(3) is not None:
