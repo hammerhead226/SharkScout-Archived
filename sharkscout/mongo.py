@@ -377,11 +377,11 @@ class Mongo(object):
             # Bulk of statistics
             {'$group': {
                 '_id': '$_id',
-                '0_team': {'$first': {'$concat': [
+                '0_team': {'$first': {'$ifNull': [{'$concat': [
                     {'$substr': ['$team.team_number', 0, -1]},
                     ' - ',
                     '$team.nickname'
-                ]}},
+                ]}, '$_id']}},
                 # General
                 '100_properties': {'$first': {'$concat': [
                     {'$substr': ['$pit.drivetrain', 0, -1]},
