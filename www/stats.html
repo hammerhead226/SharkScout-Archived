@@ -8,7 +8,12 @@
             ${page['event']['year']} ${page['event']['name']}
         </a>
     </h2>
-    <h3>${match_name(page['match'])} &mdash; ${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}</h3>
+    <h3>
+        ${match_name(page['match'])}
+        <py:if test="'time' in page['match']">
+            &mdash; ${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}
+        </py:if>
+    </h3>
     <br />
 
     <div class="panel panel-default ${alliance}" py:for="alliance in page['alliance_stats']">
