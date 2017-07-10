@@ -189,8 +189,8 @@ class Index(CherryServer):
             'stats': sharkscout.Mongo().events_stats(year),
             'events': events,
             'attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']],
-            'active': [e for e in events if datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()],
-            'upcoming': [e for e in events if datetime.strptime(e['start_date'],'%Y-%m-%d').date() > date.today()]
+            'active': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and e['end_date'] and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()],
+            'upcoming': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() > date.today()]
         }
         return self.display('events', page)
 

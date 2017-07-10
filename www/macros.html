@@ -19,7 +19,7 @@
                 <tr py:for="event in events">
                     <td py:if="show_weeks">${event['week']}</td>
                     <td>
-                        <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
+                        <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                             <span class="fa fa-hourglass-half" title="Happening Now"></span>&nbsp;
                         </py:if>
                         <py:choose test="event['event_type']">
@@ -41,7 +41,7 @@
                                 ${datetime.strptime(event['end_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
                             </py:when>
                             <py:otherwise>
-                                ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                                ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ') if event['start_date'] else ''}
                             </py:otherwise>
                         </py:choose>
                     </td>
@@ -52,7 +52,7 @@
 
     <py:def function="event_info(event, team={})">
         <h2>
-            <py:if test="datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
+            <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                 <span class="fa fa-hourglass-half" title="Happening Now"></span>&nbsp;
             </py:if>
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
@@ -68,7 +68,7 @@
                     ${datetime.strptime(event['end_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
                 </py:when>
                 <py:otherwise>
-                    ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ')}
+                    ${datetime.strptime(event['start_date'], '%Y-%m-%d').strftime('%b %d, %Y').replace(' 0', ' ') if event['start_date'] else ''}
                 </py:otherwise>
             </py:choose>
         </h5>
@@ -287,7 +287,7 @@
                     </td>
                     <td>
                         <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}">${team['team_number']}</a>
-                        <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
+                        <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
                     </td>
                     <td>
                         <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
@@ -311,7 +311,7 @@
     <py:def function="team_info(team)">
         <h2>
             <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
-            <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or 0)"></span>
+            <span class="fa fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
         </h2>
         <h4><em>${team['motto']}</em></h4>
         <h5><span class="fa fa-id-card-o"></span>&nbsp;&nbsp;${team['name']}</h5>
