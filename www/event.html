@@ -15,7 +15,10 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li py:for="event in page['years']"  py:attrs="{'class':'disabled' if int(event['year']) == int(page['event']['year']) else ''}">
-                                <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
+                                <a href="/event/${event['key']}">
+                                    ${event['year']} ${event['name']}
+                                    <span class="fa fa-asterisk" py:if="int(event['year']) == int(page['event']['year'])"></span>
+                                </a>
                             </li>
                         </ul>
                     </py:when>
