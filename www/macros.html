@@ -325,7 +325,6 @@
             <a href="https://www.google.com/maps/search/${team['location']}" target="_blank">${team['location']}</a>
         </h5>
         <h5 py:if="team['rookie_year']"><span class="fa fa-child"></span>&nbsp;&nbsp;Rookie Year: ${team['rookie_year']}</h5>
-        <!--<h5><span class="fa fa-bookmark"></span></h5>-->
     </py:def>
 
 
@@ -379,8 +378,8 @@
             if video['type'] == 'html5':
                 link = video['channel']
             elif video['type'] == 'iframe':
-                link = re.search(r'src="(.*?)"', video['channel']).group(1)
-            elif video['type'] == 'livestream':
+                link = re.search(r'src="(.*?)"', video['channel'] or video['file']).group(1)
+            elif video['type'] == 'livestream' and 'channel' in video and 'file' in video:
                 link = 'https://livestream.com/accounts/' + video['channel'] + '/events/' + video['file']
             elif video['type'] == 'twitch':
                 link = 'https://www.twitch.tv/' + video['channel']
