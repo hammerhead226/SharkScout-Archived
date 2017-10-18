@@ -301,6 +301,7 @@
                     <td class="hidden-sm hidden-xs">
                         <span class="${flag_icon_css(team['country_name'])}"></span>
                         <a href="https://www.google.com/maps/search/${team['location']}" target="_blank" py:choose="">
+                            <py:when test="not team['locality']" />
                             <py:when test="team['country_name'] == 'USA' or team['country_name'] == 'Canada'">${team['locality']}, ${team['region']}</py:when>
                             <py:otherwise>${team['locality']}, ${team['country_name']}</py:otherwise>
                         </a>
@@ -329,7 +330,7 @@
 
 
     <py:def function="flag_icon_css(country_name)">
-        <?python country_name = re.sub(r'.+,', '', country_name).strip() ?>
+        <?python country_name = re.sub(r'.+,', '', str(country_name)).strip() ?>
         flag-icon
         <py:choose test="country_name">
             <py:when test="'Australia'">flag-icon-au</py:when>

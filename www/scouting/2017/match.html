@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                             <py:choose>
-                                <div class="input-group inline-min" py:when="page['event']['teams']">
+                                <div class="input-group inline-min" py:when="'teams' in page['event'] and page['event']['teams']">
                                     <select name="team_number" class="form-control" required="required" serialize="false" data-selectize-create="true">
                                         <option value=""></option>
                                         <option value="${team['team_number']}" py:for="team in page['event']['teams']">${team['team_number']} - ${team['nickname']}</option>
