@@ -118,7 +118,7 @@
                     </b>
                 </h5>
             </py:if>
-            <py:if test="'awards' in event and event['awards'] and int(team['team_number']) in [int(r[0]['team_number'] or 0) for r in [a['recipient_list'] for a in event['awards']]]">
+            <py:if test="'awards' in event and event['awards'] and int(team['team_number']) in [int(re.sub(r'[^0-9]','',str(r[0]['team_number'])) or 0) for r in [a['recipient_list'] for a in event['awards']]]">
                 <br class="hide-next" />
                 <py:for each="award in event['awards']">
                     <py:for each="recipient in award['recipient_list']">
