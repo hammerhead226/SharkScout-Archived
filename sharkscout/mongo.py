@@ -28,7 +28,7 @@ class Mongo(object):
 
             try:
                 null = open(os.devnull, 'w')
-                subprocess.Popen(['mongod', '--dbpath', mongo_dir, '--smallfiles'], stdout=null, stderr=subprocess.STDOUT)
+                subprocess.Popen([sharkscout.Util.which('mongod'), '--dbpath', mongo_dir, '--smallfiles'], stdout=null, stderr=subprocess.STDOUT)
             except FileNotFoundError:
                 print('mongod couldn\'t start')
                 sys.exit(1)

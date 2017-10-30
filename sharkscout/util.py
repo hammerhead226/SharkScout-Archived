@@ -2,6 +2,7 @@ import collections
 import os
 import psutil
 import re
+import string
 
 
 class Util(object):
@@ -29,10 +30,21 @@ class Util(object):
 
     @staticmethod
     def which(bin):
+        # Fast-search PATH first
         for path in os.environ['PATH'].split(os.pathsep):
             path = path.strip('"')
             if os.path.exists(path):
                 for file in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
                     if re.match(r'^' + bin + '(\.[^\.]+)?$', file):
                         return os.path.join(path, file)
+
+        # Slow-search everywhere
+        if os.name == 'nt':
+            for drive in [d + ':\\' for d in string.ascii_uppercase]:
+                if os.path.exists(drive):
+                    for root, dirs, files in os.walk(drive):
+                        for file in files:
+                            if re.match(r'^' + bin + '(\.[^\.]+)?$', file):
+                                return os.path.join(root, file)
+
         return None
