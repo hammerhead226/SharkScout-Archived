@@ -35,6 +35,16 @@ To update detailed event information for this year:
 In order to be a responsible user of The Blue Alliance's API it is recommended that you only update as little and as infrequently as needed.
 
 
+## Server Setup
+#### Remote Server
+The easiest setup is to run the server remotely and use cell phones to access it. This can be challenging, though, because competition venues are notorious for poor cell signal.
+
+#### Local Server
+An alternative to running the server remotely is to run it locally on a laptop at the competition. Because WiFi access points are banned there are 2 options for this:
+1. Use a network switch and all wired connections to either laptops or tablets (OTG ethernet adapters).
+2. Use [panr](https://github.com/emmercm/panr) on a Linux device to create a Bluetooth PAN network.
+
+
 ## Additional Thoughts
 #### Database Backups
 It is recommended that you make regular backups on multiple drives while `SharkScout` is running. Losing all of your scouting data due to corruption or general failure during a competition would be a disaster. Here is a basic `mongodump` command:
