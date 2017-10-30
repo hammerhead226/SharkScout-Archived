@@ -1,13 +1,21 @@
 # SharkScout
 Offline web app with TBA integration for competition scouting.
 
+
 ## Executing From Source
+#### Installing Dependencies
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Install [Python 3](https://www.python.org/downloads/).
 3. Windows users: ensure Python 3 (`%LOCALAPPDATA%\Programs\Python\*` and `%LOCALAPPDATA%\Programs\Python\*\Scripts`) and MongoDB (`%PROGRAMFILES%\MongoDB\Server\*\bin`) are in your PATH variable.
 4. Install PyPi dependencies:<br/>
 `pip3 install backoff cherrypy genshi psutil pymongo pynumparser requests tqdm ws4py`
-5. Execute `SharkScout.py`.
+
+#### Execution
+Execute `SharkScout.py`.
+
+#### Optional: Building Windows Executable
+Execute `build.bat`.
+
 
 ## Updating TBA Information
 SharkScout is intended to be used offline and therefore needs to pull a lot of information from The Blue Alliance. It is possible to trigger updates from the web interface but command-line arguments have been provided for batch updates, some examples are below.
