@@ -18,7 +18,7 @@ Offline web app with TBA integration for competition scouting.
 #### Execution
 Execute `SharkScout.py`.
 
-#### Optional: Building Windows Executable
+#### Building Windows Executable
 Execute `build.bat`.
 
 
