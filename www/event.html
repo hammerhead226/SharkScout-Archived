@@ -162,7 +162,7 @@
                             <py:when test="page['stats_matches'] &lt; 0">Last ${page['stats_matches']*-1} Matches</py:when>
                         </py:choose>
                     </div>
-                    <div class="panel-body" py:if="'teams' in page['event'] and page['event']['teams']">
+                    <div class="panel-body">
                         <div class="clearfix">
                             <div class="pull-left">
                                 <a href="/event/${page['event']['key']}#stats" class="btn ${'btn-default' if page['stats_matches'] == 0 else 'btn-primary'}">
