@@ -10,7 +10,7 @@
     </h2>
     <h3>
         ${match_name(page['match'])}
-        <py:if test="'time' in page['match']">
+        <py:if test="'time' in page['match'] and page['match']['time']">
             &mdash; ${datetime.fromtimestamp(page['match']['time']).strftime('%I:%M %p')}
         </py:if>
     </h3>
