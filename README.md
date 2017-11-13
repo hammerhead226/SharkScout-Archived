@@ -55,7 +55,8 @@ The easiest setup is to run the server remotely and use cell phones to access it
 #### Local Server
 An alternative to running the server remotely is to run it locally on a laptop at the competition. Because WiFi access points are banned there are 2 options for this:
 1. Use a network switch and all wired connections to either laptops or tablets (OTG ethernet adapters).
-2. Use [panr](https://github.com/emmercm/panr) on a Linux device to create a Bluetooth PAN network.
+2. Run the server on a Linux laptop and use [panr](https://github.com/emmercm/panr) to create a Bluetooth PAN network.
+2. Run the server on a Windows laptop and bridge a connection to a Linux device connected over ethernet, and use [panr](https://github.com/emmercm/panr) with the `-nd` flag on the Linux device to create a Bluetooth PAN network.
 
 
 ## Additional Thoughts
