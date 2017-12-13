@@ -115,8 +115,9 @@ class Mongo(object):
                 'matches': self.tba_api.event_matches(event_key),
                 # Info that can't be known before an event starts
                 'rankings': self.tba_api.event_rankings(event_key),
-                'stats': self.tba_api.event_stats(event_key),
-                'awards': self.tba_api.event_awards(event_key)
+                'stats': self.tba_api.event_oprs(event_key),
+                'awards': self.tba_api.event_awards(event_key),
+                'alliances': self.tba_api.event_alliances(event_key)
             }.items() if v})
             self.tba_events.update_one({'key': event['key']}, {'$set': event}, upsert=True)
 

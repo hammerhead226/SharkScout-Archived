@@ -1,32 +1,68 @@
 import backoff
 from datetime import date
+import json
 import re
 import requests
 
 
 class TheBlueAlliance(object):
-    app_id = None
+    tba_auth_key = None
 
-    def __init__(self, app_id=None):
-        # Allow app ID to be "cached" in a static variable
-        self.app_id = self.__class__.app_id
-        if app_id is not None:
-            self.app_id = app_id
-            self.__class__.app_id = self.app_id
+    def __init__(self):
+        if self.__class__.tba_auth_key is None:
+            with open('config.json', 'r') as f:
+                self.__class__.tba_auth_key = json.loads(f.read())['tba_auth_key']
+                abc = 0
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint):
-        if self.app_id is None:
+        if self.__class__.tba_auth_key is None:
             return {}
 
-        response = requests.get('https://www.thebluealliance.com/api/v2/' + endpoint, headers={
-            'User-Agent': 'Mozilla/5.0',  # throws a 403 without this
-            'X-TBA-App-Id': self.app_id
+        response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers={
+            'User-Agent': 'Mozilla/5.0',
+            'X-TBA-Auth-Key': self.__class__.tba_auth_key
         }, timeout=5)
         if 400 <= response.status_code and response.status_code <= 499:
             return {}
+
         content = response.json()
+        content = self._tba3_to_tba2(content)
         return content
+
+    @staticmethod
+    def _tba3_to_tba2(models):
+        models_list = models if isinstance(models, list) else list(models)
+
+        for idx, model in enumerate(models_list):
+            if not sum([0 if k in model else 1 for k in ['name', 'award_type', 'event_key', 'recipient_list']]):
+                # Award
+                pass
+            elif not sum([0 if k in model else 1 for k in ['key', 'team_number', 'name', 'rookie_year']]):
+                # Team
+                model['country_name'] = model['country']
+                model['locality'] = model['city']
+                model['region'] = model['state_prov']
+            elif not sum([0 if k in model else 1 for k in ['key', 'name', 'event_code', 'event_type', 'start_date', 'end_date', 'year', 'event_type_string']]):
+                # Event
+                model['event_district'] = model['district']['abbreviation'] if model['district'] else None
+                model['event_district_string'] = model['district']['display_name'] if model['district'] else None
+                model['venue_address'] = model['address']
+                model['webcast'] = model['webcasts']
+            elif not sum([0 if k in model else 1 for k in ['key', 'comp_level', 'set_number', 'match_number', 'event_key']]):
+                # Match
+                pass
+
+            if not sum([0 if k in model else 1 for k in ['city', 'state_prov', 'postal_code', 'country']]):
+                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + (model['postal_code'] or '') + ', ' + (model['country'] or '')
+                model['location'] = model['location'].replace('  ', ' ')
+                model['location'] = model['location'].replace(' ,', ',')
+                model['location'] = model['location'].lstrip(', ').rstrip(', ')
+                model['location'] = model['location'] if model['location'] else None
+
+            models_list[idx] = model
+
+        return models_list if isinstance(models, list) else models_list[0]
 
     @staticmethod
     def _team_map(teams):
@@ -69,12 +105,18 @@ class TheBlueAlliance(object):
         return teams
 
     def team(self, team_key):
-        return self._get('team/' + team_key)
+        return self._tbaself._get('team/' + team_key)
+
+    def team_awards(self, team_key, year=None):
+        return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''))
+
+    def team_districts(self, team_key):
+        return self._get('team/' + team_key + '/districts')
 
     def team_events(self, team_key, year=None):
-        return self._get('team/' + team_key + ('/' + str(year) if year else '') + '/events')
+        return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''))
 
-    def team_awards(self, team_key, event_key):
+    def team_event_awards(self, team_key, event_key):
         return self._get('team/' + team_key + '/event/' + event_key + '/awards')
 
     def team_event_matches(self, team_key, event_key):
@@ -84,19 +126,26 @@ class TheBlueAlliance(object):
         return self._get('team/' + team_key + '/years_participated')
 
     def team_media(self, team_key, year=None):
-        return self._get('team/' + team_key + ('/' + str(year) if year else '') + '/media')
+        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''))
 
+    def team_robots(self, team_key):
+        return self._get('team/' + team_key + '/robots')
+
+    # Deprecated
     def team_history_events(self, team_key):
-        return self._get('team/' + team_key + '/history/events')
+        return self.team_events(team_key)
 
+    # Deprecated
     def team_history_awards(self, team_key):
-        return self._get('team/' + team_key + '/history/awards')
+        return self.team_awards(team_key)
 
+    # Deprecated
     def team_history_robots(self, team_key):
-        return self._get('team/' + team_key + '/history/robots')
+        return self.team_robots(team_key)
 
+    # Deprecated
     def team_history_districts(self, team_key):
-        return self._get('team/' + team_key + '/history/districts')
+        return self.team_districts(team_key)
 
     def events(self, year=None):
         if year is None:
@@ -115,14 +164,31 @@ class TheBlueAlliance(object):
         matches = self._get('event/' + event_key + '/matches')
         return sorted(matches, key=lambda m: (m['time'] or 0))
 
+    def event_oprs(self, event_key):
+        return self._get('event/' + event_key + '/oprs')
+
+    # Deprecated
     def event_stats(self, event_key):
-        return self._get('event/' + event_key + '/stats')
+        return self.event_oprs(event_key)
 
     def event_rankings_raw(self, event_key):
         return self._get('event/' + event_key + '/rankings')
 
-    def event_rankings(self, event_key):
+    def event_rankings_v2(self, event_key):
         rankings = self.event_rankings_raw(event_key)
+        for idx, ranking in enumerate(rankings['rankings']):
+            rankings['rankings'][idx] = [
+                ranking['rank'],
+                ranking['team_key']
+            ] + ranking['sort_orders'] + [
+                ranking['record']['wins'] + '-' + ranking['record']['losses'] + '-' + ranking['record']['ties'],
+                ranking['matches_played']
+            ]
+        rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
+        return rankings['rankings']
+
+    def event_rankings(self, event_key):
+        rankings = self.event_rankings_v2(event_key)
         if rankings:
             # Change value names to snake case
             header = rankings.pop(0)
@@ -161,17 +227,20 @@ class TheBlueAlliance(object):
     def event_district_points(self, event_key):
         return self._get('event/' + event_key + '/district_points')
 
+    def event_alliances(self, event_key):
+        return self._get('event/' + event_key + '/alliances')
+
     def match(self, match_key):
         return self._get('match/' + match_key)
 
     def districts(self, year):
         return self._get('districts/' + str(year))
 
-    def district_events(self, district_short, year):
-        return self._get('district/' + district_short + '/' + year + '/events')
+    def district_events(self, district_key, year):
+        return self._get('district/' + district_key + '/' + year + '/events')
 
-    def district_rankings(self, district_short, year):
-        return self._get('district/' + district_short + '/' + year + '/rankings')
+    def district_rankings(self, district_key):
+        return self._get('district/' + district_key + '/rankings')
 
-    def district_teams(self, district_short, year):
-        return self._get('district/' + district_short + '/' + year + '/teams')
+    def district_teams(self, district_key):
+        return self._get('district/' + district_key + '/teams')
