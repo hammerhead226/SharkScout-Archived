@@ -305,8 +305,11 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
-        return self.display('scout_match', page)
+        try:
+            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
+            return self.display('scout_match', page)
+        except genshi.template.loader.TemplateNotFound:
+            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
