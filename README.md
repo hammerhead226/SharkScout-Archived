@@ -16,6 +16,7 @@ Offline web app with TBA integration for competition scouting.
 ```batch
 > pip3 install backoff cherrypy^<11 genshi psutil pymongo pynumparser requests tqdm ws4py
 ```
+5. Configure your TBA Read API Key in `config.json`
 
 Note: `cherrypy` updates have a history of breaking `ws4py` so older versions may be necessary.
 
