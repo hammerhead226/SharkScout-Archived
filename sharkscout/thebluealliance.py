@@ -1,8 +1,10 @@
 import backoff
 from datetime import date
 import json
+import os
 import re
 import requests
+import sys
 
 
 class TheBlueAlliance(object):
@@ -10,9 +12,9 @@ class TheBlueAlliance(object):
 
     def __init__(self):
         if self.__class__.tba_auth_key is None:
-            with open('config.json', 'r') as f:
+            config = os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'config.json')
+            with open(config, 'r') as f:
                 self.__class__.tba_auth_key = json.loads(f.read())['tba_auth_key']
-                abc = 0
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint):
