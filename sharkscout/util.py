@@ -21,12 +21,14 @@ class Util(object):
 
     @staticmethod
     def open_port(preferred=0):
+        # Check for other processes listening on the port
+        if preferred and Util.pid_of_port(preferred):
+            return Util.open_port()
+
+        # Let the system choose a random port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        try:
-            sock.bind(('', preferred))
-            port = sock.getsockname()[1]
-        except OSError:
-            port = Util.open_port()
+        sock.bind(('', 0))
+        port = sock.getsockname()[1]
         sock.close()
         return port
 
