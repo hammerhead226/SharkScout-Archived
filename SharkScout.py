@@ -11,6 +11,8 @@ import pynumparser
 from tqdm import tqdm
 import subprocess
 import sys
+import time
+import webbrowser
 
 import sharkscout
 
@@ -93,3 +95,8 @@ if __name__ == '__main__':
     # Open web server and run indefinitely
     web_server = sharkscout.WebServer()
     web_server.start()
+
+    # Open the web browser
+    while not web_server.running:
+        time.sleep(0.1)
+    webbrowser.open('http://127.0.0.1:' + str(web_server.port))

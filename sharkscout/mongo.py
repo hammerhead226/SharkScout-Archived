@@ -62,6 +62,7 @@ class Mongo(object):
                 sys.exit(1)
 
         self.__class__.client = pymongo.MongoClient('localhost', self.__class__.port)
+        print()
 
     # Ensure indexes on MongoDB
     def index(self):

@@ -55,6 +55,20 @@ class WebServer(threading.Thread):
     def stop(self):
         cherrypy.engine.exit()
 
+    @property
+    def running(self):
+        try:
+            return cherrypy.server.running
+        except:
+            return False
+
+    @property
+    def port(self):
+        try:
+            return cherrypy.server.socket_port
+        except:
+            return 0
+
 
 class CherryServer(object):
     static_hash = None
@@ -173,7 +187,6 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     def settings(self, **kwargs):
-        print(kwargs)
         for key in kwargs:
             cherrypy.session[key] = kwargs[key]
         return self.refresh()
@@ -332,8 +345,11 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
-        return self.display('scout_pit', page)
+        try:
+            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
+            return self.display('scout_pit', page)
+        except genshi.template.loader.TemplateNotFound:
+            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
 
 class Update(CherryServer):
@@ -435,7 +451,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
 
     def opened(self):
         self.__class__.sockets.append(self)
-        print('Opened', self)
+        print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
 
     def received_message(self, message):
         message = message.data.decode()
@@ -445,9 +461,6 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             if 'ping' in message:
                 message.pop('ping', None)
                 self.send({'pong':'pong'})
-
-            if message:
-                print(message)
 
             # Match scouting upserts
             if 'scouting_match' in message:
@@ -469,7 +482,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
             self.__class__.sockets.remove(self)
-        print('Closed', self)
+        print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
         if type(payload) is dict:
