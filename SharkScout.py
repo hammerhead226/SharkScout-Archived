@@ -26,8 +26,6 @@ if __name__ == '__main__':
     # Logging
     logging.getLogger('backoff').addHandler(logging.StreamHandler())
 
-    # Initialize TBA API
-    sharkscout.TheBlueAlliance('frc226:sharkscout:v0')
     # Start MongoDB
     mongo = sharkscout.Mongo()
     mongo.start()
