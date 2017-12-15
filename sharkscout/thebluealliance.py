@@ -15,6 +15,8 @@ class TheBlueAlliance(object):
             config = os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'config.json')
             with open(config, 'r') as f:
                 self.__class__.tba_auth_key = json.loads(f.read())['tba_auth_key']
+                if not self.__class__.tba_auth_key:
+                    raise Exception('Invalid tba_auth_key in config.json')
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint):

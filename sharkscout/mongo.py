@@ -1,4 +1,4 @@
-from datetime import date
+import argparse
 import os
 import pymongo
 import pymongo.errors
@@ -10,8 +10,14 @@ import sharkscout
 
 
 class Mongo(object):
+    port = None
+    client = None
+
     def __init__(self):
-        self.client = pymongo.MongoClient()
+        self.client = None
+        if self.__class__.client is None:
+            self.start()
+            self.client = self.__class__.client
 
         self.shark_scout = self.client.shark_scout
         self.tba_events = self.shark_scout.tba_events
@@ -21,17 +27,42 @@ class Mongo(object):
         self.tba_api = sharkscout.TheBlueAlliance()
 
     def start(self):
-        if not sharkscout.Util.pid('mongod'):
-            mongo_dir = os.path.join(os.path.dirname(sys.argv[0]), 'mongo')
-            if not os.path.exists(mongo_dir):
-                os.mkdir(mongo_dir)
+        # Build and create database path
+        mongo_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'mongo')
+        if not os.path.exists(mongo_dir):
+            os.mkdir(mongo_dir)
 
+        # Look for mongod already running with same database path
+        mongo_pid = None
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--port', type=int, default=27017)
+        parser.add_argument('--dbpath', default=None)
+        for pid in sharkscout.Util.pids('mongod'):
+            known, _ = parser.parse_known_args(sharkscout.Util.pid_to_argv(pid))
+            if known.dbpath and not os.path.isabs(known.dbpath):
+                known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
+            if os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
+                mongo_pid = pid
+                self.__class__.port = known.port
+                print('mongod already running on port ' + str(self.__class__.port))
+                break
+
+        if not mongo_pid:
+            self.__class__.port = sharkscout.Util.open_port(27017)
             try:
                 null = open(os.devnull, 'w')
-                subprocess.Popen([sharkscout.Util.which('mongod'), '--dbpath', mongo_dir, '--smallfiles'], stdout=null, stderr=subprocess.STDOUT)
+                subprocess.Popen([
+                    sharkscout.Util.which('mongod'),
+                    '--port', str(self.__class__.port),
+                    '--dbpath', mongo_dir,
+                    '--smallfiles'
+                ], stdout=null, stderr=subprocess.STDOUT)
+                print('mongod started on port ' + str(self.__class__.port))
             except FileNotFoundError:
                 print('mongod couldn\'t start')
                 sys.exit(1)
+
+        self.__class__.client = pymongo.MongoClient('localhost', self.__class__.port)
 
     # Ensure indexes on MongoDB
     def index(self):

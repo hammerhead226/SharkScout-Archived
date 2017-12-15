@@ -28,7 +28,6 @@ if __name__ == '__main__':
 
     # Start MongoDB
     mongo = sharkscout.Mongo()
-    mongo.start()
     mongo.index()
 
     # Team updates
