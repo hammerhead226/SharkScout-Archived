@@ -6,7 +6,7 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 pip3 install --upgrade pyinstaller
 rmdir /S /Q dist
 for /f %%i in ('where python') do set PYTHON=%%i
-pyinstaller --noconfirm --clean --onefile --exclude-module matplotlib --exclude-module PyQt5 --icon "%PYTHON%,0" SharkScout.py
+pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --exclude-module matplotlib --exclude-module PyQt5 --icon "%PYTHON%,0" SharkScout.py
 del /F SharkScout.spec
 rmdir /S /Q __pycache__
 rmdir /S /Q build
