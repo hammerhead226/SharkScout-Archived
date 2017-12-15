@@ -5,9 +5,11 @@ import atexit
 import concurrent.futures
 from datetime import date
 import logging
+import os
 import psutil
 import pynumparser
 from tqdm import tqdm
+import subprocess
 import sys
 
 import sharkscout
@@ -30,6 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('-uti', '--update-teams-info', dest='update_teams_info', help='update TBA team info', action='store_true', default=False)
     parser.add_argument('-ue', '--update-events', metavar='year', dest='update_events', help='update all TBA events in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
     parser.add_argument('-uei', '--update-events-info', metavar='year', dest='update_events_info', help='update all TBA event info in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
+    parser.add_argument('-d', '--dump', metavar='file', help='create mongodump after any update(s)', type=str)
     args = parser.parse_args()
     # Massage arguments
     args.update_events = list(args.update_events or [])
@@ -54,6 +57,7 @@ if __name__ == '__main__':
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='team', leave=True):
                 pass
         print()
+
     # Event updates
     if args.update_events or args.update_events_info:
         for year in sorted(list(set(args.update_events + args.update_events_info))):
@@ -67,6 +71,21 @@ if __name__ == '__main__':
                     for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
                         pass
             print()
+
+    # mongodump
+    if args.dump:
+        print('Dumping database to "' + args.dump + '" ...')
+        null = open(os.devnull, 'w')
+        mongodump = subprocess.Popen([
+            sharkscout.Util.which('mongodump'),
+            '/port', str(sharkscout.Mongo.port),
+            '/db', 'shark_scout',
+            '/gzip',
+            '/archive:"' + args.dump + '"'
+        ], stdout=null, stderr=subprocess.STDOUT)
+        mongodump.wait()
+        print()
+
     # Exit if updated anything
     if [a for a in dir(args) if a.startswith('update_') and getattr(args, a)]:
         sys.exit(0)
