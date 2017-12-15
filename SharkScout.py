@@ -1,14 +1,26 @@
 #!/usr/bin/env python3
 
 import argparse
+import atexit
 import concurrent.futures
 from datetime import date
 import logging
+import psutil
 import pynumparser
 from tqdm import tqdm
 import sys
 
 import sharkscout
+
+
+# Clean up child processes on quit
+@atexit.register
+def goodbye():
+    proc = psutil.Process()
+    children = proc.children()
+    for child in children:
+        child.terminate()
+    psutil.wait_procs(children, timeout=5)
 
 
 if __name__ == '__main__':
