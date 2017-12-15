@@ -14,10 +14,9 @@ class Mongo(object):
     client = None
 
     def __init__(self):
-        self.client = None
         if self.__class__.client is None:
             self.start()
-            self.client = self.__class__.client
+        self.client = self.__class__.client
 
         self.shark_scout = self.client.shark_scout
         self.tba_events = self.shark_scout.tba_events
