@@ -17,17 +17,16 @@ import webbrowser
 import sharkscout
 
 
-# Clean up child processes on quit
-@atexit.register
-def goodbye():
-    proc = psutil.Process()
-    children = proc.children()
-    for child in children:
-        child.terminate()
-    psutil.wait_procs(children, timeout=5)
-
-
 if __name__ == '__main__':
+    # Clean up child processes on quit
+    @atexit.register
+    def goodbye():
+        proc = psutil.Process()
+        children = proc.children()
+        for child in children:
+            child.terminate()
+        psutil.wait_procs(children, timeout=5)
+
     # Parse arguments
     parser = argparse.ArgumentParser(prog=__file__)
     parser.add_argument('-ut', '--update-teams', dest='update_teams', help='update TBA team list', action='store_true', default=False)
