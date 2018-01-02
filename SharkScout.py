@@ -95,11 +95,12 @@ if __name__ == '__main__':
                 print('Updating ' + str(year) + ' event list ...')
                 mongo.events_update(year)
             if year in args.update_events_info:
-                print('Updating ' + str(year) + ' events ...')
                 with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
                     futures = {pool.submit(mongo.event_update, event['key']): event for event in mongo.events(year)}
-                    for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
-                        pass
+                    if futures:
+                        print('Updating ' + str(year) + ' events ...')
+                        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
+                            pass
             print()
 
     # mongodump
