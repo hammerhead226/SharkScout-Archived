@@ -78,6 +78,10 @@ class Mongo(object):
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
 
+    @property
+    def tba_count(self):
+        return self.tba_events.count() + self.tba_teams.count()
+
     # List of all events in a given year
     def events(self, year):
         return list(self.tba_events.find({'year': int(year)}).sort('start_date'))
