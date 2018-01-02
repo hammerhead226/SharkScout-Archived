@@ -93,7 +93,8 @@ class TheBlueAlliance(object):
         return teams
 
     def teams(self, page_num=0):
-        teams = [t for t in self._get('teams/' + str(page_num)) if t['nickname']]
+        teams = self._get('teams/' + str(page_num))
+        teams = [t for t in teams if t['nickname'] and t['name'] != 'Team ' + str(t['team_number'])]
         teams = self._team_map(teams)
         return teams
 
