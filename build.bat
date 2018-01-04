@@ -16,8 +16,7 @@ if %errorlevel% neq 0 (
 
 :: Run pyinstaller
 rmdir /S /Q dist
-for /f %%i in ('where python') do set PYTHON=%%i
-venv\Scripts\pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --icon "%PYTHON%,0" SharkScout.py
+venv\Scripts\pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --icon "venv\Scripts\python.exe,0" SharkScout.py
 del /F SharkScout.spec
 rmdir /S /Q __pycache__
 rmdir /S /Q build
