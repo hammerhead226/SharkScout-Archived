@@ -35,6 +35,7 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError(path + " is not a file")
         return path
     parser = argparse.ArgumentParser(prog=__file__)
+    parser.add_argument('-nb', '--no-browser', dest='browser', help='don\'t automatically open the web browser', action='store_false', default=True)
     parser.add_argument('-ut', '--update-teams', dest='update_teams', help='update TBA team list', action='store_true', default=False)
     parser.add_argument('-uti', '--update-teams-info', dest='update_teams_info', help='update TBA team info', action='store_true', default=False)
     parser.add_argument('-ue', '--update-events', metavar='year', dest='update_events', help='update all TBA events in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
@@ -126,6 +127,7 @@ if __name__ == '__main__':
     web_server.start()
 
     # Open the web browser
-    while not web_server.running:
-        time.sleep(0.1)
-    webbrowser.open('http://127.0.0.1:' + str(web_server.port))
+    if args.browser:
+        while not web_server.running:
+            time.sleep(0.1)
+        webbrowser.open('http://127.0.0.1:' + str(web_server.port))
