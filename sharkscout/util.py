@@ -62,6 +62,14 @@ class Util(object):
         return 0
 
     @staticmethod
+    def pid_ports(pid):
+        try:
+            proc = psutil.Process(pid)
+            return [c.laddr.port for c in proc.connections() if c.status == psutil.CONN_LISTEN]
+        except psutil.NoSuchProcess:
+            return []
+
+    @staticmethod
     def pid_to_argv(pid):
         proc = psutil.Process(pid)
         return proc.cmdline()
