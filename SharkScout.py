@@ -28,12 +28,6 @@ if __name__ == '__main__':
         psutil.wait_procs(children, timeout=5)
 
     # Parse arguments
-    def file_exists(path):
-        if not os.path.exists(path):
-            raise argparse.ArgumentTypeError(path + " does not exist")
-        elif not os.path.isfile(path):
-            raise argparse.ArgumentTypeError(path + " is not a file")
-        return path
     parser = argparse.ArgumentParser(prog=__file__)
     parser.add_argument('-nb', '--no-browser', dest='browser', help='don\'t automatically open the web browser', action='store_false', default=True)
     parser.add_argument('-ut', '--update-teams', dest='update_teams', help='update TBA team list', action='store_true', default=False)
@@ -41,7 +35,7 @@ if __name__ == '__main__':
     parser.add_argument('-ue', '--update-events', metavar='year', dest='update_events', help='update all TBA events in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
     parser.add_argument('-uei', '--update-events-info', metavar='year', dest='update_events_info', help='update all TBA event info in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
     parser.add_argument('-d', '--dump', metavar='file', help='run mongodump after any update(s)', type=str)
-    parser.add_argument('-r', '--restore', metavar='file', help='run mongorestore before any update(s)', type=file_exists)
+    parser.add_argument('-r', '--restore', metavar='file', help='run mongorestore before any update(s)', type=argparse.FileType('r'))
     args = parser.parse_args()
     # Massage arguments
     args.update_events = list(args.update_events or [])
