@@ -48,8 +48,8 @@ for /f "skip=1 tokens=1-6" %%A in ('WMIC Path Win32_LocalTime Get Day^,Hour^,Min
     )
 )
 set YEAR_CURR=%FDATE:~0,4%
-set /A YEAR_NEXT=%FDATE:~0,4%+1
-SharkScout.exe -ut -uti -ue "%YEAR_CURR%-%YEAR_NEXT%" -uei "%YEAR_CURR%-%YEAR_NEXT%" --dump mongodump.gz
+set /A YEAR_NEXT=%YEAR_CURR%+1
+SharkScout.exe -ut -uti -ue "1992-%YEAR_NEXT%" -uei "%YEAR_CURR%-%YEAR_NEXT%" --dump mongodump.gz
 if %errorlevel% neq 0 (
 	cd ..
 	rmdir /S /Q dist
