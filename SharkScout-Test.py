@@ -79,7 +79,8 @@ class Spider(scrapy.spiders.Spider):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
     parser.add_argument('params', nargs='+')
-    params = parser.parse_args().params
+    known, unknown = parser.parse_known_args()
+    params = known.params + unknown
     if params[0].endswith('.py'):
         params.insert(0, sys.executable)
 
