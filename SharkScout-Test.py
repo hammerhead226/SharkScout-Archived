@@ -98,22 +98,23 @@ if __name__ == '__main__':
     # Wait for the web server to start
     ports = []
     while server.poll() is None:
-        ports = sharkscout.Util.pid_ports(server.pid)
-        if ports:
+        ports = sharkscout.Util.pid_tree_ports(server.pid)
+        if len(ports) > 1:  # both mongod and web server
             break
         time.sleep(0.1)
     if not ports:
         print('SharkScout failed to start the web server')
         sys.exit(1)
 
-    for port in sharkscout.Util.pid_ports(server.pid):
+    port_found = False
+    for port in ports:
         # Basic HTTP root test
         url = 'http://localhost:' + str(port)
         try:
             requests.get(url).raise_for_status()
+            port_found = True
         except requests.exceptions.RequestException as e:
-            print(url, e)
-            sys.exit(1)
+            pass
 
         # Crawler smoke test
         crawler = scrapy.crawler.CrawlerProcess({
@@ -138,3 +139,6 @@ if __name__ == '__main__':
         crawler.start()
         if isinstance(Spider.closed_reason, int) or Spider.closed_reason.isdigit():
             sys.exit(1)
+
+    if not port_found:
+        sys.exit(1)
