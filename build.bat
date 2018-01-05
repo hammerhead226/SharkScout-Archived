@@ -5,9 +5,8 @@ pip3 install --upgrade virtualenv
 rmdir /S /Q venv
 virtualenv venv
 venv\Scripts\pip3 install backoff cherrypy^<11 genshi psutil pymongo pynumparser requests tqdm ws4py
-venv\Scripts\pip3 install pyinstaller
 
-:: Test script
+:: Syntax test the script
 venv\Scripts\python SharkScout.py -h > nul
 if %errorlevel% neq 0 (
 	rmdir /S /Q venv
@@ -16,13 +15,13 @@ if %errorlevel% neq 0 (
 
 :: Run pyinstaller
 rmdir /S /Q dist
+venv\Scripts\pip3 install pyinstaller
 venv\Scripts\pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --icon "venv\Scripts\python.exe,0" SharkScout.py
 del /F SharkScout.spec
 rmdir /S /Q __pycache__
 rmdir /S /Q build
-rmdir /S /Q venv
 
-:: Test compiled script
+:: Syntax test the compiled script
 cd dist
 SharkScout.exe -h
 if %errorlevel% neq 0 (
@@ -55,9 +54,20 @@ if %errorlevel% neq 0 (
 	rmdir /S /Q dist
 	exit /B 1
 )
-ping localhost -n 4 >NUL
+
+:: Run the test script
+..\venv\Scripts\pip3 install requests scrapy
+..\venv\Scripts\python ..\SharkScout-Test.py SharkScout.exe --no-browser
+if %errorlevel% neq 0 (
+	cd ..
+	rmdir /S /Q dist
+	rmdir /S /Q venv
+	exit /B 1
+)
+
 rmdir /S /Q mongo
 cd ..
+rmdir /S /Q venv
 
 :: Make a distribution zip
 for /f %%i in ('git rev-parse HEAD') do set HASH=%%i
