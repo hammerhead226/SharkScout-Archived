@@ -43,7 +43,7 @@ class Spider(scrapy.spiders.Spider):
     def parse(self, response):
         # Stop on any error
         if response.status >= 400:
-            raise scrapy.exceptions.CloseSpider(response.status)
+            raise scrapy.exceptions.CloseSpider(int(response.status))
 
         urls = response.xpath('//*/@href').extract()
 
@@ -74,6 +74,7 @@ class Spider(scrapy.spiders.Spider):
 
     # Remember why the spider stopped
     def closed(self, reason):
+        print('closed', reason)
         self.__class__.closed_reason = reason
 
 
@@ -118,7 +119,7 @@ if __name__ == '__main__':
             requests.get(url).raise_for_status()
             port_found = True
         except requests.exceptions.RequestException as e:
-            pass
+            continue
 
         # Crawler smoke test
         crawler = scrapy.crawler.CrawlerProcess({
@@ -141,7 +142,7 @@ if __name__ == '__main__':
             r'/scout/match/[^/]+/[^/]+[a-z]1/[^/]+$'
         ]]))
         crawler.start()
-        if isinstance(Spider.closed_reason, int) or Spider.closed_reason.isdigit():
+        if isinstance(Spider.closed_reason, int):
             sys.exit(1)
 
     if not port_found:
