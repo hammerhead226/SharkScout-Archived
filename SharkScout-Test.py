@@ -4,6 +4,7 @@ import argparse
 import atexit
 import datetime
 import os
+import psutil
 import re
 import subprocess
 import sys
@@ -91,8 +92,11 @@ if __name__ == '__main__':
     # Stop SharkScout on quit
     @atexit.register
     def goodbye():
-        server.terminate()
-        server.wait(5)
+        # Terminate any processes with an open port
+        procs = [psutil.Process(sharkscout.Util.pid_of_port(p)) for p in sharkscout.Util.pid_tree_ports(server.pid)]
+        for proc in procs:
+            proc.terminate()
+        psutil.wait_procs(procs, timeout=5)
         null.close()
 
     # Wait for the web server to start
