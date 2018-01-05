@@ -70,6 +70,17 @@ class Util(object):
             return []
 
     @staticmethod
+    def pid_tree_ports(pid):
+        try:
+            proc = psutil.Process(pid)
+            ports = [c.laddr.port for c in proc.connections() if c.status == psutil.CONN_LISTEN]
+            for child in proc.children(True):
+                ports += [c.laddr.port for c in child.connections() if c.status == psutil.CONN_LISTEN]
+            return ports
+        except psutil.NoSuchProcess:
+            return []
+
+    @staticmethod
     def pid_to_argv(pid):
         proc = psutil.Process(pid)
         return proc.cmdline()
