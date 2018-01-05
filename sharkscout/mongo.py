@@ -80,7 +80,8 @@ class Mongo(object):
 
     @property
     def tba_count(self):
-        return self.tba_events.count() + self.tba_teams.count()
+        # (not using collection.count() because it can incorrectly return 0)
+        return len(list(self.tba_events.find())) + len(list(self.tba_teams.find()))
 
     # List of all events in a given year
     def events(self, year):
