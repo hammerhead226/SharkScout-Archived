@@ -111,6 +111,11 @@ if __name__ == '__main__':
         print('SharkScout failed to start the web server')
         sys.exit(1)
 
+    # Start twisted crawler process
+    crawler = scrapy.crawler.CrawlerProcess({
+        'USER_AGENT': 'Mozilla/5.0'
+    })
+
     port_found = False
     for port in ports:
         # Basic HTTP root test
@@ -121,10 +126,7 @@ if __name__ == '__main__':
         except requests.exceptions.RequestException as e:
             continue
 
-        # Crawler smoke test
-        crawler = scrapy.crawler.CrawlerProcess({
-            'USER_AGENT': 'Mozilla/5.0'
-        })
+        # Add scrawler
         year = str(datetime.date.today().year)
         crawler.crawl(Spider(start_url=url, url_regex=[url + u for u in [
             # Events, events + year, event
@@ -141,9 +143,9 @@ if __name__ == '__main__':
             r'/scout/match/[^/]+/[^/]+[a-z]1$',
             r'/scout/match/[^/]+/[^/]+[a-z]1/[^/]+$'
         ]]))
-        crawler.start()
-        if isinstance(Spider.closed_reason, int):
-            sys.exit(1)
-
     if not port_found:
+        sys.exit(1)
+
+    crawler.start()
+    if isinstance(Spider.closed_reason, int):
         sys.exit(1)
