@@ -80,8 +80,11 @@ class Spider(scrapy.spiders.Spider):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
+    parser.add_argument('-l', '--level', metavar='N', help='testing level (1-5) (default: 3)', type=int, default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
+
+    level = known.level
     params = known.params + unknown
     if params[0].endswith('.py'):
         params.insert(0, sys.executable)
@@ -128,21 +131,41 @@ if __name__ == '__main__':
 
         # Add scrawler
         year = str(datetime.date.today().year)
-        crawler.crawl(Spider(start_url=url, url_regex=[url + u for u in [
-            # Events, events + year, event
-            r'/events$',
-            r'/events/[0-9]+$',
-            r'/event/' + year + '[^/]+$',
-            # Teams, team
-            r'/teams$',
-            r'/teams/[0-9]+$',
-            r'/team/[^/]+$',
-            # Scouting: pit, match, match + key, match + key + team
-            r'/scout/pit/[^/]+$',
-            r'/scout/match/[^/]+$',
-            r'/scout/match/[^/]+/[^/]+[a-z]1$',
-            r'/scout/match/[^/]+/[^/]+[a-z]1/[^/]+$'
-        ]]))
+        paths = []
+        if level >= 1:
+            # This year's events, teams
+            paths += [
+                r'/events$',
+                r'/event/' + year + '[^/]+$',
+                r'/teams$',
+                r'/teams/[0-9]+$',
+                r'/team/frc[0-9]+$',
+            ]
+        if level >= 2:
+            # Non-specific scouting forms
+            paths += [
+                r'/scout/pit/[0-9]+[^/]+$',
+                r'/scout/match/[0-9]+[^/]+$',
+            ]
+        if level >= 3:
+            # Events for all years, all events, all team years
+            paths += [
+                r'/events/[0-9]+$',
+                r'/event/[0-9]+[^/]+$',
+                r'/team/frc[0-9]+/[0-9]+$',
+            ]
+        if level >= 4:
+            # Some specific scouting forms
+            paths += [
+                r'/scout/pit/[0-9]+[^/]+/frc[0-9]+$',
+                r'/scout/match/[0-9]+[^/]+/[0-9]+[^/]+[a-z]1$',
+                r'/scout/match/[0-9]+[^/]+/[0-9]+[^/]+[a-z]1/frc[0-9]+$'
+            ]
+        if level >= 5:
+            # All paths
+            paths += ['/.+']
+        crawler.crawl(Spider(start_url=url, url_regex=[url + p for p in paths]))
+
     if not port_found:
         sys.exit(1)
 

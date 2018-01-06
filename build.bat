@@ -57,7 +57,7 @@ if %errorlevel% neq 0 (
 
 :: Run the test script
 ..\venv\Scripts\pip3 install requests scrapy
-..\venv\Scripts\python ..\SharkScout-Test.py SharkScout.exe --no-browser
+..\venv\Scripts\python ..\SharkScout-Test.py --level 2 SharkScout.exe --no-browser
 if %errorlevel% neq 0 (
 	cd ..
 	rmdir /S /Q dist
