@@ -77,7 +77,7 @@ if __name__ == '__main__':
         print()
     if args.update_teams_info:
         print('Updating team info ...')
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             futures = {pool.submit(mongo.team_update, team['key']): team for team in mongo.teams()}
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='team', leave=True):
                 pass
@@ -86,14 +86,14 @@ if __name__ == '__main__':
     # Event updates
     if args.update_events:
         print('Updating event lists ...')
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             futures = {pool.submit(mongo.events_update, year): year for year in args.update_events}
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='year', leave=True):
                 pass
         print()
     if args.update_events_info:
         for year in sorted(args.update_events_info):
-            with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
                 futures = {pool.submit(mongo.event_update, event['key']): event for event in mongo.events(year)}
                 if futures:
                     print('Updating ' + str(year) + ' events ...')
