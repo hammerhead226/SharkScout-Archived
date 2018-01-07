@@ -36,7 +36,7 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_to_tba2(models):
-        models_list = models if isinstance(models, list) else list(models)
+        models_list = models if isinstance(models, list) else [models]
 
         for idx, model in enumerate(models_list):
             if not sum([0 if k in model else 1 for k in ['name', 'award_type', 'event_key', 'recipient_list']]):
@@ -110,7 +110,7 @@ class TheBlueAlliance(object):
         return teams
 
     def team(self, team_key):
-        return self._tbaself._get('team/' + team_key)
+        return self._get('team/' + team_key)
 
     def team_awards(self, team_key, year=None):
         return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''))
