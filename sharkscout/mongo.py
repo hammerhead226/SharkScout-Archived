@@ -14,10 +14,9 @@ class Mongo(object):
     client = None
 
     def __init__(self):
-        self.client = None
         if self.__class__.client is None:
             self.start()
-            self.client = self.__class__.client
+        self.client = self.__class__.client
 
         self.shark_scout = self.client.shark_scout
         self.tba_events = self.shark_scout.tba_events
@@ -63,6 +62,7 @@ class Mongo(object):
                 sys.exit(1)
 
         self.__class__.client = pymongo.MongoClient('localhost', self.__class__.port)
+        print()
 
     # Ensure indexes on MongoDB
     def index(self):
@@ -77,6 +77,11 @@ class Mongo(object):
         self.tba_events.create_index('year')
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
+
+    @property
+    def tba_count(self):
+        # (not using collection.count() because it can incorrectly return 0)
+        return len(list(self.tba_events.find())) + len(list(self.tba_teams.find()))
 
     # List of all events in a given year
     def events(self, year):

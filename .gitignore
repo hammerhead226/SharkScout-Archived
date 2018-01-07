@@ -95,5 +95,6 @@ ENV/
 # SharkScout
 mongo/
 sessions/
+SharkScout-*-x86/
 *.rar
 *.zip
