@@ -23,6 +23,7 @@ import sharkscout
 class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
+        'DOWNLOAD_TIMEOUT': 10,      # 10s timeout
         'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
     }
     url_regex = []
@@ -91,7 +92,7 @@ if __name__ == '__main__':
 
     # Start SharkScout
     null = open(os.devnull, 'w')
-    server = subprocess.Popen(params, stdout=null, stderr=subprocess.STDOUT)
+    server = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     # Stop SharkScout on quit
     @atexit.register
@@ -104,6 +105,7 @@ if __name__ == '__main__':
         null.close()
 
     # Wait for the web server to start
+    print('Waiting for listening ports ...')
     ports = []
     while server.poll() is None:
         ports = sharkscout.Util.pid_tree_ports(server.pid)
@@ -111,8 +113,10 @@ if __name__ == '__main__':
             break
         time.sleep(0.1)
     if not ports:
-        print('SharkScout failed to start the web server')
+        stdout, _ = server.communicate()
+        print(stdout)
         sys.exit(1)
+    print('Found ports:', ports)
 
     # Start twisted crawler process
     crawler = scrapy.crawler.CrawlerProcess({
