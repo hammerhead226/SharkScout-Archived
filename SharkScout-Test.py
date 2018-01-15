@@ -23,6 +23,7 @@ import sharkscout
 class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
+        'DOWNLOAD_TIMEOUT': 10,      # 10s timeout
         'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
     }
     url_regex = []
