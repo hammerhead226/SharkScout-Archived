@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Event</label>
+        <div class="col-xs-9">
+            <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
+            <label class="control-label">
+                <a href="/event/${page['event']['key']}#teams">
+                    <span class="fa fa-arrow-left"></span>&nbsp;
+                    ${page['event']['year']} ${page['event']['name']}
+                </a>
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Team</label>
+        <div class="col-xs-9">
+            <py:choose>
+                <py:when test="page['team']">
+                    <div class="input-group inline-min">
+                        <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                        <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
+                        <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" disabled="disabled" serialize="false"></input>
+                    </div>
+                </py:when>
+                <py:otherwise>
+                    <input type="hidden" name="team_key"></input>
+                    <py:choose>
+                        <py:when test="page['teams']">
+                            <select name="team_number" class="form-control" data-selectize-create="true" serialize="false" required="required">
+                                <option value="">Select Team ...</option>
+                                <option value="${team['team_number']}" py:for="team in page['teams']">${team['team_number']} - ${team['nickname']}</option>
+                            </select>
+                        </py:when>
+                        <div class="input-group" py:otherwise="">
+                            <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                            <input type="number" name="team_number" class="form-control" serialize="false"></input>
+                        </div>
+                    </py:choose>
+                </py:otherwise>
+            </py:choose>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Current Scouter</label>
+        <div class="col-xs-9">
+            <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Robot Height (in)</label>
+        <div class="col-xs-9">
+            <input type="number" name="robot_height" class="form-control"></input>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Robot Weight (lb)</label>
+        <div class="col-xs-9">
+            <input type="number" name="robot_weight" class="form-control"></input>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Drivetrain
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <select name="drivetrain" class="form-control">
+                <option value="">Select Drivetrain ...</option>
+                <option value="tank">Tank / West Coast Drive</option>
+                <option value="mecanum">Mecanum</option>
+                <option value="swerve">Swerve</option>
+                <option value="butterfly">Butterfly / Octocanum / VersaDrop</option>
+                <option value="omni">Other Omnidirection</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Drivetrain Build Experience</label>
+        <div class="col-xs-9">
+            <textarea name="drivetrain_experience" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Has Pneumatics</label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="pneumatics" value="N" autocomplete="off"></input> No
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="pneumatics" value="Y" autocomplete="off"></input> Yes
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Pneumatics Purpose</label>
+        <div class="col-xs-9">
+            <textarea name="pneumatics_purpose" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">Auton</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Auton Strategy
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="auton_strategy" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">Tele-Op</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Tele-Op Strategy
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="teleop_strategy" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Avg. Cubes on Switch (Low)
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="avg_cubes_switch" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Avg. Cubes on Scale (High)
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="avg_cubes_scale" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">End Game</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Has Climber
+            <span class="fa fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="climber" value="N" autocomplete="off"></input> No
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="climber" value="Y" autocomplete="off"></input> Yes
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Avg. Climb Time (sec)</label>
+        <div class="col-xs-9">
+            <input type="number" name="climb_time" class="form-control"></input>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Common Robot Problems</label>
+        <div class="col-xs-9">
+            <textarea name="common_robot_problems" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Driver Practice (Time)</label>
+        <div class="col-xs-9">
+            <textarea name="driver_practice" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-9">
+            <button type="submit" class="btn btn-primary" offline="offline">Submit</button>
+        </div>
+    </div>
+</html>
