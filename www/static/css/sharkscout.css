@@ -196,6 +196,13 @@ table.dataTable:last-child {
     margin: calc(2px * 2);
 }
 
+.loaders-3x.line-scale-pulse-out-rapid > div {
+    width: calc(4px * 3);
+    height: calc(35px * 3);
+    border-radius: calc(2px * 3);
+    margin: calc(2px * 3);
+}
+
 
 /***** icomoon Overrides/Additions *****/
 
