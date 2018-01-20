@@ -24,7 +24,7 @@
                         </py:if>
                         <py:choose test="event['event_type']">
                             <py:when test="2"><span class="fas fa-paper-plane" title="District Championship"></span>&nbsp;</py:when>
-                            <py:when test="3"><span class="fas fa-link" title="Championship Division"></span>&nbsp;</py:when>
+                            <py:when test="3"><span class="fas fa-globe" title="Championship Division"></span>&nbsp;</py:when>
                             <py:when test="4"><span class="fas fa-trophy" title="Championship Finals"></span>&nbsp;</py:when>
                         </py:choose>
                         <a href="/event/${event['key']}">${event['name']}</a>
