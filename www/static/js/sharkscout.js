@@ -137,9 +137,6 @@ function _scouting(ref, key) {
         // Non-ASCII check
         for(var name in obj) {
             if(String(obj[name]).match(/[^\x09-\x7E]/)) {
-                $('#non-ascii-field').html(_.startCase(name));
-                $('#non-ascii').fadeIn();
-                $('html').scrollTop(0);
                 return;
             }
         }
@@ -366,6 +363,20 @@ $(document).ready(function() {
             if(!$tab_toggle.is(':visible')) {
                 table.fixedHeader.disable();
             }
+        }
+    });
+
+    // Initialize popovers
+    $('form').find('input, select, textarea').popover({
+        trigger: 'manual',
+        placement: 'auto',
+        content: 'Special characters are not allowed.'
+    }).change(function() {
+        if(String($(this).val()).match(/[^\x09-\x7E]/)) {
+            $(this).popover('show');
+            nonAscii = true;
+        } else {
+            $(this).popover('hide');
         }
     });
 
