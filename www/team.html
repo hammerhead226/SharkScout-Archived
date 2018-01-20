@@ -5,9 +5,9 @@
 
     <div class="panel panel-default">
         <div class="panel-heading clearfix">
-            <span class="fa fa-users"></span>&nbsp;&nbsp;Team Info
+            <span class="fas fa-users"></span>&nbsp;&nbsp;Team Info
             <a href="/update/team/${page['team']['key']}" onclick="return loader(this);" class="pull-right faa-parent animated-hover">
-                <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
+                <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
             </a>
         </div>
         <div class="panel-body">
@@ -18,7 +18,7 @@
     <div class="panel panel-default">
         <div class="panel-heading clearfix">
             <span class="dropdown">
-                <span class="fa fa-calendar"></span>&nbsp;
+                <span class="fas fa-calendar-alt"></span>&nbsp;
                 <py:choose>
                     <py:when test="page['stats']['years']">
                         <a href="#" onclick="return false;" data-toggle="dropdown">
@@ -29,7 +29,7 @@
                             <li py:for="year in page['stats']['years']"  py:attrs="{'class':'disabled' if int(year) == int(page['year']) else ''}">
                                 <a href="/team/${page['team']['key']}/${year}">
                                     ${year} Events
-                                    <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                                    <span class="fas fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                                 </a>
                             </li>
                         </ul>
@@ -39,14 +39,14 @@
             </span>
             <span class="dropdown pull-right">
                 <a href="#" onclick="return false;" class="faa-parent animated-hover" data-toggle="dropdown">
-                    <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
+                    <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li py:for="year in range(date.today().year+1, (page['team']['rookie_year'] or 1997)-1, -1)">
                         <a href="/update/team/${page['team']['key']}/events/${year}" onclick="return loader(this);">
                             ${year} Events
-                            <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                            <span class="fas fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                         </a>
                     </li>
                 </ul>
