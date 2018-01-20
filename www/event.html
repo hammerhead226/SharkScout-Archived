@@ -38,7 +38,7 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
                 <a href="#matches" role="tab" data-toggle="tab">
-                    <span class="far fa-futbol"></span>&nbsp;&nbsp;Matches
+                    <span class="fas fa-gamepad"></span>&nbsp;&nbsp;Matches
                     <span class="badge">${len(page['event']['matches']) if 'matches' in page['event'] else 0}</span>
                 </a>
             </li>
@@ -72,7 +72,7 @@
             <div id="matches" role="tabpanel" class="tab-page active">
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
-                        <span class="far fa-futbol"></span>&nbsp;&nbsp;Match Listing
+                        <span class="fas fa-gamepad"></span>&nbsp;&nbsp;Match Listing
                         <a href="/update/event/${page['event']['key']}" onclick="return loader(this);" class="pull-right faa-parent animated-hover">
                             <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
                         </a>
