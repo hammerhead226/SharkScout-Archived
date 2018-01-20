@@ -137,8 +137,9 @@ function _scouting(ref, key) {
         // Non-ASCII check
         for(var name in obj) {
             if(String(obj[name]).match(/[^\x09-\x7E]/)) {
+                $('#non-ascii-field').html(_.startCase(name));
                 $('#non-ascii').fadeIn();
-                $('body').scrollTop(0);
+                $('html').scrollTop(0);
                 return;
             }
         }
@@ -161,7 +162,7 @@ function _scouting(ref, key) {
                 $('#queued').stop().fadeOut();
             }, 5000);
             $(ref)[0].reset();
-            $('body').scrollTop(0);
+            $('html').scrollTop(0);
         }
 
         // Clear stored temporary form data
@@ -177,9 +178,17 @@ function scouting_pit(ref) {
     _scouting(ref, 'scouting_pit');
 }
 
-function serialize(form) {
+function serialize(form, serializeAll) {
+    if(typeof serializeAll === 'undefined') {
+        serializeAll = false;
+    }
+
     var obj = {};
-    $(form).find('input, select, textarea').not('[serialize="false"]').each(function() {
+    var $inputs = $(form).find('input, select, textarea');
+    if(!serializeAll) {
+        $inputs = $inputs.not('[serialize="false"]');
+    }
+    $inputs.each(function() {
         var $input = $(this);
         var key = $input.attr('name') || $input.id;
 
@@ -221,7 +230,7 @@ function deserialize(form, data) {
         var values = _.isArray(data[name]) ? data[name] : [data[name]];
         for(key in values) {
             // Find the correct element
-            var $tag = $('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
+            var $tag = $(form).find('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
             if($tag.closest('.btn-group .btn.disabled').length) {
                 continue;
             }
@@ -237,6 +246,7 @@ function deserialize(form, data) {
                 } else {
                     $tag.val(values[key]);
                 }
+                $tag.change();
             }
         }
     }
@@ -360,8 +370,8 @@ $(document).ready(function() {
     });
 
     // Handle form key building
-    $('[name="comp_level"], [name="match_number"], [name="set_number"]').attr('serialize', false).change(function() {
-        if($('[name="comp_level"]').val() == 'qm') {
+    $('[name="comp_level"], [name="match_number"], [name="set_number"]').change(function() {
+        if($('[name="comp_level"]').val() == '' || $('[name="comp_level"]').val() == 'qm') {
             $('[name="set_number"]').removeAttr('required').closest('.input-group').hide();
         } else {
             $('[name="set_number"]').attr('required','required').closest('.input-group').show();
@@ -372,11 +382,11 @@ $(document).ready(function() {
             ($('[name="set_number"]').is(':visible') ? 'm' + $('[name="set_number"]').val() : '')
         );
     });
-    $('[name="team_number"]').attr('serialize', false).change(function() {
+    $('[name="team_number"]').change(function() {
         $('[name="team_key"]').val('frc' + $(this).val());
     });
     // Handle form deserialization
-    var $saved = $('[name="saved"]').attr('serialize', false);
+    var $saved = $('[name="saved"]');
     if($saved.length) {
         deserialize($saved.closest('form'), $saved.val());
     }
@@ -385,7 +395,7 @@ $(document).ready(function() {
     $('form[persistent="true"]').first().each(function() {
         deserialize(this, forms(window.location.pathname));
     }).find('input, select, textarea').change(function() {
-        forms(window.location.pathname, serialize($(this).closest('form')));
+        forms(window.location.pathname, serialize($(this).closest('form'), true));
     });
 });
 
