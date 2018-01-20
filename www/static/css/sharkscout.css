@@ -121,10 +121,6 @@
 .input-group.inline-min .selectize-input {
     min-width: 100px;
 }
-/* Selectize fix */
-.inline-min .selectize-dropdown.form-control {
-    position: absolute;
-}
 
 /* Footer */
 .footer-spacer {
@@ -150,6 +146,14 @@
 .alert-sm.alert-dismissable,
 .alert-sm.alert-dismissible {
     padding-right: 30px;
+}
+
+
+
+/***** Selectize Overrides *****/
+
+.selectize-dropdown.form-control {
+    position: absolute;
 }
 
 
