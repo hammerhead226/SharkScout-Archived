@@ -4,7 +4,7 @@
 
     <h2>
         <a href="/event/${page['event']['key']}#matches">
-            <span class="fa fa-arrow-left"></span>&nbsp;
+            <span class="fas fa-arrow-left"></span>&nbsp;
             ${page['event']['year']} ${page['event']['name']}
         </a>
     </h2>
@@ -18,7 +18,7 @@
 
     <div class="panel panel-default ${alliance}" py:for="alliance in page['alliance_stats']">
         <div class="panel-heading clearfix">
-            <span class="fa fa-bar-chart"></span>&nbsp;&nbsp;${alliance.title()} Alliance
+            <span class="far fa-chart-bar"></span>&nbsp;&nbsp;${alliance.title()} Alliance
         </div>
         <div class="panel-body">
             ${stats_listing(page['alliance_stats'][alliance])}

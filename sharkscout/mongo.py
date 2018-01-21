@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime, date
 import os
 import pymongo
 import pymongo.errors
@@ -155,16 +156,19 @@ class Mongo(object):
     def event_update(self, event_key):
         event = self.tba_api.event(event_key)
         if event:
+            # Info that can be known before an event starts
             event.update({k:v for k, v in {
-                # Info that can be known before an event starts
                 'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
-                'matches': self.tba_api.event_matches(event_key),
-                # Info that can't be known before an event starts
-                'rankings': self.tba_api.event_rankings(event_key),
-                'stats': self.tba_api.event_oprs(event_key),
-                'awards': self.tba_api.event_awards(event_key),
-                'alliances': self.tba_api.event_alliances(event_key)
+                'matches': self.tba_api.event_matches(event_key)
             }.items() if v})
+            # Info that can't be known before an event starts
+            if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
+                event.update({k: v for k, v in {
+                    'rankings': self.tba_api.event_rankings(event_key),
+                    'stats': self.tba_api.event_oprs(event_key),
+                    'awards': self.tba_api.event_awards(event_key),
+                    'alliances': self.tba_api.event_alliances(event_key)
+                }.items() if v})
             self.tba_events.update_one({'key': event['key']}, {'$set': event}, upsert=True)
 
     # List of matches with scouting data
