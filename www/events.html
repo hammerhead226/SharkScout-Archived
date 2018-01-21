@@ -13,25 +13,25 @@
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" py:if="page['attending']">
                 <a href="#attending" role="tab" data-toggle="tab">
-                    <span class="fa fa-car"></span>&nbsp;&nbsp;Attending
+                    <span class="fas fa-car"></span>&nbsp;&nbsp;Attending
                     <span class="badge">${len(page['attending'])}</span>
                 </a>
             </li>
             <li role="presentation" py:if="page['active']">
                 <a href="#active" role="tab" data-toggle="tab">
-                    <span class="fa fa-hourglass-half"></span>&nbsp;&nbsp;Active
+                    <span class="fas fa-hourglass-half"></span>&nbsp;&nbsp;Active
                     <span class="badge">${len(page['active'])}</span>
                 </a>
             </li>
             <li role="presentation" py:if="page['upcoming']">
                 <a href="#active" role="tab" data-toggle="tab">
-                    <span class="fa fa-calendar"></span>&nbsp;&nbsp;Upcoming
+                    <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;Upcoming
                     <span class="badge">${len(page['upcoming'])}</span>
                 </a>
             </li>
             <li role="presentation">
                 <a href="#all" role="tab" data-toggle="tab">
-                    <span class="fa fa-calendar"></span>&nbsp;&nbsp;All
+                    <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;All
                     <span class="badge">${len(page['events'])}</span>
                 </a>
             </li>
@@ -40,7 +40,7 @@
         <div class="panel panel-default">
             <div class="panel-heading clearfix">
                 <span class="dropdown">
-                    <span class="fa fa-calendar"></span>&nbsp;
+                    <span class="fas fa-calendar-alt"></span>&nbsp;
                     <a href="#" onclick="return false;" data-toggle="dropdown">
                         ${page['year']} Events
                         <span class="caret"></span>
@@ -49,7 +49,7 @@
                         <li py:for="year in page['stats']['years']" py:attrs="{'class':'disabled' if int(year) == int(page['year']) else ''}">
                             <a href="/events/${year}">
                                 ${year} Events
-                                <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                                <span class="fas fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                             </a>
                         </li>
                     </ul>
@@ -57,14 +57,14 @@
 
                 <span class="dropdown pull-right">
                     <a href="#" onclick="return false;" class="faa-parent animated-hover" data-toggle="dropdown">
-                        <span class="fa fa-refresh faa-spin"></span>&nbsp;&nbsp;Update
+                        <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
                         <span class="caret"></span>
                     </a>
                     <ul class="dropdown-menu">
                         <li py:for="year in range(date.today().year+1, 1991, -1)">
                             <a href="/update/events/${year}" onclick="return loader(this);">
                                 ${year}
-                                <span class="fa fa-asterisk" py:if="int(year) == int(page['year'])"></span>
+                                <span class="fas fa-asterisk" py:if="int(year) == int(page['year'])"></span>
                             </a>
                         </li>
                     </ul>
