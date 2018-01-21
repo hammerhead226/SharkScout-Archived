@@ -6,7 +6,7 @@
             <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
             <label class="control-label">
                 <a href="/event/${page['event']['key']}#matches">
-                    <span class="fa fa-arrow-left"></span>&nbsp;
+                    <span class="fas fa-undo"></span>&nbsp;
                     ${page['event']['year']} ${page['event']['name']}
                 </a>
             </label>
@@ -49,7 +49,7 @@
                         </div>
                     </div>
                     <div class="input-group inline-min">
-                        <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                        <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                         <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
                         <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
                     </div>
@@ -81,7 +81,7 @@
                                     </select>
                                 </div>
                                 <div class="input-group inline-min" py:otherwise="">
-                                    <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                                    <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                                     <input type="number" name="team_number" class="form-control" required="required" serialize="false"></input>
                                 </div>
                             </py:choose>
@@ -118,7 +118,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cube Position
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -140,7 +140,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Auton Strategy
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="auton_strategy" class="form-control"></textarea>
@@ -154,7 +154,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes on Switch (Low)
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -167,7 +167,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes on Scale (High)
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -180,7 +180,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes in Exchange
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -198,7 +198,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Climbed
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -220,7 +220,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Offense Comments
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="comments_offense" class="form-control"></textarea>
@@ -229,7 +229,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Defense Comments
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="comments_defense" class="form-control"></textarea>

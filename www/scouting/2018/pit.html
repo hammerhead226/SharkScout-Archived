@@ -6,7 +6,7 @@
             <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
             <label class="control-label">
                 <a href="/event/${page['event']['key']}#teams">
-                    <span class="fa fa-arrow-left"></span>&nbsp;
+                    <span class="fas fa-undo"></span>&nbsp;
                     ${page['event']['year']} ${page['event']['name']}
                 </a>
             </label>
@@ -18,7 +18,7 @@
             <py:choose>
                 <py:when test="page['team']">
                     <div class="input-group inline-min">
-                        <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                        <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                         <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
                         <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" disabled="disabled" serialize="false"></input>
                     </div>
@@ -33,7 +33,7 @@
                             </select>
                         </py:when>
                         <div class="input-group" py:otherwise="">
-                            <div class="input-group-addon"><span class="fa fa-hashtag"></span></div>
+                            <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                             <input type="number" name="team_number" class="form-control" serialize="false"></input>
                         </div>
                     </py:choose>
@@ -65,7 +65,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Drivetrain
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <select name="drivetrain" class="form-control">
@@ -114,7 +114,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Auton Strategy
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="auton_strategy" class="form-control"></textarea>
@@ -128,7 +128,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Tele-Op Strategy
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="teleop_strategy" class="form-control"></textarea>
@@ -137,7 +137,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Avg. Cubes on Switch (Low)
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -150,7 +150,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Avg. Cubes on Scale (High)
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -168,7 +168,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Has Climber
-            <span class="fa fa-exclamation text-danger"></span>
+            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
