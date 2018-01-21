@@ -99,23 +99,33 @@ class Mongo(object):
         event = list(self.tba_events.find({'key': event_key}))
         if event:
             event = event[0]
-            # Get full team information
-            if 'teams' in event:
-                event['teams'] = self.teams_list(event['teams'])
-                scouting = self.scouting_pit_teams(event_key)
-                for team_idx, team in enumerate(event['teams']):
-                    if team['key'] in scouting:
-                        event['teams'][team_idx]['scouting'] = scouting[team['key']]
+            if 'teams' not in event:
+                event['teams'] = []
+
+            # Infer missing team information from scouting information
+            pit_scouting = self.scouting_pit_teams(event_key)
+            event['teams'] = list(set(event['teams'] + list(pit_scouting.keys())))
+            match_scouting = self.scouting_matches_teams(event['key'])
+            event['teams'] = list(set(event['teams'] + [t for m in match_scouting.values() for t in m]))
+
+            # Resolve team list to full team information
+            event['teams'] = self.teams_list(event['teams'])
+
+            # Attach scouting data to teams
+            for team_idx, team in enumerate(event['teams']):
+                if team['key'] in pit_scouting:
+                    event['teams'][team_idx]['scouting'] = pit_scouting[team['key']]
+
             # Infer missing match information from scouting information
             if 'matches' not in event:
                 event.update({'matches': self.scouting_matches(event_key)})
-            # Attach scouting data
+            # Attach scouting data to matches
             if 'matches' in event:
-                scouting = self.scouting_matches_teams(event['key'])
                 for match_idx, match in enumerate(event['matches']):
-                    if match['key'] in scouting:
-                        match['scouting'] = scouting[match['key']]
+                    if match['key'] in match_scouting:
+                        match['scouting'] = match_scouting[match['key']]
                     event['matches'][match_idx] = match
+
         return event
 
     # List of all events (years) with a given event code
