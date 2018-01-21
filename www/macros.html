@@ -13,6 +13,7 @@
                     <th>Name</th>
                     <th>Location</th>
                     <th>Dates</th>
+                    <th class="hidden-sm hidden-xs">Teams</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,6 +46,7 @@
                             </py:otherwise>
                         </py:choose>
                     </td>
+                    <td class="hidden-sm hidden-xs">${len(event['teams']) if 'teams' in event else 0}</td>
                 </tr>
             </tbody>
         </table>
