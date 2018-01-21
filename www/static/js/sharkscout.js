@@ -366,7 +366,7 @@ $(document).ready(function() {
         }
     });
 
-    // Initialize popovers
+    // Initialize non-ASCII popovers
     $('form').find('input, select, textarea').popover({
         trigger: 'manual',
         placement: 'auto',
