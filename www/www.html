@@ -24,7 +24,6 @@
         <link rel="stylesheet" href="/static/css/bootstrap-3.3.7.min.css"></link>
         <link rel="stylesheet" href="/static/css/selectize-0.12.4.bootstrap3.css"></link>
         <link rel="stylesheet" href="/static/DataTables-1.10.13/datatables.min.css"></link>
-        <link rel="stylesheet" href="/static/css/font-awesome-4.7.0.min.css"></link>
         <link rel="stylesheet" href="/static/css/font-awesome-animation-0.0.10.min.css"></link>
         <link rel="stylesheet" href="/static/css/loaders-0.1.2.min.css"></link>
         <link rel="stylesheet" href="/static/css/flag-icon-2.7.0.min.css"></link>
@@ -47,19 +46,19 @@
                         <span class="icon-bar"></span>
                     </button>
                     <button type="button" class="btn btn-primary navbar-btn pull-right hidden-lg hidden-md hidden-sm faa-parent animated-hover" data-toggle="modal" data-target="#settings">
-                        <span class="fa fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
+                        <span class="fas fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
                     </button>
                 </div>
                 <div class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['events','event','stats'] or page['__TEMPLATE__'].startswith('scout_') else ''}">
                             <a href="/events">
-                                <span class="fa fa-calendar"></span>&nbsp;&nbsp;Events
+                                <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;Events
                             </a>
                         </li>
                         <li py:attrs="{'class':'active' if page['__TEMPLATE__'] in ['teams','team'] else ''}">
                             <a href="/teams">
-                                <span class="fa fa-users"></span>&nbsp;&nbsp;Teams
+                                <span class="fas fa-users"></span>&nbsp;&nbsp;Teams
                             </a>
                         </li>
                     </ul>
@@ -68,12 +67,12 @@
                         <ul class="nav navbar-nav">
                             <li py:if="session['team_number']">
                                 <a href="/team/frc${session['team_number']}">
-                                    <span class="fa fa-home"></span>&nbsp;&nbsp;Team ${session['team_number']}
+                                    <span class="fas fa-home"></span>&nbsp;&nbsp;Team ${session['team_number']}
                                 </a>
                             </li>
                         </ul>
                         <button type="button" class="btn btn-primary navbar-btn hidden-xs faa-parent animated-hover" data-toggle="modal" data-target="#settings">
-                            <span class="fa fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
+                            <span class="fas fa-cog faa-spin"></span>&nbsp;&nbsp;Settings
                         </button>
                     </span>
                 </div>
@@ -86,7 +85,7 @@
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">
-                                <span class="fa fa-cog"></span>&nbsp;
+                                <span class="fas fa-cog"></span>&nbsp;
                                 Settings
                             </h4>
                         </div>
@@ -95,7 +94,7 @@
                                 <label class="col-xs-3 control-label">Team Number</label>
                                 <div class="col-xs-9">
                                     <div class="input-group">
-                                        <span class="input-group-addon"><span class="fa fa-hashtag"></span></span>
+                                        <span class="input-group-addon"><span class="fas fa-hashtag"></span></span>
                                         <input type="number" name="team_number" class="form-control" required="required" placeholder="Number" value="${session['team_number']}"></input>
                                     </div>
                                 </div>
@@ -122,6 +121,7 @@
         <script type="text/javascript" src="/static/js/bootstrap-3.3.7.min.js"></script>
         <script type="text/javascript" src="/static/js/selectize-0.12.4-standalone.min.js"></script>
         <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
+        <script type="text/javascript" src="/static/js/fontawesome-all-5.0.4.min.js"></script>
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
 
 
@@ -131,11 +131,11 @@
         <div class="footer-spacer"></div>
         <footer class="footer">
             <div class="container-fluid no-padding">
-                <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fa fa-github"></span> GitHub</a>
+                <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fab fa-github"></span> GitHub</a>
                 &nbsp;&bull;&nbsp;
                 <a href="http://hammerhead226.org/" target="_blank"><span class="is is-numbers"></span> Hammerheads</a>
                 <br />
-                <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="fa fa-lightbulb-o fa-rotate-180"></span> TBA</a>
+                <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="far fa-lightbulb fa-rotate-180"></span> TBA</a>
                 &nbsp;&bull;&nbsp;
                 <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
             </div>
@@ -147,7 +147,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">
-                            <span class="fa fa-exclamation-triangle"></span>&nbsp;
+                            <span class="fas fa-exclamation-triangle"></span>&nbsp;
                             Action Prevented
                         </h4>
                     </div>
@@ -162,10 +162,10 @@
         </div>
 
         <div class="center-viewport click-through opacity-25">
-            <!--!<span id="icon-queue" class="fa fa-upload faa-float" style="display:none;" title="Queued Data"></span>-->
+            <!--!<span id="icon-queue" class="fas fa-upload faa-float" style="display:none;" title="Queued Data"></span>-->
             <span id="icon-no-websocket" class="fa-stack fa-stack-half font-25vh" style="display:none;" title="No Connection">
-                <span class="fa fa-signal fa-stack-1x"></span>
-                <span class="fa fa-ban fa-rotate-90 fa-stack-2x text-danger"></span>
+                <span class="fas fa-signal fa-stack-1x"></span>
+                <span class="fas fa-ban fa-stack-2x text-danger"></span>
             </span>
         </div>
 

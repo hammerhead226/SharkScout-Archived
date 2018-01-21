@@ -36,6 +36,9 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_to_tba2(models):
+        if models is None:
+            return models
+
         models_list = models if isinstance(models, list) else [models]
 
         for idx, model in enumerate(models_list):
@@ -181,6 +184,8 @@ class TheBlueAlliance(object):
 
     def event_rankings_v2(self, event_key):
         rankings = self.event_rankings_raw(event_key)
+        if rankings is None:
+            return rankings
         for idx, ranking in enumerate(rankings['rankings']):
             rankings['rankings'][idx] = [
                 ranking['rank'],
