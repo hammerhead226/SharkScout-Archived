@@ -527,8 +527,14 @@ class Mongo(object):
     # TBA update the team listing
     def teams_update(self):
         bulk = self.tba_teams.initialize_unordered_bulk_op()
+
+        # Cleanup bad data
+        bulk.find({'rookie_year':None}).remove()
+
+        # Update teams
         for team in self.tba_api.teams_all():
             bulk.find({'key': team['key']}).upsert().update({'$set': team})
+
         bulk.execute()
 
     # Team information
