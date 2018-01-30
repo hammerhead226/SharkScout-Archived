@@ -18,7 +18,7 @@ import sharkscout
 
 
 class WebServer(threading.Thread):
-    def __init__(self):
+    def __init__(self, port):
         sessions_path = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'sessions'))
         if not os.path.exists(sessions_path):
             os.mkdir(sessions_path)
@@ -26,7 +26,7 @@ class WebServer(threading.Thread):
         self.cherry_config = {
             'global': {
                 'server.socket_host': '0.0.0.0',
-                'server.socket_port': 2260,
+                'server.socket_port': port,
                 'engine.autoreload.on': False
             },
             '/': {
