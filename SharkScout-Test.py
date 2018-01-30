@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
     # Start SharkScout
     null = open(os.devnull, 'w')
-    server = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    server = subprocess.Popen(params, stdout=subprocess.DEVNULL)
 
     # Stop SharkScout on quit
     @atexit.register
@@ -113,8 +113,6 @@ if __name__ == '__main__':
             break
         time.sleep(0.1)
     if not ports:
-        stdout, _ = server.communicate()
-        print(stdout)
         sys.exit(1)
     print('Found ports:', ports)
 
