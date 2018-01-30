@@ -332,8 +332,7 @@ class Mongo(object):
         }}, {'$sort': {
             'team_key': 1
         }}]))
-        if scouting:
-            scouting = {t['team_key']: t for t in scouting}
+        scouting = {t['team_key']: t for t in scouting}
         return scouting
 
     def scouting_pit_update(self, data):
