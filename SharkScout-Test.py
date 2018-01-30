@@ -11,6 +11,7 @@ import sys
 import time
 import urllib
 
+import pynumparser
 import requests
 import scrapy.crawler
 import scrapy.exceptions
@@ -83,7 +84,7 @@ class Spider(scrapy.spiders.Spider):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=int, default=3)
+    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=pynumparser.Number(limits=(1, 5)), default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
 
