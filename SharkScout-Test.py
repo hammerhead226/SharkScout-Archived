@@ -81,7 +81,7 @@ class Spider(scrapy.spiders.Spider):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument('-l', '--level', metavar='N', help='testing level (1-5) (default: 3)', type=int, default=3)
+    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=int, default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
 
@@ -172,5 +172,5 @@ if __name__ == '__main__':
         sys.exit(1)
 
     crawler.start()
-    if isinstance(Spider.closed_reason, int):
+    if Spider.closed_reason is None or isinstance(Spider.closed_reason, int):
         sys.exit(1)
