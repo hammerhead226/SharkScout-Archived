@@ -129,7 +129,11 @@ class Mongo(object):
         bulk = self.tba_events.initialize_unordered_bulk_op()
         # Upsert events
         for event in events:
-            bulk.find({'key': event['key']}).upsert().update({'$set': event})
+            event['modified_timestamp'] = datetime.utcnow()
+            bulk.find({'key': event['key']}).upsert().update({
+                '$set': event,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            })
         # Delete events
         missing = [e['key'] for e in self.tba_events.find({
             'year': int(year),
@@ -159,7 +163,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-            self.tba_events.update_one({'key': event['key']}, {'$set': event}, upsert=True)
+            event['modified_timestamp'] = datetime.utcnow()
+            self.tba_events.update_one({
+                'key': event['key']
+            }, {
+                '$set': event,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -532,7 +542,12 @@ class Mongo(object):
     def teams_update(self):
         bulk = self.tba_teams.initialize_unordered_bulk_op()
         for team in self.tba_api.teams_all():
-            bulk.find({'key': team['key']}).upsert().update({'$set': team})
+            team['modified_timestamp'] = datetime.utcnow()
+            bulk.find({'key': team['key']}).upsert().update({
+                '$set': team,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            })
+
         bulk.execute()
 
     # Team information
@@ -549,7 +564,11 @@ class Mongo(object):
         team.update({k:v for k, v in {
             'awards': self.tba_api.team_history_awards(team_key)
         }.items() if v})
-        self.tba_teams.update_one({'key': team['key']}, {'$set': team}, upsert=True)
+        team['modified_timestamp'] = datetime.utcnow()
+        self.tba_teams.update_one({'key': team['key']}, {
+            '$set': team,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):
