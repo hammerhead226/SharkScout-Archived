@@ -79,6 +79,40 @@ class Mongo(object):
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
 
+    # Perform database migrations
+    def migrate(self):
+        ##### Addition of created_timestamp and modified_timestamp #####
+        # TBA events
+        self.tba_events.update({
+            'modified_timestamp': {'$exists': False}
+        }, {
+            '$set': {'modified_timestamp': datetime.utcfromtimestamp(0)}
+        }, multi=True)
+        bulk = self.tba_events.initialize_unordered_bulk_op()
+        for event in self.tba_events.find({'created_timestamp': {'$exists': False}}):
+            bulk.find({'_id': event['_id']}).update({
+                '$set': {'created_timestamp': event['modified_timestamp']}
+            })
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
+        # TBA teams
+        self.tba_teams.update({
+            'modified_timestamp': {'$exists': False}
+        }, {
+            '$set': {'modified_timestamp': datetime.utcfromtimestamp(0)}
+        }, multi=True)
+        bulk = self.tba_teams.initialize_unordered_bulk_op()
+        for event in self.tba_teams.find({'created_timestamp': {'$exists': False}}):
+            bulk.find({'_id': event['_id']}).update({
+                '$set': {'created_timestamp': event['modified_timestamp']}
+            })
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
+
     @property
     def tba_count(self):
         # (not using collection.count() because it can incorrectly return 0)

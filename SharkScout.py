@@ -48,6 +48,7 @@ if __name__ == '__main__':
     # Start MongoDB
     mongo = sharkscout.Mongo()
     mongo.index()
+    mongo.migrate()
 
     # mongorestore
     build_restored = False
