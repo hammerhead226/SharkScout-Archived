@@ -10,6 +10,26 @@ import sys
 import sharkscout
 
 
+class TBACache(object):
+    def __init__(self, collection):
+        self.collection = collection
+
+    def __getitem__(self, key):
+        return list(self.collection.find({'endpoint':key}))[0]['modified']
+
+    def __setitem__(self, key, value):
+        self.collection.update_one({'endpoint':key}, {'$set':{
+            'endpoint': key,
+            'modified': value
+        }}, upsert=True)
+
+    def __delitem__(self, key):
+        self.collection.remove({'endpoint':key})
+
+    def __contains__(self, key):
+        return len(list(self.collection.find({'endpoint':key})))
+
+
 class Mongo(object):
     port = None
     client = None
@@ -22,9 +42,11 @@ class Mongo(object):
         self.shark_scout = self.client.shark_scout
         self.tba_events = self.shark_scout.tba_events
         self.tba_teams = self.shark_scout.tba_teams
+        self.tba_cache = self.shark_scout.tba_cache
         self.scouting = self.shark_scout.scouting
 
-        self.tba_api = sharkscout.TheBlueAlliance()
+        cache = TBACache(self.tba_cache)
+        self.tba_api = sharkscout.TheBlueAlliance(cache)
 
     def start(self):
         # Build and create database path
@@ -78,6 +100,7 @@ class Mongo(object):
         self.tba_events.create_index('year')
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
+        self.tba_cache.create_index('endpoint', unique=True)
 
     # Perform database migrations
     def migrate(self):
