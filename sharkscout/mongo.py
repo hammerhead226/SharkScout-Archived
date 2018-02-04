@@ -186,23 +186,20 @@ class Mongo(object):
 
     # TBA update an individual event
     def event_update(self, event_key):
-        event = self.event(event_key)
-        modified_timestamp = event['modified_timestamp'] if 'modified_timestamp' in event else datetime.utcfromtimestamp(0)
-
-        event = self.tba_api.event(event_key, modified_timestamp)
+        event = self.tba_api.event(event_key)
         if event:
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
-                'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key, modified_timestamp)]),
-                'matches': self.tba_api.event_matches(event_key, modified_timestamp)
+                'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
+                'matches': self.tba_api.event_matches(event_key)
             }.items() if v})
             # Info that can't be known before an event starts
             if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
                 event.update({k: v for k, v in {
-                    'rankings': self.tba_api.event_rankings(event_key, modified_timestamp),
-                    'stats': self.tba_api.event_oprs(event_key, modified_timestamp),
-                    'awards': self.tba_api.event_awards(event_key, modified_timestamp),
-                    'alliances': self.tba_api.event_alliances(event_key, modified_timestamp)
+                    'rankings': self.tba_api.event_rankings(event_key),
+                    'stats': self.tba_api.event_oprs(event_key),
+                    'awards': self.tba_api.event_awards(event_key),
+                    'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
             event['modified_timestamp'] = datetime.utcnow()
             self.tba_events.update_one({
@@ -620,13 +617,10 @@ class Mongo(object):
 
     # TBA update an individual team
     def team_update(self, team_key):
-        team = self.team(team_key)
-        modified_timestamp = team['modified_timestamp'] if 'modified_timestamp' in team else datetime.utcfromtimestamp(0)
-
-        team = self.tba_api.team(team_key, modified_timestamp)
+        team = self.tba_api.team(team_key)
         if team:
             team.update({k:v for k, v in {
-                'awards': self.tba_api.team_history_awards(team_key, modified_timestamp)
+                'awards': self.tba_api.team_history_awards(team_key)
             }.items() if v})
             team['modified_timestamp'] = datetime.utcnow()
             self.tba_teams.update_one({'key': team['key']}, {
