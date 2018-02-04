@@ -1,6 +1,6 @@
 import cherrypy
 import csv
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import genshi.core
 import genshi.template
 import json
@@ -215,9 +215,10 @@ class Index(CherryServer):
             raise cherrypy.HTTPRedirect('/events')
         page = {
             'event': event,
-            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'stats_matches': int(stats_matches),
-            'years': sharkscout.Mongo().event_years(event['event_code'])
+            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
+            'years': sharkscout.Mongo().event_years(event['event_code']),
+            'modified_timestamp': event['modified_timestamp']
         }
         return self.display('event', page)
 
@@ -267,9 +268,10 @@ class Index(CherryServer):
         if not team:
             raise cherrypy.HTTPRedirect('/teams')
         page = {
+            'team': team,
             'year': year,
             'stats': sharkscout.Mongo().team_stats(team_key),
-            'team': team
+            'modified_timestamp': team['modified_timestamp']
         }
         return self.display('team', page)
 
