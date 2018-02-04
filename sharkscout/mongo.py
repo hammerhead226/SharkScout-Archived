@@ -170,7 +170,7 @@ class Mongo(object):
                 '$set': event,
                 '$setOnInsert': {'created_timestamp': datetime.utcnow()}
             })
-        # Delete events
+        # Delete events that no longer exist
         missing = [e['key'] for e in self.tba_events.find({
             'year': int(year),
             'key': {'$nin': [e['key'] for e in events]}
@@ -184,20 +184,23 @@ class Mongo(object):
 
     # TBA update an individual event
     def event_update(self, event_key):
-        event = self.tba_api.event(event_key)
+        event = self.event(event_key)
+        modified_timestamp = event['modified_timestamp'] if 'modified_timestamp' in event else datetime.fromtimestamp(0)
+
+        event = self.tba_api.event(event_key, modified_timestamp)
         if event:
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
-                'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
-                'matches': self.tba_api.event_matches(event_key)
+                'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key, modified_timestamp)]),
+                'matches': self.tba_api.event_matches(event_key, modified_timestamp)
             }.items() if v})
             # Info that can't be known before an event starts
             if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
                 event.update({k: v for k, v in {
-                    'rankings': self.tba_api.event_rankings(event_key),
-                    'stats': self.tba_api.event_oprs(event_key),
-                    'awards': self.tba_api.event_awards(event_key),
-                    'alliances': self.tba_api.event_alliances(event_key)
+                    'rankings': self.tba_api.event_rankings(event_key, modified_timestamp),
+                    'stats': self.tba_api.event_oprs(event_key, modified_timestamp),
+                    'awards': self.tba_api.event_awards(event_key, modified_timestamp),
+                    'alliances': self.tba_api.event_alliances(event_key, modified_timestamp)
                 }.items() if v})
             event['modified_timestamp'] = datetime.utcnow()
             self.tba_events.update_one({
@@ -588,8 +591,10 @@ class Mongo(object):
                 '$set': team,
                 '$setOnInsert': {'created_timestamp': datetime.utcnow()}
             })
-
-        bulk.execute()
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
 
     # Team information
     def team(self, team_key, year=None):
@@ -604,15 +609,19 @@ class Mongo(object):
 
     # TBA update an individual team
     def team_update(self, team_key):
-        team = self.tba_api.team(team_key)
-        team.update({k:v for k, v in {
-            'awards': self.tba_api.team_history_awards(team_key)
-        }.items() if v})
-        team['modified_timestamp'] = datetime.utcnow()
-        self.tba_teams.update_one({'key': team['key']}, {
-            '$set': team,
-            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-        }, upsert=True)
+        team = self.team(team_key)
+        modified_timestamp = team['modified_timestamp'] if 'modified_timestamp' in team else datetime.fromtimestamp(0)
+
+        team = self.tba_api.team(team_key, modified_timestamp)
+        if team:
+            team.update({k:v for k, v in {
+                'awards': self.tba_api.team_history_awards(team_key, modified_timestamp)
+            }.items() if v})
+            team['modified_timestamp'] = datetime.utcnow()
+            self.tba_teams.update_one({'key': team['key']}, {
+                '$set': team,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):
