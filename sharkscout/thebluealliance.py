@@ -34,17 +34,6 @@ class TheBlueAlliance(object):
 
         response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers=headers, timeout=5)
 
-        # cherrypy-like logging
-        print(
-            '0.0.0.0 - -'
-            + ' [' + datetime.today().strftime('%d/%b/%Y:%H:%M:%S') + ']'
-            + ' "' + response.request.method + ' ' + response.url + '"'
-            + ' ' + str(response.status_code)
-            + ' ' + str(len(response.content))
-            + ' ""'
-            + ' "' + response.request.headers['User-Agent'] + '"'
-        )
-
         # Hide errors
         if 400 <= response.status_code and response.status_code <= 499:
             return {}
