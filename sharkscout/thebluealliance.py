@@ -1,5 +1,5 @@
 import backoff
-from datetime import date
+from datetime import date, datetime
 import json
 import os
 import re
@@ -19,15 +19,38 @@ class TheBlueAlliance(object):
                     raise Exception('Invalid tba_auth_key in config.json')
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
-    def _get(self, endpoint):
+    def _get(self, endpoint, modified_timestamp=None):
         if self.__class__.tba_auth_key is None:
             return {}
 
-        response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers={
+        headers = {
             'User-Agent': 'Mozilla/5.0',
             'X-TBA-Auth-Key': self.__class__.tba_auth_key
-        }, timeout=5)
+        }
+        if modified_timestamp is not None:
+            if isinstance(modified_timestamp, datetime):
+                modified_timestamp = modified_timestamp.strftime('%a, %d %b %Y %H:%M:%S UTC')
+            headers['If-Modified-Since'] = modified_timestamp
+
+        response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers=headers, timeout=5)
+
+        # cherrypy-like logging
+        print(
+            '0.0.0.0 - -'
+            + ' [' + datetime.today().strftime('%d/%b/%Y:%H:%M:%S') + ']'
+            + ' "' + response.request.method + ' ' + response.url + '"'
+            + ' ' + str(response.status_code)
+            + ' ' + str(len(response.content))
+            + ' ""'
+            + ' "' + response.request.headers['User-Agent'] + '"'
+        )
+
+        # Hide errors
         if 400 <= response.status_code and response.status_code <= 499:
+            return {}
+
+        # Not modified
+        if modified_timestamp is not None and response.status_code == 304:
             return {}
 
         content = response.json()
@@ -95,95 +118,95 @@ class TheBlueAlliance(object):
             teams[idx] = team
         return teams
 
-    def teams(self, page_num=0):
-        teams = self._get('teams/' + str(page_num))
+    def teams(self, page_num=0, modified_timestamp=None):
+        teams = self._get('teams/' + str(page_num), modified_timestamp)
         teams = [t for t in teams if t['nickname'] and t['name'] != 'Team ' + str(t['team_number'])]
         teams = self._team_map(teams)
         return teams
 
-    def teams_all(self):
+    def teams_all(self, modified_timestamp=None):
         teams = []
         page_num = 0
         while True:
-            page = self.teams(page_num)
+            page = self.teams(page_num, modified_timestamp)
             if not page:
                 break
             teams.extend(page)
             page_num += 1
         return teams
 
-    def team(self, team_key):
-        return self._get('team/' + team_key)
+    def team(self, team_key, modified_timestamp=None):
+        return self._get('team/' + team_key, modified_timestamp)
 
-    def team_awards(self, team_key, year=None):
-        return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''))
+    def team_awards(self, team_key, year=None, modified_timestamp=None):
+        return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''), modified_timestamp)
 
-    def team_districts(self, team_key):
-        return self._get('team/' + team_key + '/districts')
+    def team_districts(self, team_key, modified_timestamp=None):
+        return self._get('team/' + team_key + '/districts', modified_timestamp)
 
-    def team_events(self, team_key, year=None):
-        return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''))
+    def team_events(self, team_key, year=None, modified_timestamp=None):
+        return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''), modified_timestamp)
 
-    def team_event_awards(self, team_key, event_key):
-        return self._get('team/' + team_key + '/event/' + event_key + '/awards')
+    def team_event_awards(self, team_key, event_key, modified_timestamp=None):
+        return self._get('team/' + team_key + '/event/' + event_key + '/awards', modified_timestamp)
 
-    def team_event_matches(self, team_key, event_key):
-        return self._get('team/' + team_key + '/event/' + event_key + '/matches')
+    def team_event_matches(self, team_key, event_key, modified_timestamp=None):
+        return self._get('team/' + team_key + '/event/' + event_key + '/matches', modified_timestamp)
 
-    def team_years_participated(self, team_key):
-        return self._get('team/' + team_key + '/years_participated')
+    def team_years_participated(self, team_key, modified_timestamp=None):
+        return self._get('team/' + team_key + '/years_participated', modified_timestamp)
 
-    def team_media(self, team_key, year=None):
-        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''))
+    def team_media(self, team_key, year=None, modified_timestamp=None):
+        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''), modified_timestamp)
 
-    def team_robots(self, team_key):
-        return self._get('team/' + team_key + '/robots')
-
-    # Deprecated
-    def team_history_events(self, team_key):
-        return self.team_events(team_key)
+    def team_robots(self, team_key, modified_timestamp=None):
+        return self._get('team/' + team_key + '/robots', modified_timestamp)
 
     # Deprecated
-    def team_history_awards(self, team_key):
-        return self.team_awards(team_key)
+    def team_history_events(self, team_key, modified_timestamp=None):
+        return self.team_events(team_key, modified_timestamp)
 
     # Deprecated
-    def team_history_robots(self, team_key):
-        return self.team_robots(team_key)
+    def team_history_awards(self, team_key, modified_timestamp=None):
+        return self.team_awards(team_key, modified_timestamp)
 
     # Deprecated
-    def team_history_districts(self, team_key):
-        return self.team_districts(team_key)
+    def team_history_robots(self, team_key, modified_timestamp=None):
+        return self.team_robots(team_key, modified_timestamp)
 
-    def events(self, year=None):
+    # Deprecated
+    def team_history_districts(self, team_key, modified_timestamp=None):
+        return self.team_districts(team_key, modified_timestamp)
+
+    def events(self, year=None, modified_timestamp=None):
         if year is None:
             year = date.today().year
-        return self._get('events/' + str(year))
+        return self._get('events/' + str(year), modified_timestamp)
 
-    def event(self, event_key):
-        return self._get('event/' + event_key)
+    def event(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key, modified_timestamp)
 
-    def event_teams(self, event_key):
-        teams = self._get('event/' + event_key + '/teams')
+    def event_teams(self, event_key, modified_timestamp=None):
+        teams = self._get('event/' + event_key + '/teams', modified_timestamp)
         teams = self._team_map(teams)
         return teams
 
-    def event_matches(self, event_key):
-        matches = self._get('event/' + event_key + '/matches')
+    def event_matches(self, event_key, modified_timestamp=None):
+        matches = self._get('event/' + event_key + '/matches', modified_timestamp)
         return sorted(matches, key=lambda m: (m['time'] or 0))
 
-    def event_oprs(self, event_key):
-        return self._get('event/' + event_key + '/oprs')
+    def event_oprs(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key + '/oprs', modified_timestamp)
 
     # Deprecated
-    def event_stats(self, event_key):
-        return self.event_oprs(event_key)
+    def event_stats(self, event_key, modified_timestamp=None):
+        return self.event_oprs(event_key, modified_timestamp)
 
-    def event_rankings_raw(self, event_key):
-        return self._get('event/' + event_key + '/rankings')
+    def event_rankings_raw(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key + '/rankings', modified_timestamp)
 
-    def event_rankings_v2(self, event_key):
-        rankings = self.event_rankings_raw(event_key)
+    def event_rankings_v2(self, event_key, modified_timestamp=None):
+        rankings = self.event_rankings_raw(event_key, modified_timestamp)
         if rankings is None:
             return rankings
         for idx, ranking in enumerate(rankings['rankings']):
@@ -197,8 +220,8 @@ class TheBlueAlliance(object):
         rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
         return rankings['rankings']
 
-    def event_rankings(self, event_key):
-        rankings = self.event_rankings_v2(event_key)
+    def event_rankings(self, event_key, modified_timestamp=None):
+        rankings = self.event_rankings_v2(event_key, modified_timestamp)
         if rankings:
             # Change value names to snake case
             header = rankings.pop(0)
@@ -231,26 +254,26 @@ class TheBlueAlliance(object):
 
         return {}
 
-    def event_awards(self, event_key):
-        return self._get('event/' + event_key + '/awards')
+    def event_awards(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key + '/awards', modified_timestamp)
 
-    def event_district_points(self, event_key):
-        return self._get('event/' + event_key + '/district_points')
+    def event_district_points(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key + '/district_points', modified_timestamp)
 
-    def event_alliances(self, event_key):
-        return self._get('event/' + event_key + '/alliances')
+    def event_alliances(self, event_key, modified_timestamp=None):
+        return self._get('event/' + event_key + '/alliances', modified_timestamp)
 
-    def match(self, match_key):
-        return self._get('match/' + match_key)
+    def match(self, match_key, modified_timestamp=None):
+        return self._get('match/' + match_key, modified_timestamp)
 
-    def districts(self, year):
-        return self._get('districts/' + str(year))
+    def districts(self, year, modified_timestamp=None):
+        return self._get('districts/' + str(year), modified_timestamp)
 
-    def district_events(self, district_key, year):
-        return self._get('district/' + district_key + '/' + year + '/events')
+    def district_events(self, district_key, year, modified_timestamp=None):
+        return self._get('district/' + district_key + '/' + year + '/events', modified_timestamp)
 
-    def district_rankings(self, district_key):
-        return self._get('district/' + district_key + '/rankings')
+    def district_rankings(self, district_key, modified_timestamp=None):
+        return self._get('district/' + district_key + '/rankings', modified_timestamp)
 
-    def district_teams(self, district_key):
-        return self._get('district/' + district_key + '/teams')
+    def district_teams(self, district_key, modified_timestamp=None):
+        return self._get('district/' + district_key + '/teams', modified_timestamp)
