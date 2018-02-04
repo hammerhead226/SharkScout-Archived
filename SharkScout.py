@@ -101,7 +101,7 @@ if __name__ == '__main__':
                     print('Updating ' + str(year) + ' events ...')
                     for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
                         pass
-            print()
+                    print()
 
     # mongodump
     if args.dump:
