@@ -173,11 +173,12 @@ class Mongo(object):
                 }
             })
         # Delete events that no longer exist
-        missing = [e['key'] for e in self.tba_events.find({
-            'year': int(year),
-            'key': {'$nin': [e['key'] for e in events]}
-        })]
-        bulk.find({'key': {'$in': missing}}).remove()
+        if events:
+            missing = [e['key'] for e in self.tba_events.find({
+                'year': int(year),
+                'key': {'$nin': [e['key'] for e in events]}
+            })]
+            bulk.find({'key': {'$in': missing}}).remove()
         # Execute
         try:
             bulk.execute()
@@ -595,10 +596,11 @@ class Mongo(object):
                 }
             })
         # Delete teams that no longer exist
-        missing = [t['key'] for t in self.tba_teams.find({
-            'key': {'$nin': [t['key'] for t in teams]}
-        })]
-        bulk.find({'key': {'$in': missing}}).remove()
+        if teams:
+            missing = [t['key'] for t in self.tba_teams.find({
+                'key': {'$nin': [t['key'] for t in teams]}
+            })]
+            bulk.find({'key': {'$in': missing}}).remove()
         try:
             bulk.execute()
         except pymongo.errors.InvalidOperation:
