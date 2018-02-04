@@ -168,7 +168,7 @@ class Mongo(object):
             bulk.find({'key': event['key']}).upsert().update({
                 '$set': event,
                 '$setOnInsert': {
-                    'modified_timestamp': datetime.fromtimestamp(0),
+                    'modified_timestamp': datetime.utcfromtimestamp(0),
                     'created_timestamp': datetime.utcnow()
                 }
             })
@@ -187,7 +187,7 @@ class Mongo(object):
     # TBA update an individual event
     def event_update(self, event_key):
         event = self.event(event_key)
-        modified_timestamp = event['modified_timestamp'] if 'modified_timestamp' in event else datetime.fromtimestamp(0)
+        modified_timestamp = event['modified_timestamp'] if 'modified_timestamp' in event else datetime.utcfromtimestamp(0)
 
         event = self.tba_api.event(event_key, modified_timestamp)
         if event:
@@ -593,7 +593,7 @@ class Mongo(object):
             bulk.find({'key': team['key']}).upsert().update({
                 '$set': team,
                 '$setOnInsert': {
-                    'modified_timestamp': datetime.fromtimestamp(0),
+                    'modified_timestamp': datetime.utcfromtimestamp(0),
                     'created_timestamp': datetime.utcnow()
                 }
             })
@@ -621,7 +621,7 @@ class Mongo(object):
     # TBA update an individual team
     def team_update(self, team_key):
         team = self.team(team_key)
-        modified_timestamp = team['modified_timestamp'] if 'modified_timestamp' in team else datetime.fromtimestamp(0)
+        modified_timestamp = team['modified_timestamp'] if 'modified_timestamp' in team else datetime.utcfromtimestamp(0)
 
         team = self.tba_api.team(team_key, modified_timestamp)
         if team:
