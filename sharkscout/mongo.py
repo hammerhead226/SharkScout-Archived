@@ -151,7 +151,9 @@ class Mongo(object):
                     if match['key'] in scouting:
                         match['scouting'] = scouting[match['key']]
                     event['matches'][match_idx] = match
-        return event
+            return event
+        else:
+            return {}
 
     # List of all events (years) with a given event code
     def event_years(self, event_code):
@@ -321,7 +323,9 @@ class Mongo(object):
         }}]))
         if scouting:
             scouting = scouting[0]['match']
-        return scouting
+            return scouting
+        else:
+            return {}
 
     # Upsert scouted data
     def scouting_match_update(self, data):
@@ -354,7 +358,9 @@ class Mongo(object):
         }}]))
         if scouting:
             scouting = scouting[0]
-        return scouting
+            return scouting
+        else:
+            return {}
 
     def scouting_pit_teams(self, event_key):
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -566,11 +572,12 @@ class Mongo(object):
         }}]))
         if stats:
             return stats[0]
-        return {
-            'count': 0,
-            'min': 0,
-            'max': 0
-        }
+        else:
+            return {
+                'count': 0,
+                'min': 0,
+                'max': 0
+            }
 
     # TBA update the team listing
     def teams_update(self):
@@ -589,8 +596,11 @@ class Mongo(object):
         team = list(self.tba_teams.find({'key': team_key}))
         if team:
             team = team[0]
-            team['events'] = self.team_events(team_key, year)
-        return team
+            if year is not None:
+                team['events'] = self.team_events(team_key, year)
+            return team
+        else:
+            return {}
 
     # TBA update an individual team
     def team_update(self, team_key):
