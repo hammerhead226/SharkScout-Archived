@@ -44,7 +44,8 @@ class TheBlueAlliance(object):
         for model_idx, model in enumerate(models_list):
             if not sum([0 if k in model else 1 for k in ['name', 'award_type', 'event_key', 'recipient_list']]):
                 # Award
-                pass
+                for recipient_idx, recipient in enumerate(model['recipient_list']):
+                    model['recipient_list'][recipient_idx]['team_number'] = recipient['team_key']
             elif not sum([0 if k in model else 1 for k in ['key', 'team_number', 'name', 'rookie_year']]):
                 # Team
                 model['country_name'] = model['country']
