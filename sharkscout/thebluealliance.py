@@ -41,7 +41,7 @@ class TheBlueAlliance(object):
 
         models_list = models if isinstance(models, list) else [models]
 
-        for idx, model in enumerate(models_list):
+        for model_idx, model in enumerate(models_list):
             if not sum([0 if k in model else 1 for k in ['name', 'award_type', 'event_key', 'recipient_list']]):
                 # Award
                 pass
@@ -58,7 +58,8 @@ class TheBlueAlliance(object):
                 model['webcast'] = model['webcasts']
             elif not sum([0 if k in model else 1 for k in ['key', 'comp_level', 'set_number', 'match_number', 'event_key']]):
                 # Match
-                pass
+                for alliance in model['alliances']:
+                    model['alliances'][alliance]['teams'] = model['alliances'][alliance]['team_keys']
 
             if not sum([0 if k in model else 1 for k in ['city', 'state_prov', 'postal_code', 'country']]):
                 model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + (model['postal_code'] or '') + ', ' + (model['country'] or '')
@@ -67,7 +68,7 @@ class TheBlueAlliance(object):
                 model['location'] = model['location'].lstrip(', ').rstrip(', ')
                 model['location'] = model['location'] if model['location'] else None
 
-            models_list[idx] = model
+            models_list[model_idx] = model
 
         return models_list if isinstance(models, list) else models_list[0]
 
