@@ -165,10 +165,12 @@ class Mongo(object):
         bulk = self.tba_events.initialize_unordered_bulk_op()
         # Upsert events
         for event in events:
-            event['modified_timestamp'] = datetime.utcnow()
             bulk.find({'key': event['key']}).upsert().update({
                 '$set': event,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+                '$setOnInsert': {
+                    'modified_timestamp': datetime.fromtimestamp(0),
+                    'created_timestamp': datetime.utcnow()
+                }
             })
         # Delete events that no longer exist
         missing = [e['key'] for e in self.tba_events.find({
@@ -586,10 +588,12 @@ class Mongo(object):
     def teams_update(self):
         bulk = self.tba_teams.initialize_unordered_bulk_op()
         for team in self.tba_api.teams_all():
-            team['modified_timestamp'] = datetime.utcnow()
             bulk.find({'key': team['key']}).upsert().update({
                 '$set': team,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+                '$setOnInsert': {
+                    'modified_timestamp': datetime.fromtimestamp(0),
+                    'created_timestamp': datetime.utcnow()
+                }
             })
         try:
             bulk.execute()
