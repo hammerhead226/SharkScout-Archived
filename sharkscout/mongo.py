@@ -586,8 +586,10 @@ class Mongo(object):
 
     # TBA update the team listing
     def teams_update(self):
+        teams = self.tba_api.teams_all()
         bulk = self.tba_teams.initialize_unordered_bulk_op()
-        for team in self.tba_api.teams_all():
+        # Upsert teams
+        for team in teams:
             bulk.find({'key': team['key']}).upsert().update({
                 '$set': team,
                 '$setOnInsert': {
@@ -595,6 +597,11 @@ class Mongo(object):
                     'created_timestamp': datetime.utcnow()
                 }
             })
+        # Delete teams that no longer exist
+        missing = [t['key'] for t in self.tba_teams.find({
+            'key': {'$nin': [t['key'] for t in teams]}
+        })]
+        bulk.find({'key': {'$in': missing}}).remove()
         try:
             bulk.execute()
         except pymongo.errors.InvalidOperation:
