@@ -97,7 +97,10 @@ class Mongo(object):
         self.tba_events.create_index('event_code')
         self.tba_events.create_index('key', unique=True)
         self.tba_events.create_index('teams')
-        self.tba_events.create_index('year')
+        self.tba_events.create_index([
+            ('year', pymongo.ASCENDING),
+            ('start_date', pymongo.ASCENDING)
+        ])
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
         self.tba_cache.create_index('endpoint', unique=True)
