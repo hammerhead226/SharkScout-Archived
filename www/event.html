@@ -212,11 +212,11 @@
                                         <py:choose>
                                             <py:when test="recipient['team_number'] and 'teams' in page['event'] and page['event']['teams']">
                                                 <py:choose py:with="teams = [t for t in page['event']['teams'] if int(t['team_number']) == int(recipient_team_number_normalized)]; team = teams[0] if len(teams) > 0 else []">
-                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${recipient['team_number']} - ${team['nickname']}</a>
-                                                    <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${recipient_team_number_normalized} - ${team['nickname']}</a>
+                                                    <py:otherwise>${recipient_team_number_normalized}</py:otherwise>
                                                 </py:choose>
                                             </py:when>
-                                            <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                            <py:otherwise>${recipient_team_number_normalized}</py:otherwise>
                                         </py:choose>
                                         <span py:if="recipient['awardee'] and recipient['team_number']">)</span>
                                     </span>
