@@ -125,7 +125,20 @@
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
 
 
-        <div class="container-fluid" py:content="page['__CONTENT__']"></div>
+        <div class="container-fluid">
+            <div class="alert alert-warning text-center" role="alert" py:if="'modified_timestamp' in page and (datetime.utcnow() - page['modified_timestamp']).days >= 7">
+                <strong>Warning!</strong>
+                <py:choose>
+                    <py:when test="page['modified_timestamp'].replace(tzinfo=timezone.utc).timestamp() == 0">
+                        The Blue Alliance data on this page has never been fully updated.
+                    </py:when>
+                    <py:otherwise>
+                        The Blue Alliance data on this page was last fully updated <em>${page['modified_timestamp'].strftime('%c')}</em>, it may be out of date.
+                    </py:otherwise>
+                </py:choose>
+            </div>
+            ${page['__CONTENT__']}
+        </div>
 
 
         <div class="footer-spacer"></div>
