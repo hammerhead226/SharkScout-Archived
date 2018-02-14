@@ -10,6 +10,26 @@ import sys
 import sharkscout
 
 
+class TBACache(object):
+    def __init__(self, collection):
+        self.collection = collection
+
+    def __getitem__(self, key):
+        return list(self.collection.find({'endpoint':key}))[0]['modified']
+
+    def __setitem__(self, key, value):
+        self.collection.update_one({'endpoint':key}, {'$set':{
+            'endpoint': key,
+            'modified': value
+        }}, upsert=True)
+
+    def __delitem__(self, key):
+        self.collection.remove({'endpoint':key})
+
+    def __contains__(self, key):
+        return len(list(self.collection.find({'endpoint':key})))
+
+
 class Mongo(object):
     port = None
     client = None
@@ -22,9 +42,11 @@ class Mongo(object):
         self.shark_scout = self.client.shark_scout
         self.tba_events = self.shark_scout.tba_events
         self.tba_teams = self.shark_scout.tba_teams
+        self.tba_cache = self.shark_scout.tba_cache
         self.scouting = self.shark_scout.scouting
 
-        self.tba_api = sharkscout.TheBlueAlliance()
+        cache = TBACache(self.tba_cache)
+        self.tba_api = sharkscout.TheBlueAlliance(cache)
 
     def start(self):
         # Build and create database path
@@ -75,9 +97,47 @@ class Mongo(object):
         self.tba_events.create_index('event_code')
         self.tba_events.create_index('key', unique=True)
         self.tba_events.create_index('teams')
-        self.tba_events.create_index('year')
+        self.tba_events.create_index([
+            ('year', pymongo.ASCENDING),
+            ('start_date', pymongo.ASCENDING)
+        ])
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
+        self.tba_cache.create_index('endpoint', unique=True)
+
+    # Perform database migrations
+    def migrate(self):
+        ##### Addition of created_timestamp and modified_timestamp #####
+        # TBA events
+        self.tba_events.update({
+            'modified_timestamp': {'$exists': False}
+        }, {
+            '$set': {'modified_timestamp': datetime.utcfromtimestamp(0)}
+        }, multi=True)
+        bulk = self.tba_events.initialize_unordered_bulk_op()
+        for event in self.tba_events.find({'created_timestamp': {'$exists': False}}):
+            bulk.find({'_id': event['_id']}).update({
+                '$set': {'created_timestamp': event['modified_timestamp']}
+            })
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
+        # TBA teams
+        self.tba_teams.update({
+            'modified_timestamp': {'$exists': False}
+        }, {
+            '$set': {'modified_timestamp': datetime.utcfromtimestamp(0)}
+        }, multi=True)
+        bulk = self.tba_teams.initialize_unordered_bulk_op()
+        for event in self.tba_teams.find({'created_timestamp': {'$exists': False}}):
+            bulk.find({'_id': event['_id']}).update({
+                '$set': {'created_timestamp': event['modified_timestamp']}
+            })
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
 
     @property
     def tba_count(self):
@@ -126,8 +186,9 @@ class Mongo(object):
                     if match['key'] in match_scouting:
                         match['scouting'] = match_scouting[match['key']]
                     event['matches'][match_idx] = match
-
-        return event
+            return event
+        else:
+            return {}
 
     # List of all events (years) with a given event code
     def event_years(self, event_code):
@@ -139,13 +200,20 @@ class Mongo(object):
         bulk = self.tba_events.initialize_unordered_bulk_op()
         # Upsert events
         for event in events:
-            bulk.find({'key': event['key']}).upsert().update({'$set': event})
-        # Delete events
-        missing = [e['key'] for e in self.tba_events.find({
-            'year': int(year),
-            'key': {'$nin': [e['key'] for e in events]}
-        })]
-        bulk.find({'key': {'$in': missing}}).remove()
+            bulk.find({'key': event['key']}).upsert().update({
+                '$set': event,
+                '$setOnInsert': {
+                    'modified_timestamp': datetime.utcfromtimestamp(0),
+                    'created_timestamp': datetime.utcnow()
+                }
+            })
+        # Delete events that no longer exist
+        if events:
+            missing = [e['key'] for e in self.tba_events.find({
+                'year': int(year),
+                'key': {'$nin': [e['key'] for e in events]}
+            })]
+            bulk.find({'key': {'$in': missing}}).remove()
         # Execute
         try:
             bulk.execute()
@@ -169,7 +237,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-            self.tba_events.update_one({'key': event['key']}, {'$set': event}, upsert=True)
+            event['modified_timestamp'] = datetime.utcnow()
+            self.tba_events.update_one({
+                'key': event['key']
+            }, {
+                '$set': event,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -287,7 +361,9 @@ class Mongo(object):
         }}]))
         if scouting:
             scouting = scouting[0]['match']
-        return scouting
+            return scouting
+        else:
+            return {}
 
     # Upsert scouted data
     def scouting_match_update(self, data):
@@ -320,7 +396,9 @@ class Mongo(object):
         }}]))
         if scouting:
             scouting = scouting[0]
-        return scouting
+            return scouting
+        else:
+            return {}
 
     def scouting_pit_teams(self, event_key):
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -531,40 +609,61 @@ class Mongo(object):
         }}]))
         if stats:
             return stats[0]
-        return {
-            'count': 0,
-            'min': 0,
-            'max': 0
-        }
+        else:
+            return {
+                'count': 0,
+                'min': 0,
+                'max': 0
+            }
 
     # TBA update the team listing
     def teams_update(self):
+        teams = self.tba_api.teams_all()
         bulk = self.tba_teams.initialize_unordered_bulk_op()
 
-        # Cleanup bad data
-        bulk.find({'rookie_year':None}).remove()
-
-        # Update teams
-        for team in self.tba_api.teams_all():
-            bulk.find({'key': team['key']}).upsert().update({'$set': team})
-
-        bulk.execute()
+        # Upsert teams
+        for team in teams:
+            bulk.find({'key': team['key']}).upsert().update({
+                '$set': team,
+                '$setOnInsert': {
+                    'modified_timestamp': datetime.utcfromtimestamp(0),
+                    'created_timestamp': datetime.utcnow()
+                }
+            })
+        # Delete teams that no longer exist
+        if teams:
+            missing = [t['key'] for t in self.tba_teams.find({
+                'key': {'$nin': [t['key'] for t in teams]}
+            })]
+            bulk.find({'key': {'$in': missing}}).remove()
+        try:
+            bulk.execute()
+        except pymongo.errors.InvalidOperation:
+            pass  # "No operations to execute"
 
     # Team information
     def team(self, team_key, year=None):
         team = list(self.tba_teams.find({'key': team_key}))
         if team:
             team = team[0]
-            team['events'] = self.team_events(team_key, year)
-        return team
+            if year is not None:
+                team['events'] = self.team_events(team_key, year)
+            return team
+        else:
+            return {}
 
     # TBA update an individual team
     def team_update(self, team_key):
         team = self.tba_api.team(team_key)
-        team.update({k:v for k, v in {
-            'awards': self.tba_api.team_history_awards(team_key)
-        }.items() if v})
-        self.tba_teams.update_one({'key': team['key']}, {'$set': team}, upsert=True)
+        if team:
+            team.update({k:v for k, v in {
+                'awards': self.tba_api.team_history_awards(team_key)
+            }.items() if v})
+            team['modified_timestamp'] = datetime.utcnow()
+            self.tba_teams.update_one({'key': team['key']}, {
+                '$set': team,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):

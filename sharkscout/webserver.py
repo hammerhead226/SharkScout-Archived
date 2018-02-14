@@ -1,6 +1,6 @@
 import cherrypy
 import csv
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import genshi.core
 import genshi.template
 import json
@@ -65,19 +65,15 @@ class WebServer(threading.Thread):
     @property
     def port(self):
         try:
-            return cherrypy.server.socket_port
+            return cherrypy.server.bound_addr[1]
         except:
             return 0
 
 
 class CherryServer(object):
-    static_hash = None
-
     def __init__(self):
-        self.template_loader = genshi.template.TemplateLoader(
-            os.path.join(os.path.dirname(sys.argv[0]), 'www'),
-            auto_reload=True
-        )
+        self.www = os.path.normpath(os.path.join(os.path.dirname(sys.argv[0]), 'www'))
+        self.template_loader = genshi.template.TemplateLoader(self.www, auto_reload=True)
 
     def display(self, template, page={}):
         cherrypy.session['refresh'] = cherrypy.request.path_info
@@ -110,9 +106,64 @@ class CherryServer(object):
                             continue
                 yield kind, data, pos
 
+        # Pack <link> and <script> to fewer files
+        def packer(stream):
+            # Delete old packed files on first run
+            if not hasattr(self.__class__, 'packed'):
+                for root, dirs, files in os.walk(self.www):
+                    for file in files:
+                        if os.path.splitext(file)[0] == 'packed':
+                            os.remove(os.path.join(root, file))
+                self.__class__.packed = True
+
+            # Find all files to be packed, included packed file
+            files = {}
+            ns = None
+            for kind, data, pos in stream:
+                strip = False
+                if kind is genshi.core.START_NS:
+                    ns = data[1]
+                if kind is genshi.core.START:
+                    tag = data
+                    if type(tag) is tuple:
+                        tag = tag[0]
+                    tag = str(tag).replace('{' + ns + '}', '')
+                    if tag in ['link', 'script']:
+                        data_1 = list(data[1])
+                        for idx, attr in enumerate(data_1):
+                            if attr[0] in ['href', 'src']:
+                                # If this is a local file
+                                absolute = os.path.normpath(os.path.join(self.www, attr[1].lstrip('/')))
+                                if os.path.exists(absolute):
+                                    extension = os.path.splitext(attr[1])[1]
+                                    if extension not in files:
+                                        files[extension] = {}
+                                    directory = os.path.dirname(absolute)
+                                    if directory not in files[extension]:
+                                        files[extension][directory] = []
+                                    files[extension][directory].append(absolute)
+                                    if len(files[extension][directory]) > 1:
+                                        strip = True
+                                    data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
+                        data = (data[0], genshi.core.Attrs(data_1))
+                if not strip:
+                    yield kind, data, pos
+
+            # Pack files that don't exist
+            for extension in files:
+                for directory in files[extension]:
+                    packed = os.path.join(directory, 'packed' + extension)
+                    if not os.path.exists(packed):
+                        contents = b''
+                        for file in files[extension][directory]:
+                            with open(file, 'rb') as f:
+                                contents += f.read().strip() + b'\n'
+                        with open(packed, 'wb') as f:
+                            f.write(contents)
+
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
-            if self.__class__.static_hash is None:
+            if not hasattr(self.__class__, 'static_hash'):
                 self.__class__.static_hash = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
             ns = None
             for kind, data, pos in stream:
@@ -133,6 +184,8 @@ class CherryServer(object):
 
         # Generate the basic stream
         stream = self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session)
+        # Combine static files
+        stream = stream.filter(packer)
         # Filter the stream
         stream = stream.filter(static_hash)
         if strip_html:
@@ -215,9 +268,10 @@ class Index(CherryServer):
             raise cherrypy.HTTPRedirect('/events')
         page = {
             'event': event,
-            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'stats_matches': int(stats_matches),
-            'years': sharkscout.Mongo().event_years(event['event_code'])
+            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
+            'years': sharkscout.Mongo().event_years(event['event_code']),
+            'modified_timestamp': event['modified_timestamp']
         }
         return self.display('event', page)
 
@@ -267,9 +321,10 @@ class Index(CherryServer):
         if not team:
             raise cherrypy.HTTPRedirect('/teams')
         page = {
+            'team': team,
             'year': year,
             'stats': sharkscout.Mongo().team_stats(team_key),
-            'team': team
+            'modified_timestamp': team['modified_timestamp']
         }
         return self.display('team', page)
 

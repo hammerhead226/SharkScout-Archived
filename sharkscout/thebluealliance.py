@@ -1,5 +1,5 @@
 import backoff
-from datetime import date
+from datetime import date, datetime
 import json
 import os
 import re
@@ -10,28 +10,44 @@ import sys
 class TheBlueAlliance(object):
     tba_auth_key = None
 
-    def __init__(self):
+    def __init__(self, cache=None):
         if self.__class__.tba_auth_key is None:
             config = os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'config.json')
             with open(config, 'r') as f:
                 self.__class__.tba_auth_key = json.loads(f.read())['tba_auth_key']
                 if not self.__class__.tba_auth_key:
                     raise Exception('Invalid tba_auth_key in config.json')
+        self.cache = cache
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint):
         if self.__class__.tba_auth_key is None:
             return {}
 
-        response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers={
+        headers = {
             'User-Agent': 'Mozilla/5.0',
             'X-TBA-Auth-Key': self.__class__.tba_auth_key
-        }, timeout=5)
+        }
+        if self.cache is not None:
+            if endpoint in self.cache:
+                headers['If-Modified-Since'] = self.cache[endpoint]
+
+        response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers=headers, timeout=5)
+
+        # Hide errors
         if 400 <= response.status_code and response.status_code <= 499:
+            return {}
+
+        # Not modified
+        if response.status_code == 304:
             return {}
 
         content = response.json()
         content = self._tba3_to_tba2(content)
+
+        if self.cache is not None:
+            self.cache[endpoint] = response.headers['Last-Modified']
+
         return content
 
     @staticmethod
@@ -193,7 +209,7 @@ class TheBlueAlliance(object):
                 ranking['rank'],
                 ranking['team_key']
             ] + ranking['sort_orders'] + [
-                ranking['record']['wins'] + '-' + ranking['record']['losses'] + '-' + ranking['record']['ties'],
+                str(ranking['record']['wins']) + '-' + str(ranking['record']['losses']) + '-' + str(ranking['record']['ties']),
                 ranking['matches_played']
             ]
         rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
