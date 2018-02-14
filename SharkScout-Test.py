@@ -51,7 +51,7 @@ class Spider(scrapy.spiders.Spider):
         if response.status >= 400:
             raise scrapy.exceptions.CloseSpider(int(response.status))
 
-        urls = response.xpath('//*/@href').extract()
+        urls = response.xpath("//*[not(contains(@class,'disabled'))]/@href").extract()
 
         # Prevent urllib.parse.urlparse() from being dumb...
         urls = [('http://' if 'www' in u else '') + u for u in urls]
