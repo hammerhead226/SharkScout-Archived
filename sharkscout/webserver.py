@@ -71,8 +71,6 @@ class WebServer(threading.Thread):
 
 
 class CherryServer(object):
-    static_hash = None
-
     def __init__(self):
         self.www = os.path.normpath(os.path.join(os.path.dirname(sys.argv[0]), 'www'))
         self.template_loader = genshi.template.TemplateLoader(self.www, auto_reload=True)
@@ -165,7 +163,7 @@ class CherryServer(object):
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
-            if self.__class__.static_hash is None:
+            if not hasattr(self.__class__, 'static_hash'):
                 self.__class__.static_hash = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
             ns = None
             for kind, data, pos in stream:
