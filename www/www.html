@@ -123,6 +123,14 @@
         <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="/static/js/fontawesome-all-5.0.4.min.js"></script>
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
+        <script type="text/javascript">
+            // If jQuery failed to load then reload the page
+            window.onload = function() {
+                if(!window.jQuery) {
+                    window.location.reload();
+                }
+            }
+        </script>
 
 
         <div class="container-fluid">
