@@ -30,8 +30,9 @@ class Spider(scrapy.spiders.Spider):
         'DOWNLOAD_TIMEOUT': 10,          # 10s timeout
         'HTTPERROR_ALLOW_ALL': True      # let parse() deal with them
     }
-    url_regex = []
     closed_reason = None
+    allowed_domains = []
+    url_regex = []
 
     def __init__(self, *args, **kwargs):
         self.__class__.closed_reason = None
