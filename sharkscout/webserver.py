@@ -65,7 +65,7 @@ class WebServer(threading.Thread):
     @property
     def port(self):
         try:
-            return cherrypy.server.socket_port
+            return cherrypy.server.bound_addr[1]
         except:
             return 0
 
