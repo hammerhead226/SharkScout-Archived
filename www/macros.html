@@ -289,7 +289,6 @@
                     <th>Team Number</th>
                     <th>Team Name</th>
                     <th class="hidden-sm hidden-xs">Location</th>
-                    <th class="hidden-sm hidden-xs">Rookie Year</th>
                 </tr>
             </thead>
             <tbody>
@@ -302,12 +301,17 @@
                         <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}">${team['team_number']}</a>
                         <span class="fas fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
                     </td>
-                    <td>
-                        <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
-                            <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
-                            <py:when test="team['nickname']">${team['nickname']}</py:when>
-                            <py:otherwise>--</py:otherwise>
-                        </a>
+                    <td class="clearfix">
+                        <span class="pull-left">
+                            <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
+                                <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
+                                <py:when test="team['nickname']">${team['nickname']}</py:when>
+                                <py:otherwise>--</py:otherwise>
+                            </a>
+                        </span>
+                        <span class="pull-right hidden-sm hidden-xs">
+                            <span class="badge" title="Rookie Year">${team['rookie_year']}</span>
+                        </span>
                     </td>
                     <td class="hidden-sm hidden-xs">
                         <span class="${flag_icon_css(team['country_name'])}"></span>
@@ -317,7 +321,6 @@
                             <py:otherwise>${team['locality']}, ${team['country_name']}</py:otherwise>
                         </a>
                     </td>
-                    <td class="hidden-sm hidden-xs">${team['rookie_year']}</td>
                 </tr>
             </tbody>
         </table>
