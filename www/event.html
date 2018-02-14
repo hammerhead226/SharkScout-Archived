@@ -80,7 +80,7 @@
                     <div class="panel-body">
                         <div class="clearfix">
                             <div class="pull-left">
-                                <a href="/scout/match/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/scout/match/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['match'] else ''}">
                                     <span class="fas fa-binoculars"></span>&nbsp;&nbsp;Match Scout
                                 </a>
                             </div>
@@ -88,7 +88,7 @@
                                 <a href="/download/matches/${page['event']['key']}" class="btn btn-primary">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Match List
                                 </a>
-                                <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['match'] else ''}">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Match Scouting
                                 </a>
                             </div>
@@ -111,12 +111,12 @@
                     <div class="panel-body" py:if="'teams' in page['event'] and page['event']['teams']">
                         <div class="clearfix">
                             <div class="pull-left">
-                                <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['pit'] else ''}">
                                     <span class="fas fa-binoculars"></span>&nbsp;&nbsp;Pit Scout
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['pit'] else ''}">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Pit Scouting
                                 </a>
                             </div>

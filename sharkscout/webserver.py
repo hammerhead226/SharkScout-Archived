@@ -82,6 +82,9 @@ class CherryServer(object):
         page['__CONTENT__'] = self.render(template, page)
         return self.render('www', page, False)
 
+    def can_render(self, template):
+        return os.path.exists(os.path.join(self.www, template + '.html'))
+
     def render(self, template, page={}, strip_html=True):
         for key in ['team_number', 'user_name']:
             if key not in cherrypy.session:
@@ -269,6 +272,10 @@ class Index(CherryServer):
             'stats_matches': int(stats_matches),
             'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'years': sharkscout.Mongo().event_years(event['event_code']),
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(event['year']) + '/match'),
+                'pit': self.can_render('scouting/' + str(event['year']) + '/pit')
+            },
             'modified_timestamp': event['modified_timestamp']
         }
         return self.display('event', page)
@@ -314,6 +321,10 @@ class Index(CherryServer):
             'team': team,
             'year': year,
             'stats': sharkscout.Mongo().team_stats(team_key),
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(year) + '/match'),
+                'pit': self.can_render('scouting/' + str(year) + '/pit')
+            },
             'modified_timestamp': team['modified_timestamp']
         }
         return self.display('team', page)
