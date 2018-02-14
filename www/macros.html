@@ -13,22 +13,26 @@
                     <th>Name</th>
                     <th>Location</th>
                     <th>Dates</th>
-                    <th class="hidden-sm hidden-xs">Teams</th>
                 </tr>
             </thead>
             <tbody>
                 <tr py:for="event in events">
                     <td py:if="show_weeks">${event['week']}</td>
-                    <td>
-                        <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
-                            <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
-                        </py:if>
-                        <py:choose test="event['event_type']">
-                            <py:when test="2"><span class="fas fa-paper-plane" title="District Championship"></span>&nbsp;</py:when>
-                            <py:when test="3"><span class="fas fa-globe" title="Championship Division"></span>&nbsp;</py:when>
-                            <py:when test="4"><span class="fas fa-trophy" title="Championship Finals"></span>&nbsp;</py:when>
-                        </py:choose>
-                        <a href="/event/${event['key']}">${event['name']}</a>
+                    <td class="clearfix">
+                        <span class="pull-left">
+                            <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
+                                <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
+                            </py:if>
+                            <py:choose test="event['event_type']">
+                                <py:when test="2"><span class="fas fa-paper-plane" title="District Championship"></span>&nbsp;</py:when>
+                                <py:when test="3"><span class="fas fa-globe" title="Championship Division"></span>&nbsp;</py:when>
+                                <py:when test="4"><span class="fas fa-trophy" title="Championship Finals"></span>&nbsp;</py:when>
+                            </py:choose>
+                            <a href="/event/${event['key']}">${event['name']}</a>
+                        </span>
+                        <span class="pull-right hidden-sm hidden-xs">
+                            <span class="badge">${len(event['teams']) if 'teams' in event else 0} teams</span>
+                        </span>
                     </td>
                     <td>
                         <span class="${flag_icon_css(event['location'])}"></span>
@@ -46,7 +50,6 @@
                             </py:otherwise>
                         </py:choose>
                     </td>
-                    <td class="hidden-sm hidden-xs">${len(event['teams']) if 'teams' in event else 0}</td>
                 </tr>
             </tbody>
         </table>
