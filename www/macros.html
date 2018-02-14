@@ -68,6 +68,10 @@
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
             <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
         </h2>
+        <h4 py:if="'district' in event and event['district'] and 'display_name' in event['district']">
+            ${event['district']['year']}
+            ${event['district']['display_name']}
+            District</h4>
         <h5>
             <span class="fas fa-calendar-alt"></span>&nbsp;
             <py:if test="event['week'] or event['week'] == 0">Week ${event['week']} &mdash;</py:if>
