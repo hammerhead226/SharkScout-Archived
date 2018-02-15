@@ -42,10 +42,10 @@
                     <span class="badge">${len(page['event']['matches']) if 'matches' in page['event'] else 0}</span>
                 </a>
             </li>
-            <li role="presentation" py:if="'teams' in page['event'] and page['event']['teams']">
+            <li role="presentation">
                 <a href="#teams" role="tab" data-toggle="tab">
                     <span class="fas fa-users"></span>&nbsp;&nbsp;Teams
-                    <span class="badge">${len(page['event']['teams'])}</span>
+                    <span class="badge">${len(page['event']['teams']) if 'teams' in page['event'] else 0}</span>
                 </a>
             </li>
             <li role="presentation"  py:if="'alliances' in page['event'] and page['event']['alliances']">
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             </div>
-            <div id="teams" role="tabpanel" class="tab-page" py:if="'teams' in page['event'] and page['event']['teams']">
+            <div id="teams" role="tabpanel" class="tab-page">
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         <span class="fas fa-users"></span>&nbsp;&nbsp;Team Listing
@@ -108,7 +108,7 @@
                             <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
                         </a>
                     </div>
-                    <div class="panel-body" py:if="'teams' in page['event'] and page['event']['teams']">
+                    <div class="panel-body">
                         <div class="clearfix">
                             <div class="pull-left">
                                 <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['pit'] else ''}">
@@ -121,8 +121,10 @@
                                 </a>
                             </div>
                         </div>
-                        <br />
-                        ${team_listing(page['event']['teams'], page['event'])}
+                        <py:if test="'teams' in page['event'] and page['event']['teams']">
+                            <br />
+                            ${team_listing(page['event']['teams'], page['event'])}
+                        </py:if>
                     </div>
                 </div>
             </div>

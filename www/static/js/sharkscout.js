@@ -246,11 +246,12 @@ function deserialize(form, data) {
 // Initialize page
 $(document).ready(function() {
     // Block page changes when offline
-    $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]').not('[offline], a[target="_blank"]').click(function(e) {
-        if(!ws_online) {
-            $('#offline').modal();
-            e.preventDefault();
-        }
+    $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]')
+        .not('[offline], a[target="_blank"], [data-toggle="dropdown"]').click(function(e) {
+            if(!ws_online) {
+                $('#offline').modal();
+                e.preventDefault();
+            }
     });
 
     // btn-group behavior
