@@ -82,6 +82,9 @@ class CherryServer(object):
         page['__CONTENT__'] = self.render(template, page)
         return self.render('www', page, False)
 
+    def can_render(self, template):
+        return os.path.exists(os.path.join(self.www, template + '.html'))
+
     def render(self, template, page={}, strip_html=True):
         for key in ['team_number', 'user_name']:
             if key not in cherrypy.session:
@@ -264,13 +267,15 @@ class Index(CherryServer):
     @cherrypy.tools.allow(methods=['GET'])
     def event(self, event_key, stats_matches=0):
         event = sharkscout.Mongo().event(event_key)
-        if not event:
-            raise cherrypy.HTTPRedirect('/events')
         page = {
             'event': event,
             'stats_matches': int(stats_matches),
             'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'years': sharkscout.Mongo().event_years(event['event_code']),
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(event['year']) + '/match'),
+                'pit': self.can_render('scouting/' + str(event['year']) + '/pit')
+            },
             'modified_timestamp': event['modified_timestamp']
         }
         return self.display('event', page)
@@ -279,15 +284,9 @@ class Index(CherryServer):
     @cherrypy.tools.allow(methods=['GET'])
     def stats(self, event_key, match_key):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
-        if match_key and not matches:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
         match = matches[0] if matches else {}
-        if 'alliances' not in match:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
         stats = sharkscout.Mongo().scouting_stats(event_key)
 
@@ -318,12 +317,14 @@ class Index(CherryServer):
         if year is None:
             year = date.today().year
         team = sharkscout.Mongo().team(team_key, year)
-        if not team:
-            raise cherrypy.HTTPRedirect('/teams')
         page = {
             'team': team,
             'year': year,
             'stats': sharkscout.Mongo().team_stats(team_key),
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(year) + '/match'),
+                'pit': self.can_render('scouting/' + str(year) + '/pit')
+            },
             'modified_timestamp': team['modified_timestamp']
         }
         return self.display('team', page)
@@ -342,12 +343,8 @@ class Scout(CherryServer):
     @cherrypy.tools.allow(methods=['GET'])
     def match(self, event_key, match_key=None, team_key=None):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/teams')
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
-        if match_key and not matches:
-            raise cherrypy.HTTPRedirect('/scout/match/' + event_key)
         match = matches[0] if matches else {}
 
         teams = {
@@ -356,8 +353,6 @@ class Scout(CherryServer):
         } if match else {}
 
         team = sharkscout.Mongo().team(team_key, event['year']) if team_key else {}
-        if team_key and not team:
-            raise cherrypy.HTTPRedirect('/scout/match/' + event_key + '/' + match_key)
         if team:
             team['color'] = [c for c in teams if str(team['team_number']) in teams[c]]
             team['color'] = team['color'][0] if team['color'] else ''
@@ -373,22 +368,14 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        try:
-            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
-            return self.display('scout_match', page)
-        except genshi.template.loader.TemplateNotFound:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
+        return self.display('scout_match', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def pit(self, event_key, team_key=None):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/teams')
-
         team = sharkscout.Mongo().team(team_key, event['year']) if team_key else {}
-        if team_key and not team:
-            raise cherrypy.HTTPRedirect('/scout/pit/' + event_key)
 
         saved = {}
         if event_key and team_key:
@@ -400,11 +387,8 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        try:
-            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
-            return self.display('scout_pit', page)
-        except genshi.template.loader.TemplateNotFound:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
+        return self.display('scout_pit', page)
 
 
 class Update(CherryServer):
