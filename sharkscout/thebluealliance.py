@@ -137,7 +137,7 @@ class TheBlueAlliance(object):
         return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''))
 
     def team_districts(self, team_key):
-        return self._get('team/' + team_key + '/districts')
+        return self._get('team/' + team_key + '/districts') or []
 
     def team_events(self, team_key, year=None):
         return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''))
