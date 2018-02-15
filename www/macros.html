@@ -311,6 +311,9 @@
                     </td>
                     <td class="clearfix">
                         <span class="pull-left">
+                            <py:if test="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
+                                <span class="badge alert-info">${team['districts'][str(page['year'])]['abbreviation'].upper()}</span>
+                            </py:if>
                             <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
                                 <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
                                 <py:when test="team['nickname']">${team['nickname']}</py:when>
