@@ -57,7 +57,7 @@ if %errorlevel% neq 0 (
 )
 
 :: Run the test script
-..\venv\Scripts\pip3 install requests pynumparser pypiwin32^<222 scrapy
+..\venv\Scripts\pip3 install requests pynumparser scrapy
 ..\venv\Scripts\python ..\SharkScout-Test.py --level 2 SharkScout.exe --port 22600 --no-browser
 if %errorlevel% neq 0 (
 	cd ..
