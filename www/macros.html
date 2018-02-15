@@ -21,7 +21,7 @@
                     <td class="clearfix">
                         <span class="pull-left">
                             <py:if test="'district' in event and event['district'] and 'abbreviation' in event['district']">
-                                <span class="badge alert-info">${event['district']['abbreviation'].upper()}</span>
+                                <span class="badge alert-info" title="${event['district']['year']} ${event['district']['display_name']} District">${event['district']['abbreviation'].upper()}</span>
                             </py:if>
                             <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                                 <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
@@ -312,7 +312,7 @@
                     <td class="clearfix">
                         <span class="pull-left">
                             <py:if test="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
-                                <span class="badge alert-info">${team['districts'][str(page['year'])]['abbreviation'].upper()}</span>
+                                <span class="badge alert-info" title="${district['year']} ${district['display_name']} District" py:with="district = team['districts'][str(page['year'])]">${district['abbreviation'].upper()}</span>
                             </py:if>
                             <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
                                 <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
