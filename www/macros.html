@@ -71,7 +71,8 @@
         <h4 py:if="'district' in event and event['district'] and 'display_name' in event['district']">
             ${event['district']['year']}
             ${event['district']['display_name']}
-            District</h4>
+            District
+        </h4>
         <h5>
             <span class="fas fa-calendar-alt"></span>&nbsp;
             <py:if test="event['week'] or event['week'] == 0">Week ${event['week']} &mdash;</py:if>
@@ -342,7 +343,12 @@
             <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
             <span class="fas fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
         </h2>
-        <h4><em>${team['motto']}</em></h4>
+        <h4><strong><em>${team['motto']}</em></strong></h4>
+        <h4 py:if="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
+            ${team['districts'][str(page['year'])]['year']}
+            ${team['districts'][str(page['year'])]['display_name']}
+            District
+        </h4>
         <h5><span class="far fa-id-card"></span>&nbsp;&nbsp;${team['name']}</h5>
         <h5 py:if="team['website']"><span class="fas fa-link"></span>&nbsp;&nbsp;<a href="${team['website']}" target="_blank">${team['website']}</a></h5>
         <h5><span class="far fa-lightbulb fa-rotate-180"></span>&nbsp;&nbsp;<a href="hhttps://www.thebluealliance.com/team/${team['team_number']}" target="_blank">The Blue Alliance</a></h5>
