@@ -18,7 +18,7 @@
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
             ${'&raquo; ' if 'match' in page and 'comp_level' in page['match'] else ''}${match_name(page['match']) if 'match' in page and 'comp_level' in page['match'] else ''}
             ${'&raquo; Team ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
-            ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
+            ${'&raquo; ' + str(page['year']) if 'year' in page and not page['year_defaulted'] else ''}
         </title>
 
         <link rel="stylesheet" href="/static/css/bootstrap-3.3.7.min.css"></link>
