@@ -657,7 +657,8 @@ class Mongo(object):
         team = self.tba_api.team(team_key)
         if team:
             team.update({k:v for k, v in {
-                'awards': self.tba_api.team_history_awards(team_key)
+                'awards': self.tba_api.team_history_awards(team_key),
+                'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)}
             }.items() if v})
             team['modified_timestamp'] = datetime.utcnow()
             self.tba_teams.update_one({'key': team['key']}, {
