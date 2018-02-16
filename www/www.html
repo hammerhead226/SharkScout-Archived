@@ -11,9 +11,9 @@
             ${'&raquo; ' + page['__TEMPLATE__'].replace('_',' ').title() if page['__TEMPLATE__'] != 'index' else ''}
             <py:if test="'team_page' in page">
                 &raquo;
-                ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*1000}
+                ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*500}
                 -
-                ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
+                ${page['stats']['max'] if (page['team_page']+1)*500-1 &gt; page['stats']['max'] else (page['team_page']+1)*500-1}
             </py:if>
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
             ${'&raquo; ' if 'match' in page and 'comp_level' in page['match'] else ''}${match_name(page['match']) if 'match' in page and 'comp_level' in page['match'] else ''}
