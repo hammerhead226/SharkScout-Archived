@@ -90,6 +90,12 @@ class CherryServer(object):
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
 
+        if 'year' not in page or ('year_defaulted' in page and page['year_defaulted']):
+            page['year'] = date.today().year
+            page['year_defaulted'] = True
+        else:
+            page['year_defaulted'] = False
+
         def strip(stream):
             ns = None
             for kind, data, pos in stream:
