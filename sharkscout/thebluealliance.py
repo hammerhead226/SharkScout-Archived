@@ -204,15 +204,16 @@ class TheBlueAlliance(object):
         rankings = self.event_rankings_raw(event_key)
         if rankings is None:
             return rankings
-        for idx, ranking in enumerate(rankings['rankings']):
-            rankings['rankings'][idx] = [
-                ranking['rank'],
-                ranking['team_key']
-            ] + ranking['sort_orders'] + [
-                (str(ranking['record']['wins']) + '-' + str(ranking['record']['losses']) + '-' + str(ranking['record']['ties'])) if ranking['record'] else '0-0-0',
-                ranking['matches_played']
-            ]
-        rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
+        if 'rankings' in rankings and rankings['rankings']:
+            for idx, ranking in enumerate(rankings['rankings']):
+                rankings['rankings'][idx] = [
+                    ranking['rank'],
+                    ranking['team_key']
+                ] + ranking['sort_orders'] + [
+                    (str(ranking['record']['wins']) + '-' + str(ranking['record']['losses']) + '-' + str(ranking['record']['ties'])) if ranking['record'] else '0-0-0',
+                    ranking['matches_played']
+                ]
+            rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
         return rankings['rankings']
 
     def event_rankings(self, event_key):
