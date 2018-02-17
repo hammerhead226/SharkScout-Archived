@@ -34,7 +34,7 @@
                             <a href="/event/${event['key']}">${event['name']}</a>
                         </span>
                         <span class="pull-right hidden-sm hidden-xs">
-                            <a href="/event/${event['key']}#teams">
+                            <a href="/event/${event['key']}#teams" py:if="'teams' in event and event['teams']">
                                 <span class="badge">${len(event['teams']) if 'teams' in event else 0} teams</span>
                             </a>
                         </span>
