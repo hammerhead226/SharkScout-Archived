@@ -140,15 +140,16 @@ class CherryServer(object):
                                 absolute = os.path.normpath(os.path.join(self.www, attr[1].lstrip('/')))
                                 if os.path.exists(absolute):
                                     extension = os.path.splitext(attr[1])[1]
-                                    if extension not in static_files:
-                                        static_files[extension] = {}
-                                    directory = os.path.dirname(absolute)
-                                    if directory not in static_files[extension]:
-                                        static_files[extension][directory] = []
-                                    static_files[extension][directory].append(absolute)
-                                    if len(static_files[extension][directory]) > 1:
-                                        strip = True
-                                    data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
+                                    if extension.lstrip('.') in ['css', 'js']:
+                                        if extension not in static_files:
+                                            static_files[extension] = {}
+                                        directory = os.path.dirname(absolute)
+                                        if directory not in static_files[extension]:
+                                            static_files[extension][directory] = []
+                                        static_files[extension][directory].append(absolute)
+                                        if len(static_files[extension][directory]) > 1:
+                                            strip = True
+                                        data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
                         data = (data[0], genshi.core.Attrs(data_1))
                 if not strip:
                     yield kind, data, pos
