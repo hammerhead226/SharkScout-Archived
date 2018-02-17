@@ -29,7 +29,7 @@
                     <span class="badge">${len(page['upcoming'])}</span>
                 </a>
             </li>
-            <li role="presentation">
+            <li role="presentation" py:if="len(page['upcoming']) > 0 and len(page['upcoming']) != len(page['events'])">
                 <a href="#all" role="tab" data-toggle="tab">
                     <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;All
                     <span class="badge">${len(page['events'])}</span>
@@ -81,7 +81,7 @@
                     <div id="upcoming" role="tabpanel" class="tab-page" py:if="page['upcoming']">
                         ${event_listing(page['upcoming'])}
                     </div>
-                    <div id="all" role="tabpanel" class="tab-page">
+                    <div id="all" role="tabpanel" class="tab-page" py:if="len(page['upcoming']) > 0 and len(page['upcoming']) != len(page['events'])">
                         ${event_listing(page['events'])}
                     </div>
                 </div>
