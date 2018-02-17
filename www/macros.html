@@ -23,6 +23,7 @@
                             <py:if test="'district' in event and event['district'] and 'abbreviation' in event['district']">
                                 <span class="badge alert-info" title="${event['district']['year']} ${event['district']['display_name']} District">${event['district']['abbreviation'].upper()}</span>
                             </py:if>
+                            <span class="fas fa-car" title="Attending" py:if="'teams' in event and 'frc' + str(session['team_number'] or -1) in event['teams']"></span>
                             <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                                 <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
                             </py:if>
