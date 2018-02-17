@@ -213,7 +213,8 @@ class Mongo(object):
                 'year': int(year),
                 'key': {'$nin': [e['key'] for e in events]}
             })]
-            bulk.find({'key': {'$in': missing}}).remove()
+            if missing:
+                bulk.find({'key': {'$in': missing}}).remove()
         # Execute
         try:
             bulk.execute()
@@ -635,7 +636,8 @@ class Mongo(object):
             missing = [t['key'] for t in self.tba_teams.find({
                 'key': {'$nin': [t['key'] for t in teams]}
             })]
-            bulk.find({'key': {'$in': missing}}).remove()
+            if missing:
+                bulk.find({'key': {'$in': missing}}).remove()
         try:
             bulk.execute()
         except pymongo.errors.InvalidOperation:
