@@ -20,7 +20,7 @@ class TheBlueAlliance(object):
         self.cache = cache
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
-    def _get(self, endpoint):
+    def _get(self, endpoint, ignore_cache=False):
         if self.__class__.tba_auth_key is None:
             return {}
 
@@ -28,7 +28,7 @@ class TheBlueAlliance(object):
             'User-Agent': 'Mozilla/5.0',
             'X-TBA-Auth-Key': self.__class__.tba_auth_key
         }
-        if self.cache is not None:
+        if not ignore_cache and self.cache is not None:
             if endpoint in self.cache:
                 headers['If-Modified-Since'] = self.cache[endpoint]
 
@@ -113,8 +113,8 @@ class TheBlueAlliance(object):
             teams[idx] = team
         return teams
 
-    def teams(self, page_num=0):
-        teams = self._get('teams/' + str(page_num))
+    def teams(self, page_num=0, ignore_cache=False):
+        teams = self._get('teams/' + str(page_num), ignore_cache)
         teams = [t for t in teams if t['nickname'] and t['name'] != 'Team ' + str(t['team_number'])]
         teams = self._team_map(teams)
         return teams
@@ -130,78 +130,78 @@ class TheBlueAlliance(object):
             page_num += 1
         return teams
 
-    def team(self, team_key):
-        return self._get('team/' + team_key)
+    def team(self, team_key, ignore_cache=False):
+        return self._get('team/' + team_key, ignore_cache)
 
-    def team_awards(self, team_key, year=None):
-        return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''))
+    def team_awards(self, team_key, year=None, ignore_cache=False):
+        return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''), ignore_cache)
 
-    def team_districts(self, team_key):
-        return self._get('team/' + team_key + '/districts') or []
+    def team_districts(self, team_key, ignore_cache=False):
+        return self._get('team/' + team_key + '/districts', ignore_cache) or []
 
-    def team_events(self, team_key, year=None):
-        return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''))
+    def team_events(self, team_key, year=None, ignore_cache=False):
+        return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''), ignore_cache)
 
-    def team_event_awards(self, team_key, event_key):
-        return self._get('team/' + team_key + '/event/' + event_key + '/awards')
+    def team_event_awards(self, team_key, event_key, ignore_cache=False):
+        return self._get('team/' + team_key + '/event/' + event_key + '/awards', ignore_cache)
 
-    def team_event_matches(self, team_key, event_key):
-        return self._get('team/' + team_key + '/event/' + event_key + '/matches')
+    def team_event_matches(self, team_key, event_key, ignore_cache=False):
+        return self._get('team/' + team_key + '/event/' + event_key + '/matches', ignore_cache)
 
-    def team_years_participated(self, team_key):
-        return self._get('team/' + team_key + '/years_participated')
+    def team_years_participated(self, team_key, ignore_cache=False):
+        return self._get('team/' + team_key + '/years_participated', ignore_cache)
 
-    def team_media(self, team_key, year=None):
-        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''))
+    def team_media(self, team_key, year=None, ignore_cache=False):
+        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''), ignore_cache)
 
-    def team_robots(self, team_key):
-        return self._get('team/' + team_key + '/robots')
-
-    # Deprecated
-    def team_history_events(self, team_key):
-        return self.team_events(team_key)
+    def team_robots(self, team_key, ignore_cache=False):
+        return self._get('team/' + team_key + '/robots', ignore_cache)
 
     # Deprecated
-    def team_history_awards(self, team_key):
-        return self.team_awards(team_key)
+    def team_history_events(self, team_key, ignore_cache=False):
+        return self.team_events(team_key, None, ignore_cache)
 
     # Deprecated
-    def team_history_robots(self, team_key):
-        return self.team_robots(team_key)
+    def team_history_awards(self, team_key, ignore_cache=False):
+        return self.team_awards(team_key, None, ignore_cache)
 
     # Deprecated
-    def team_history_districts(self, team_key):
-        return self.team_districts(team_key)
+    def team_history_robots(self, team_key, ignore_cache=False):
+        return self.team_robots(team_key, ignore_cache)
 
-    def events(self, year=None):
+    # Deprecated
+    def team_history_districts(self, team_key, ignore_cache=False):
+        return self.team_districts(team_key, ignore_cache)
+
+    def events(self, year=None, ignore_cache=False):
         if year is None:
             year = date.today().year
-        return self._get('events/' + str(year))
+        return self._get('events/' + str(year), ignore_cache)
 
-    def event(self, event_key):
-        return self._get('event/' + event_key)
+    def event(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key, ignore_cache)
 
-    def event_teams(self, event_key):
-        teams = self._get('event/' + event_key + '/teams')
+    def event_teams(self, event_key, ignore_cache=False):
+        teams = self._get('event/' + event_key + '/teams', ignore_cache)
         teams = self._team_map(teams)
         return teams
 
-    def event_matches(self, event_key):
-        matches = self._get('event/' + event_key + '/matches')
+    def event_matches(self, event_key, ignore_cache=False):
+        matches = self._get('event/' + event_key + '/matches', ignore_cache)
         return sorted(matches, key=lambda m: (m['time'] or 0))
 
-    def event_oprs(self, event_key):
-        return self._get('event/' + event_key + '/oprs')
+    def event_oprs(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key + '/oprs', ignore_cache)
 
     # Deprecated
-    def event_stats(self, event_key):
-        return self.event_oprs(event_key)
+    def event_stats(self, event_key, ignore_cache=False):
+        return self.event_oprs(event_key, ignore_cache)
 
-    def event_rankings_raw(self, event_key):
-        return self._get('event/' + event_key + '/rankings')
+    def event_rankings_raw(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key + '/rankings', ignore_cache)
 
-    def event_rankings_v2(self, event_key):
-        rankings = self.event_rankings_raw(event_key)
+    def event_rankings_v2(self, event_key, ignore_cache=False):
+        rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings is None:
             return rankings
         if 'rankings' in rankings and rankings['rankings']:
@@ -216,8 +216,8 @@ class TheBlueAlliance(object):
             rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
         return rankings['rankings']
 
-    def event_rankings(self, event_key):
-        rankings = self.event_rankings_v2(event_key)
+    def event_rankings(self, event_key, ignore_cache=False):
+        rankings = self.event_rankings_v2(event_key, ignore_cache)
         if rankings:
             # Change value names to snake case
             header = rankings.pop(0)
@@ -250,26 +250,26 @@ class TheBlueAlliance(object):
 
         return {}
 
-    def event_awards(self, event_key):
-        return self._get('event/' + event_key + '/awards')
+    def event_awards(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key + '/awards', ignore_cache)
 
-    def event_district_points(self, event_key):
-        return self._get('event/' + event_key + '/district_points')
+    def event_district_points(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key + '/district_points', ignore_cache)
 
-    def event_alliances(self, event_key):
-        return self._get('event/' + event_key + '/alliances')
+    def event_alliances(self, event_key, ignore_cache=False):
+        return self._get('event/' + event_key + '/alliances', ignore_cache)
 
-    def match(self, match_key):
-        return self._get('match/' + match_key)
+    def match(self, match_key, ignore_cache=False):
+        return self._get('match/' + match_key, ignore_cache)
 
-    def districts(self, year):
-        return self._get('districts/' + str(year))
+    def districts(self, year, ignore_cache=False):
+        return self._get('districts/' + str(year), ignore_cache)
 
-    def district_events(self, district_key, year):
-        return self._get('district/' + district_key + '/' + year + '/events')
+    def district_events(self, district_key, year, ignore_cache=False):
+        return self._get('district/' + district_key + '/' + year + '/events', ignore_cache)
 
-    def district_rankings(self, district_key):
-        return self._get('district/' + district_key + '/rankings')
+    def district_rankings(self, district_key, ignore_cache=False):
+        return self._get('district/' + district_key + '/rankings', ignore_cache)
 
-    def district_teams(self, district_key):
-        return self._get('district/' + district_key + '/teams')
+    def district_teams(self, district_key, ignore_cache=False):
+        return self._get('district/' + district_key + '/teams', ignore_cache)
