@@ -517,6 +517,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def opened(self):
         self.__class__.sockets.append(self)
         print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
+        # Note: can't send any messages here
 
     def received_message(self, message):
         message = message.data.decode()
@@ -524,7 +525,6 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             message = json.loads(message)
 
             if 'ping' in message:
-                message.pop('ping', None)
                 self.send({'pong':'pong'})
 
             # Match scouting upserts
@@ -532,14 +532,14 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                 for data in message['scouting_match']:
                     if sharkscout.Mongo().scouting_match_update(data):
                         self.send({'dequeue': {'scouting_match': data}})
-                        self.blast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
 
             # Pit scouting upserts
             if 'scouting_pit' in message:
                 for data in message['scouting_pit']:
                     if sharkscout.Mongo().scouting_pit_update(data):
                         self.send({'dequeue': {'scouting_pit': data}})
-                        self.blast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
 
         except json.JSONDecodeError as e:
             print(e)
@@ -550,10 +550,21 @@ class WebSocketServer(ws4py.websocket.WebSocket):
         print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
+        def basic(data):
+            if isinstance(data, dict):
+                for key in data:
+                    data[key] = basic(data[key])
+            elif isinstance(data, list):
+                for idx, val in enumerate(data):
+                    data[idx] = basic(val)
+            elif not isinstance(data, (int, float, bool)) and data is not None:
+                data = str(data)
+            return data
+        payload = basic(payload)
         if type(payload) is dict:
             payload = json.dumps(payload)
         super(self.__class__, self).send(payload, binary)
 
-    def blast(self, payload):
+    def broadcast(self, payload):
         for socket in self.__class__.sockets:
             socket.send(payload)
