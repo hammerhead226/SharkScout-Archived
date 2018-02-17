@@ -341,8 +341,8 @@
 
     <py:def function="team_info(team)">
         <h2>
-            <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
             <span class="fas fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
+            <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
         </h2>
         <h4><strong><em>${team['motto']}</em></strong></h4>
         <h4 py:if="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
