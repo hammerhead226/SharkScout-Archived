@@ -37,7 +37,8 @@ class WebServer(threading.Thread):
             },
             '/static': {
                 'tools.staticdir.on': True,
-                'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static'))
+                'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static')),
+                'tools.sessions.on': False  # otherwise locking throws frequent 500 errors
             },
             '/ws': {
                 'tools.websocket.on': True,
