@@ -144,7 +144,7 @@
                                 <py:when test="'teams' in page['event'] and page['event']['teams'] and [t for t in page['event']['teams'] if t['key'] == team_key]">
                                     <py:with vars="team = [t for t in page['event']['teams'] if t['key'] == team_key][0]">
                                         <a href="/team/${team['key']}/${page['event']['year']}">${team['team_number']} - ${team['nickname']}</a>
-                                        <span class="fas fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
+                                        <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
                                     </py:with>
                                 </py:when>
                                 <py:otherwise>${re.sub(r'^[^0-9]+', '', team_key)}</py:otherwise>
@@ -220,7 +220,7 @@
                                         </py:choose>
                                         <span py:if="recipient['awardee'] and recipient['team_number']">)</span>
                                     </span>
-                                    <span class="fas fa-home" py:if="int(recipient_team_number_normalized or 0) == int(session['team_number'] or -1)"></span>
+                                    <span class="fas fa-home" title="Home Team" py:if="int(recipient_team_number_normalized or 0) == int(session['team_number'] or -1)"></span>
                                 </td>
                             </tr>
                         </py:for>
