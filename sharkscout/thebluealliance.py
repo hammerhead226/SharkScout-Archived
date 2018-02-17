@@ -43,6 +43,7 @@ class TheBlueAlliance(object):
             return {}
 
         content = response.json()
+        content = self._tba3_clean(content)
         content = self._tba3_to_tba2(content)
 
         if self.cache is not None:
@@ -51,10 +52,20 @@ class TheBlueAlliance(object):
         return content
 
     @staticmethod
+    def _tba3_clean(models):
+        if models is None:
+            return models
+        models_list = models if isinstance(models, list) else [models]
+
+        for model_idx, model in enumerate(models_list):
+            model['name'] = re.sub(r' (co-)?sponsored by .+', '', model['name'], re.IGNORECASE)
+
+        return models_list if isinstance(models, list) else models_list[0]
+
+    @staticmethod
     def _tba3_to_tba2(models):
         if models is None:
             return models
-
         models_list = models if isinstance(models, list) else [models]
 
         for model_idx, model in enumerate(models_list):
