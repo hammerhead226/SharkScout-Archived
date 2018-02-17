@@ -33,11 +33,15 @@ class WebServer(threading.Thread):
                 'tools.sessions.on': True,
                 'tools.sessions.locking': 'early',
                 'tools.sessions.storage_class': cherrypy.lib.sessions.FileSession,
-                'tools.sessions.storage_path': sessions_path
+                'tools.sessions.storage_path': sessions_path,
+                'tools.gzip.on': True,
+                'tools.gzip.mime_types': ['application/*', 'image/*', 'text/*']
             },
             '/static': {
                 'tools.staticdir.on': True,
                 'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static')),
+                'tools.expires.on': True,
+                'tools.expires.secs': 12 * 60 * 60,  # 12 hours
                 'tools.sessions.on': False  # otherwise locking throws frequent 500 errors
             },
             '/ws': {
