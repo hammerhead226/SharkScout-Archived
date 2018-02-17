@@ -249,7 +249,7 @@ class TheBlueAlliance(object):
 
                     # Normalize wins/losses/ties
                     if 'w_l_t' in key:
-                        w_l_t = re.split(r'[^0-9]+', ranking[key])
+                        w_l_t = re.split(r'[^0-9]+', str(ranking[key]))
                         if len(w_l_t) == 3:
                             ranking['wins'] = int(w_l_t[0])
                             ranking['losses'] = int(w_l_t[1])
