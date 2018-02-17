@@ -117,16 +117,9 @@ class CherryServer(object):
 
         # Pack <link> and <script> to fewer files
         def packer(stream):
-            # Delete old packed files on first run
-            if not hasattr(self.__class__, 'packed'):
-                for root, dirs, files in os.walk(self.www):
-                    for file in files:
-                        if os.path.splitext(file)[0] == 'packed':
-                            os.remove(os.path.join(root, file))
-                self.__class__.packed = True
-
             # Find all files to be packed, included packed file
-            files = {}
+            has_html = False
+            static_files = {}
             ns = None
             for kind, data, pos in stream:
                 strip = False
@@ -137,6 +130,8 @@ class CherryServer(object):
                     if type(tag) is tuple:
                         tag = tag[0]
                     tag = str(tag).replace('{' + ns + '}', '')
+                    if tag == 'html':
+                        has_html = True
                     if tag in ['link', 'script']:
                         data_1 = list(data[1])
                         for idx, attr in enumerate(data_1):
@@ -145,30 +140,39 @@ class CherryServer(object):
                                 absolute = os.path.normpath(os.path.join(self.www, attr[1].lstrip('/')))
                                 if os.path.exists(absolute):
                                     extension = os.path.splitext(attr[1])[1]
-                                    if extension not in files:
-                                        files[extension] = {}
+                                    if extension not in static_files:
+                                        static_files[extension] = {}
                                     directory = os.path.dirname(absolute)
-                                    if directory not in files[extension]:
-                                        files[extension][directory] = []
-                                    files[extension][directory].append(absolute)
-                                    if len(files[extension][directory]) > 1:
+                                    if directory not in static_files[extension]:
+                                        static_files[extension][directory] = []
+                                    static_files[extension][directory].append(absolute)
+                                    if len(static_files[extension][directory]) > 1:
                                         strip = True
                                     data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
                         data = (data[0], genshi.core.Attrs(data_1))
                 if not strip:
                     yield kind, data, pos
 
-            # Pack files that don't exist
-            for extension in files:
-                for directory in files[extension]:
-                    packed = os.path.join(directory, 'packed' + extension)
-                    if not os.path.exists(packed):
-                        contents = b''
-                        for file in files[extension][directory]:
-                            with open(file, 'rb') as f:
-                                contents += f.read().strip() + b'\n'
-                        with open(packed, 'wb') as f:
-                            f.write(contents)
+            # If we're rendering the parent template with <html>
+            if has_html:
+                # Delete old packed files on first run
+                if not hasattr(self.__class__, 'packed'):
+                    for root, dirs, files in os.walk(self.www):
+                        for file in files:
+                            if os.path.splitext(file)[0] == 'packed':
+                                os.remove(os.path.join(root, file))
+                # Pack files that don't exist
+                for extension in static_files:
+                    for directory in static_files[extension]:
+                        packed = os.path.join(directory, 'packed' + extension)
+                        if not os.path.exists(packed):
+                            contents = b''
+                            for file in static_files[extension][directory]:
+                                with open(file, 'rb') as f:
+                                    contents += f.read().strip() + b'\n'
+                            with open(packed, 'wb') as f:
+                                f.write(contents)
+                self.__class__.packed = True
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
@@ -193,12 +197,11 @@ class CherryServer(object):
 
         # Generate the basic stream
         stream = self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session)
-        # Combine static files
-        stream = stream.filter(packer)
         # Filter the stream
-        stream = stream.filter(static_hash)
         if strip_html:
             stream = stream.filter(strip)
+        stream = stream.filter(packer)
+        stream = stream.filter(static_hash)
         # Render the stream
         return genshi.core.Markup(stream.render('html'))
 
