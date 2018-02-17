@@ -140,6 +140,10 @@ class Mongo(object):
             pass  # "No operations to execute"
 
     @property
+    def version(self):
+        return self.shark_scout.command('serverStatus')['version']
+
+    @property
     def tba_count(self):
         # (not using collection.count() because it can incorrectly return 0)
         return len(list(self.tba_events.find())) + len(list(self.tba_teams.find()))

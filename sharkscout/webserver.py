@@ -527,6 +527,9 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             if 'ping' in message:
                 self.send({'pong':'pong'})
 
+            if 'time_team' in message:
+                self.send({'time_team':sharkscout.Mongo().team(message['time_team'])})
+
             # Match scouting upserts
             if 'scouting_match' in message:
                 for data in message['scouting_match']:
