@@ -6,6 +6,9 @@
         <meta charset="utf-8"></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
 
+        <link rel="icon" type="image/png" href="/static/favicon.png" sizes="32x32"></link>
+        <link rel="manifest" href="/static/manifest.json"></link>
+
         <title>
             SharkScout
             ${'&raquo; ' + page['__TEMPLATE__'].replace('_',' ').title() if page['__TEMPLATE__'] != 'index' else ''}
@@ -115,23 +118,16 @@
             </div>
         </div>
 
+        <script type="text/javascript" src="/static/js/mnfst-0.1.2.min.js"></script>
         <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
-        <script type="text/javascript" src="/static/js/lodash.core-4.17.4.min.js"></script>
+        <script type="text/javascript" src="/static/js/lodash-4.17.5.min.js"></script>
         <script type="text/javascript" src="/static/js/store-1.3.20.min.js"></script>
+        <script type="text/javascript" src="/static/js/moment-2.20.1.min.js"></script>
         <script type="text/javascript" src="/static/js/bootstrap-3.3.7.min.js"></script>
         <script type="text/javascript" src="/static/js/selectize-0.12.4-standalone.min.js"></script>
         <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="/static/js/fontawesome-all-5.0.4.min.js"></script>
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
-        <script type="text/javascript">
-            // If jQuery failed to load then reload the page
-            window.onload = function() {
-                if(!window.jQuery) {
-                    window.location.reload();
-                }
-            }
-        </script>
-
 
         <div class="container-fluid">
             <div class="alert alert-warning text-center" role="alert" py:if="'modified_timestamp' in page and (datetime.utcnow() - page['modified_timestamp']).days >= 7">
@@ -151,14 +147,31 @@
 
         <div class="footer-spacer"></div>
         <footer class="footer">
-            <div class="container-fluid no-padding">
-                <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fab fa-github"></span> GitHub</a>
-                &nbsp;&bull;&nbsp;
-                <a href="http://hammerhead226.org/" target="_blank"><span class="is is-numbers"></span> Hammerheads</a>
-                <br />
-                <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="far fa-lightbulb fa-rotate-180"></span> TBA</a>
-                &nbsp;&bull;&nbsp;
-                <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
+            <div class="container-fluid no-padding clearfix">
+                <div class="row">
+                    <div class="col-sm-3 hidden-xs text-left">
+                        <span class="far fa-clock"></span>
+                        <span id="time">${datetime.now().strftime('%H:%M')}</span>
+                        <br />
+                        <span id="time_team"></span>
+                    </div>
+                    <div class="col-sm-6 col-xs-12 text-center">
+                        <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fab fa-github"></span> GitHub</a>
+                        &nbsp;&bull;&nbsp;
+                        <a href="http://hammerhead226.org/" target="_blank"><span class="is is-numbers"></span> Hammerheads</a>
+                        <br />
+                        <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="far fa-lightbulb fa-rotate-180"></span> TBA</a>
+                        &nbsp;&bull;&nbsp;
+                        <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
+                    </div>
+                    <div class="col-sm-3 hidden-xs text-right">
+                        <span>Python ${platform.python_version()}</span>
+                        <span class="fab fa-python"></span>
+                        <br />
+                        <span>MongoDB ${sharkscout.Mongo().version}</span>
+                        <span class="fas fa-database"></span>
+                    </div>
+                </div>
             </div>
         </footer>
 

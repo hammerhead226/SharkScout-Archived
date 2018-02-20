@@ -14,11 +14,9 @@ Offline web app with TBA integration for competition scouting.
 3. Windows users: ensure Python 3 (`%LOCALAPPDATA%\Programs\Python\*` and `%LOCALAPPDATA%\Programs\Python\*\Scripts`) and MongoDB (`%PROGRAMFILES%\MongoDB\Server\*\bin`) are in your PATH variable.
 4. Install PyPi dependencies:<br/>
 ```batch
-> pip3 install backoff cherrypy^<11 genshi psutil pymongo pynumparser requests tqdm ws4py
+> pip3 install backoff cherrypy genshi psutil pymongo pynumparser requests tqdm ws4py
 ```
 5. Configure your TBA Read API Key in `config.json`
-
-Note: `cherrypy` updates have a history of breaking `ws4py` so older versions may be necessary.
 
 #### Execution
 Execute `SharkScout.py`.

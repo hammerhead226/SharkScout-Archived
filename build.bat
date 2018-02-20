@@ -4,7 +4,7 @@ cd "%~dp0"
 pip3 install --upgrade virtualenv
 rmdir /S /Q venv
 virtualenv venv
-venv\Scripts\pip3 install backoff cherrypy^<11 genshi psutil pymongo pynumparser requests tqdm ws4py
+venv\Scripts\pip3 install backoff cherrypy genshi psutil pymongo pynumparser requests tqdm ws4py
 
 :: Syntax test the script
 venv\Scripts\python SharkScout.py -h > nul
