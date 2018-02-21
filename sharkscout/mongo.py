@@ -431,7 +431,10 @@ class Mongo(object):
 
     def scouting_stats(self, event_key, matches=0):
         event = self.event(event_key)
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'stats', str(event['year']) + '.json'), 'r') as f:
+        year_json = os.path.join(os.path.dirname(sys.argv[0]), 'stats', str(event['year']) + '.json')
+        if not os.path.exists(year_json):
+            return []
+        with open(year_json, 'r') as f:
             year_stats = hjson.load(f)
 
         aggregation = [
