@@ -6,19 +6,22 @@
         <meta charset="utf-8"></meta>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"></meta>
 
+        <link rel="icon" type="image/png" href="/static/favicon.png" sizes="32x32"></link>
+        <link rel="manifest" href="/static/manifest.json"></link>
+
         <title>
             SharkScout
             ${'&raquo; ' + page['__TEMPLATE__'].replace('_',' ').title() if page['__TEMPLATE__'] != 'index' else ''}
             <py:if test="'team_page' in page">
                 &raquo;
-                ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*1000}
+                ${page['stats']['min'] if page['team_page'] &lt; page['stats']['min'] else page['team_page']*500}
                 -
-                ${page['stats']['max'] if (page['team_page']+1)*1000-1 &gt; page['stats']['max'] else (page['team_page']+1)*1000-1}
+                ${page['stats']['max'] if (page['team_page']+1)*500-1 &gt; page['stats']['max'] else (page['team_page']+1)*500-1}
             </py:if>
             ${'&raquo; ' + str(page['event']['year']) + ' ' + page['event']['name'] if 'event' in page and page['event'] else ''}
             ${'&raquo; ' if 'match' in page and 'comp_level' in page['match'] else ''}${match_name(page['match']) if 'match' in page and 'comp_level' in page['match'] else ''}
             ${'&raquo; Team ' + str(page['team']['team_number']) if 'team' in page and page['team'] else ''}
-            ${'&raquo; ' + str(page['year']) if 'year' in page else ''}
+            ${'&raquo; ' + str(page['year']) if 'year' in page and not page['year_defaulted'] else ''}
         </title>
 
         <link rel="stylesheet" href="/static/css/bootstrap-3.3.7.min.css"></link>
@@ -115,29 +118,60 @@
             </div>
         </div>
 
+        <script type="text/javascript" src="/static/js/mnfst-0.1.2.min.js"></script>
         <script type="text/javascript" src="/static/js/jquery-3.1.1.min.js"></script>
-        <script type="text/javascript" src="/static/js/lodash.full-4.17.4.min.js"></script>
+        <script type="text/javascript" src="/static/js/lodash-4.17.5.min.js"></script>
         <script type="text/javascript" src="/static/js/store-1.3.20.min.js"></script>
+        <script type="text/javascript" src="/static/js/moment-2.20.1.min.js"></script>
         <script type="text/javascript" src="/static/js/bootstrap-3.3.7.min.js"></script>
         <script type="text/javascript" src="/static/js/selectize-0.12.4-standalone.min.js"></script>
         <script type="text/javascript" src="/static/DataTables-1.10.13/datatables.min.js"></script>
         <script type="text/javascript" src="/static/js/fontawesome-all-5.0.4.min.js"></script>
         <script type="text/javascript" src="/static/js/sharkscout.js"></script>
 
-
-        <div class="container-fluid" py:content="page['__CONTENT__']"></div>
+        <div class="container-fluid">
+            <div class="alert alert-warning text-center" role="alert" py:if="'modified_timestamp' in page and (datetime.utcnow() - page['modified_timestamp']).days >= 7">
+                <strong>Warning!</strong>
+                <py:choose>
+                    <py:when test="page['modified_timestamp'].replace(tzinfo=timezone.utc).timestamp() == 0">
+                        The Blue Alliance data on this page has never been fully updated.
+                    </py:when>
+                    <py:otherwise>
+                        The Blue Alliance data on this page was last fully updated <em>${page['modified_timestamp'].strftime('%c')}</em>, it may be out of date.
+                    </py:otherwise>
+                </py:choose>
+            </div>
+            ${page['__CONTENT__']}
+        </div>
 
 
         <div class="footer-spacer"></div>
         <footer class="footer">
-            <div class="container-fluid no-padding">
-                <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fab fa-github"></span> GitHub</a>
-                &nbsp;&bull;&nbsp;
-                <a href="http://hammerhead226.org/" target="_blank"><span class="is is-numbers"></span> Hammerheads</a>
-                <br />
-                <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="far fa-lightbulb fa-rotate-180"></span> TBA</a>
-                &nbsp;&bull;&nbsp;
-                <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
+            <div class="container-fluid no-padding clearfix">
+                <div class="row">
+                    <div class="col-sm-3 hidden-xs text-left">
+                        <span class="far fa-clock"></span>
+                        <span id="time">${datetime.now().strftime('%H:%M')}</span>
+                        <br />
+                        <span id="time_team"></span>
+                    </div>
+                    <div class="col-sm-6 col-xs-12 text-center">
+                        <a href="https://github.com/hammerhead226/SharkScout" target="_blank"><span class="fab fa-github"></span> GitHub</a>
+                        &nbsp;&bull;&nbsp;
+                        <a href="http://hammerhead226.org/" target="_blank"><span class="is is-numbers"></span> Hammerheads</a>
+                        <br />
+                        <a href="https://www.thebluealliance.com/" target="_blank" title="The Blue Alliance"><span class="far fa-lightbulb fa-rotate-180"></span> TBA</a>
+                        &nbsp;&bull;&nbsp;
+                        <a href="https://www.firstinspires.org/robotics/frc" target="_blank" title="FIRST Robotics Competition"><span class="if if-first-logo"></span> FIRST</a>
+                    </div>
+                    <div class="col-sm-3 hidden-xs text-right">
+                        <span>Python ${platform.python_version()}</span>
+                        <span class="fab fa-python"></span>
+                        <br />
+                        <span>MongoDB ${sharkscout.Mongo().version}</span>
+                        <span class="fas fa-database"></span>
+                    </div>
+                </div>
             </div>
         </footer>
 
@@ -171,7 +205,7 @@
 
         <div class="mask">
             <div class="center-viewport">
-                <div class="line-scale-pulse-out-rapid loaders-2x">
+                <div class="line-scale-pulse-out-rapid loaders-3x">
                     <div py:for="i in range(0,5)"></div>
                 </div>
             </div>

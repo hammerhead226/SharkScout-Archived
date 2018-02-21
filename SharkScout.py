@@ -29,6 +29,7 @@ if __name__ == '__main__':
 
     # Parse arguments
     parser = argparse.ArgumentParser(prog=__file__)
+    parser.add_argument('-p', '--port', metavar='port', help='webserver port (default: 2260)', type=int, default=2260)
     parser.add_argument('-nb', '--no-browser', dest='browser', help='don\'t automatically open the web browser', action='store_false', default=True)
     parser.add_argument('-ut', '--update-teams', dest='update_teams', help='update TBA team list', action='store_true', default=False)
     parser.add_argument('-uti', '--update-teams-info', dest='update_teams_info', help='update TBA team info', action='store_true', default=False)
@@ -47,6 +48,7 @@ if __name__ == '__main__':
     # Start MongoDB
     mongo = sharkscout.Mongo()
     mongo.index()
+    mongo.migrate()
 
     # mongorestore
     build_restored = False
@@ -80,7 +82,7 @@ if __name__ == '__main__':
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             futures = {pool.submit(mongo.team_update, team['key']): team for team in mongo.teams()}
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='team', leave=True):
-                pass
+                future.result()
         print()
 
     # Event updates
@@ -89,7 +91,7 @@ if __name__ == '__main__':
         with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
             futures = {pool.submit(mongo.events_update, year): year for year in args.update_events}
             for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='year', leave=True):
-                pass
+                future.result()
         print()
     if args.update_events_info:
         for year in sorted(args.update_events_info):
@@ -98,8 +100,8 @@ if __name__ == '__main__':
                 if futures:
                     print('Updating ' + str(year) + ' events ...')
                     for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), unit='event', leave=True):
-                        pass
-            print()
+                        future.result()
+                    print()
 
     # mongodump
     if args.dump:
@@ -120,7 +122,7 @@ if __name__ == '__main__':
         sys.exit(0)
 
     # Open web server and run indefinitely
-    web_server = sharkscout.WebServer()
+    web_server = sharkscout.WebServer(args.port)
     web_server.start()
 
     # Open the web browser

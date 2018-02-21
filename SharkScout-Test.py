@@ -11,6 +11,7 @@ import sys
 import time
 import urllib
 
+import pynumparser
 import requests
 import scrapy.crawler
 import scrapy.exceptions
@@ -23,11 +24,15 @@ import sharkscout
 class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
-        'DOWNLOAD_TIMEOUT': 10,      # 10s timeout
-        'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
+        'TELNETCONSOLE_ENABLED': False,  # why would this be on by default?
+        'DEPTH_PRIORITY': 1,             # breadth-first
+        'DNS_TIMEOUT': 10,               # 10s timeout
+        'DOWNLOAD_TIMEOUT': 10,          # 10s timeout
+        'HTTPERROR_ALLOW_ALL': True      # let parse() deal with them
     }
-    url_regex = []
     closed_reason = None
+    allowed_domains = []
+    url_regex = []
 
     def __init__(self, *args, **kwargs):
         self.__class__.closed_reason = None
@@ -46,7 +51,7 @@ class Spider(scrapy.spiders.Spider):
         if response.status >= 400:
             raise scrapy.exceptions.CloseSpider(int(response.status))
 
-        urls = response.xpath('//*/@href').extract()
+        urls = response.xpath("//*[not(contains(@class,'disabled'))]/@href").extract()
 
         # Prevent urllib.parse.urlparse() from being dumb...
         urls = [('http://' if 'www' in u else '') + u for u in urls]
@@ -75,13 +80,12 @@ class Spider(scrapy.spiders.Spider):
 
     # Remember why the spider stopped
     def closed(self, reason):
-        print('closed', reason)
         self.__class__.closed_reason = reason
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument('-l', '--level', metavar='N', help='testing level (1-5) (default: 3)', type=int, default=3)
+    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=pynumparser.Number(limits=(1, 5)), default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
 
@@ -92,7 +96,7 @@ if __name__ == '__main__':
 
     # Start SharkScout
     null = open(os.devnull, 'w')
-    server = subprocess.Popen(params, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    server = subprocess.Popen(params, stdout=subprocess.DEVNULL)
 
     # Stop SharkScout on quit
     @atexit.register
@@ -113,8 +117,6 @@ if __name__ == '__main__':
             break
         time.sleep(0.1)
     if not ports:
-        stdout, _ = server.communicate()
-        print(stdout)
         sys.exit(1)
     print('Found ports:', ports)
 
@@ -174,5 +176,5 @@ if __name__ == '__main__':
         sys.exit(1)
 
     crawler.start()
-    if isinstance(Spider.closed_reason, int):
+    if Spider.closed_reason is None or isinstance(Spider.closed_reason, int):
         sys.exit(1)

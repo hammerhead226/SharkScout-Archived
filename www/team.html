@@ -56,7 +56,7 @@
             <py:for each="event in page['team']['events']">
                 <hr py:if="event != page['team']['events'][0]" />
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="${'col-md-5' if 'matches' in event and event['matches'] else 'col-xs-12'}">
                         ${event_info(event, page['team'])}
                     </div>
                     <div class="col-md-7" py:if="'matches' in event and event['matches']">

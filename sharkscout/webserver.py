@@ -18,7 +18,7 @@ import sharkscout
 
 
 class WebServer(threading.Thread):
-    def __init__(self):
+    def __init__(self, port):
         sessions_path = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'sessions'))
         if not os.path.exists(sessions_path):
             os.mkdir(sessions_path)
@@ -26,22 +26,29 @@ class WebServer(threading.Thread):
         self.cherry_config = {
             'global': {
                 'server.socket_host': '0.0.0.0',
-                'server.socket_port': 2260,
+                'server.socket_port': port,
                 'engine.autoreload.on': False
             },
             '/': {
                 'tools.sessions.on': True,
                 'tools.sessions.locking': 'early',
                 'tools.sessions.storage_class': cherrypy.lib.sessions.FileSession,
-                'tools.sessions.storage_path': sessions_path
+                'tools.sessions.storage_path': sessions_path,
+                'tools.gzip.on': True,
+                'tools.gzip.mime_types': ['application/*', 'image/*', 'text/*']
             },
             '/static': {
                 'tools.staticdir.on': True,
-                'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static'))
+                'tools.staticdir.dir': os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'www/static')),
+                'tools.expires.on': True,
+                'tools.expires.secs': 12 * 60 * 60,  # 12 hours
+                'tools.sessions.on': False  # otherwise locking throws frequent 500 errors
             },
             '/ws': {
                 'tools.websocket.on': True,
-                'tools.websocket.handler_cls': WebSocketServer
+                'tools.websocket.handler_cls': WebSocketServer,
+                'tools.gzip.on': False,    # otherwise websockets will always fail
+                'tools.expires.on': False  # otherwise websockets will usually not connect
             }
         }
         self.cherry = None
@@ -65,19 +72,15 @@ class WebServer(threading.Thread):
     @property
     def port(self):
         try:
-            return cherrypy.server.socket_port
+            return cherrypy.server.bound_addr[1]
         except:
             return 0
 
 
 class CherryServer(object):
-    static_hash = None
-
     def __init__(self):
-        self.template_loader = genshi.template.TemplateLoader(
-            os.path.join(os.path.dirname(sys.argv[0]), 'www'),
-            auto_reload=True
-        )
+        self.www = os.path.normpath(os.path.join(os.path.dirname(sys.argv[0]), 'www'))
+        self.template_loader = genshi.template.TemplateLoader(self.www, auto_reload=True)
 
     def display(self, template, page={}):
         cherrypy.session['refresh'] = cherrypy.request.path_info
@@ -86,10 +89,19 @@ class CherryServer(object):
         page['__CONTENT__'] = self.render(template, page)
         return self.render('www', page, False)
 
+    def can_render(self, template):
+        return os.path.exists(os.path.join(self.www, template + '.html'))
+
     def render(self, template, page={}, strip_html=True):
         for key in ['team_number', 'user_name']:
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
+
+        if 'year' not in page or ('year_defaulted' in page and page['year_defaulted']):
+            page['year'] = date.today().year
+            page['year_defaulted'] = True
+        else:
+            page['year_defaulted'] = False
 
         def strip(stream):
             ns = None
@@ -110,9 +122,69 @@ class CherryServer(object):
                             continue
                 yield kind, data, pos
 
+        # Pack <link> and <script> to fewer files
+        def packer(stream):
+            # Find all files to be packed, included packed file
+            has_html = False
+            static_files = {}
+            ns = None
+            for kind, data, pos in stream:
+                strip = False
+                if kind is genshi.core.START_NS:
+                    ns = data[1]
+                if kind is genshi.core.START:
+                    tag = data
+                    if type(tag) is tuple:
+                        tag = tag[0]
+                    tag = str(tag).replace('{' + ns + '}', '')
+                    if tag == 'html':
+                        has_html = True
+                    if tag in ['link', 'script']:
+                        data_1 = list(data[1])
+                        for idx, attr in enumerate(data_1):
+                            if attr[0] in ['href', 'src']:
+                                # If this is a local file
+                                absolute = os.path.normpath(os.path.join(self.www, attr[1].lstrip('/')))
+                                if os.path.exists(absolute):
+                                    extension = os.path.splitext(attr[1])[1]
+                                    if extension.lstrip('.') in ['css', 'js']:
+                                        if extension not in static_files:
+                                            static_files[extension] = {}
+                                        directory = os.path.dirname(absolute)
+                                        if directory not in static_files[extension]:
+                                            static_files[extension][directory] = []
+                                        static_files[extension][directory].append(absolute)
+                                        if len(static_files[extension][directory]) > 1:
+                                            strip = True
+                                        data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
+                        data = (data[0], genshi.core.Attrs(data_1))
+                if not strip:
+                    yield kind, data, pos
+
+            # If we're rendering the parent template with <html>
+            if has_html:
+                # Delete old packed files on first run
+                if not hasattr(self.__class__, 'packed'):
+                    for root, dirs, files in os.walk(self.www):
+                        for file in files:
+                            if os.path.splitext(file)[0] == 'packed':
+                                os.remove(os.path.join(root, file))
+                # Pack files that don't exist
+                for extension in static_files:
+                    for directory in static_files[extension]:
+                        packed = os.path.join(directory, 'packed' + extension)
+                        if not os.path.exists(packed):
+                            contents = b''
+                            for file in static_files[extension][directory]:
+                                with open(file, 'rb') as f:
+                                    contents += f.read().strip() + b'\n'
+                            with open(packed, 'wb') as f:
+                                f.write(contents)
+                self.__class__.packed = True
+
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
-            if self.__class__.static_hash is None:
+            if not hasattr(self.__class__, 'static_hash'):
                 self.__class__.static_hash = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
             ns = None
             for kind, data, pos in stream:
@@ -134,9 +206,10 @@ class CherryServer(object):
         # Generate the basic stream
         stream = self.template_loader.load(template + '.html').generate(page=page, session=cherrypy.session)
         # Filter the stream
-        stream = stream.filter(static_hash)
         if strip_html:
             stream = stream.filter(strip)
+        stream = stream.filter(packer)
+        stream = stream.filter(static_hash)
         # Render the stream
         return genshi.core.Markup(stream.render('html'))
 
@@ -201,23 +274,35 @@ class Index(CherryServer):
             'year': year,
             'stats': sharkscout.Mongo().events_stats(year),
             'events': events,
-            'attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']],
-            'active': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and e['end_date'] and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()],
-            'upcoming': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() > date.today()]
+            'events_attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']],
+            'events_active': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and e['end_date'] and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()],
+            'events_district': [],
+            'events_upcoming': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() > date.today()]
         }
+        if 'team_number' in cherrypy.session:
+            team = sharkscout.Mongo().team('frc' + str(cherrypy.session['team_number']))
+            if 'districts' in team and str(year) in team['districts']:
+                district = team['districts'][str(year)]
+                page.update({
+                    'district': district,
+                    'events_district': [e for e in events if 'district' in e and e['district'] and e['district']['abbreviation'] == district['abbreviation']]
+                })
         return self.display('events', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def event(self, event_key, stats_matches=0):
         event = sharkscout.Mongo().event(event_key)
-        if not event:
-            raise cherrypy.HTTPRedirect('/events')
         page = {
             'event': event,
-            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'stats_matches': int(stats_matches),
-            'years': sharkscout.Mongo().event_years(event['event_code'])
+            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
+            'years': sharkscout.Mongo().event_years(event['event_code']),
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(event['year']) + '/match'),
+                'pit': self.can_render('scouting/' + str(event['year']) + '/pit')
+            },
+            'modified_timestamp': event['modified_timestamp']
         }
         return self.display('event', page)
 
@@ -225,15 +310,9 @@ class Index(CherryServer):
     @cherrypy.tools.allow(methods=['GET'])
     def stats(self, event_key, match_key):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
-        if match_key and not matches:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
         match = matches[0] if matches else {}
-        if 'alliances' not in match:
-            raise cherrypy.HTTPRedirect('/event/' + event_key)
 
         stats = sharkscout.Mongo().scouting_stats(event_key)
 
@@ -264,12 +343,15 @@ class Index(CherryServer):
         if year is None:
             year = date.today().year
         team = sharkscout.Mongo().team(team_key, year)
-        if not team:
-            raise cherrypy.HTTPRedirect('/teams')
         page = {
+            'team': team,
             'year': year,
             'stats': sharkscout.Mongo().team_stats(team_key),
-            'team': team
+            'can_scout': {
+                'match': self.can_render('scouting/' + str(year) + '/match'),
+                'pit': self.can_render('scouting/' + str(year) + '/pit')
+            },
+            'modified_timestamp': team['modified_timestamp']
         }
         return self.display('team', page)
 
@@ -287,12 +369,8 @@ class Scout(CherryServer):
     @cherrypy.tools.allow(methods=['GET'])
     def match(self, event_key, match_key=None, team_key=None):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/teams')
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
-        if match_key and not matches:
-            raise cherrypy.HTTPRedirect('/scout/match/' + event_key)
         match = matches[0] if matches else {}
 
         teams = {
@@ -301,8 +379,6 @@ class Scout(CherryServer):
         } if match else {}
 
         team = sharkscout.Mongo().team(team_key, event['year']) if team_key else {}
-        if team_key and not team:
-            raise cherrypy.HTTPRedirect('/scout/match/' + event_key + '/' + match_key)
         if team:
             team['color'] = [c for c in teams if str(team['team_number']) in teams[c]]
             team['color'] = team['color'][0] if team['color'] else ''
@@ -318,23 +394,14 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        try:
-            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
-            return self.display('scout_match', page)
-        except (genshi.template.loader.TemplateNotFound, genshi.input.ParseError) as e:
-            print(e)
-            return self.display('scouting/match', page)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/match', page)
+        return self.display('scout_match', page)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def pit(self, event_key, team_key=None):
         event = sharkscout.Mongo().event(event_key)
-        if event_key and not event:
-            raise cherrypy.HTTPRedirect('/teams')
-
         team = sharkscout.Mongo().team(team_key, event['year']) if team_key else {}
-        if team_key and not team:
-            raise cherrypy.HTTPRedirect('/scout/pit/' + event_key)
 
         saved = {}
         if event_key and team_key:
@@ -346,12 +413,8 @@ class Scout(CherryServer):
             'team': team,
             'saved': saved
         }
-        try:
-            page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
-            return self.display('scout_pit', page)
-        except (genshi.template.loader.TemplateNotFound, genshi.input.ParseError) as e:
-            print(e)
-            return self.display('scouting/pit', page)
+        page['__FORM__'] = self.render('scouting/' + str(event['year']) + '/pit', page)
+        return self.display('scout_pit', page)
 
 
 class Update(CherryServer):
@@ -454,6 +517,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def opened(self):
         self.__class__.sockets.append(self)
         print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
+        # Note: can't send any messages here
 
     def received_message(self, message):
         message = message.data.decode()
@@ -461,22 +525,24 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             message = json.loads(message)
 
             if 'ping' in message:
-                message.pop('ping', None)
                 self.send({'pong':'pong'})
+
+            if 'time_team' in message:
+                self.send({'time_team':sharkscout.Mongo().team(message['time_team'])})
 
             # Match scouting upserts
             if 'scouting_match' in message:
                 for data in message['scouting_match']:
                     if sharkscout.Mongo().scouting_match_update(data):
                         self.send({'dequeue': {'scouting_match': data}})
-                        self.blast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
 
             # Pit scouting upserts
             if 'scouting_pit' in message:
                 for data in message['scouting_pit']:
                     if sharkscout.Mongo().scouting_pit_update(data):
                         self.send({'dequeue': {'scouting_pit': data}})
-                        self.blast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
 
         except json.JSONDecodeError as e:
             print(e)
@@ -487,10 +553,21 @@ class WebSocketServer(ws4py.websocket.WebSocket):
         print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
+        def basic(data):
+            if isinstance(data, dict):
+                for key in data:
+                    data[key] = basic(data[key])
+            elif isinstance(data, list):
+                for idx, val in enumerate(data):
+                    data[idx] = basic(val)
+            elif not isinstance(data, (int, float, bool)) and data is not None:
+                data = str(data)
+            return data
+        payload = basic(payload)
         if type(payload) is dict:
             payload = json.dumps(payload)
         super(self.__class__, self).send(payload, binary)
 
-    def blast(self, payload):
+    def broadcast(self, payload):
         for socket in self.__class__.sockets:
             socket.send(payload)

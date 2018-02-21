@@ -42,10 +42,10 @@
                     <span class="badge">${len(page['event']['matches']) if 'matches' in page['event'] else 0}</span>
                 </a>
             </li>
-            <li role="presentation" py:if="'teams' in page['event'] and page['event']['teams']">
+            <li role="presentation">
                 <a href="#teams" role="tab" data-toggle="tab">
                     <span class="fas fa-users"></span>&nbsp;&nbsp;Teams
-                    <span class="badge">${len(page['event']['teams'])}</span>
+                    <span class="badge">${len(page['event']['teams']) if 'teams' in page['event'] else 0}</span>
                 </a>
             </li>
             <li role="presentation"  py:if="'alliances' in page['event'] and page['event']['alliances']">
@@ -80,7 +80,7 @@
                     <div class="panel-body">
                         <div class="clearfix">
                             <div class="pull-left">
-                                <a href="/scout/match/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/scout/match/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['match'] else ''}">
                                     <span class="fas fa-binoculars"></span>&nbsp;&nbsp;Match Scout
                                 </a>
                             </div>
@@ -88,7 +88,7 @@
                                 <a href="/download/matches/${page['event']['key']}" class="btn btn-primary">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Match List
                                 </a>
-                                <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/download/scouting/match/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['match'] else ''}">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Match Scouting
                                 </a>
                             </div>
@@ -100,7 +100,7 @@
                     </div>
                 </div>
             </div>
-            <div id="teams" role="tabpanel" class="tab-page" py:if="'teams' in page['event'] and page['event']['teams']">
+            <div id="teams" role="tabpanel" class="tab-page">
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         <span class="fas fa-users"></span>&nbsp;&nbsp;Team Listing
@@ -108,21 +108,23 @@
                             <span class="fas fa-sync faa-spin"></span>&nbsp;&nbsp;Update
                         </a>
                     </div>
-                    <div class="panel-body" py:if="'teams' in page['event'] and page['event']['teams']">
+                    <div class="panel-body">
                         <div class="clearfix">
                             <div class="pull-left">
-                                <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/scout/pit/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['pit'] else ''}">
                                     <span class="fas fa-binoculars"></span>&nbsp;&nbsp;Pit Scout
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary">
+                                <a href="/download/scouting/pit/${page['event']['key']}" class="btn btn-primary ${'disabled' if not page['can_scout']['pit'] else ''}">
                                     <span class="fas fa-download"></span>&nbsp;&nbsp;Pit Scouting
                                 </a>
                             </div>
                         </div>
-                        <br />
-                        ${team_listing(page['event']['teams'], page['event'])}
+                        <py:if test="'teams' in page['event'] and page['event']['teams']">
+                            <br />
+                            ${team_listing(page['event']['teams'], page['event'])}
+                        </py:if>
                     </div>
                 </div>
             </div>
@@ -142,7 +144,7 @@
                                 <py:when test="'teams' in page['event'] and page['event']['teams'] and [t for t in page['event']['teams'] if t['key'] == team_key]">
                                     <py:with vars="team = [t for t in page['event']['teams'] if t['key'] == team_key][0]">
                                         <a href="/team/${team['key']}/${page['event']['year']}">${team['team_number']} - ${team['nickname']}</a>
-                                        <span class="fas fa-home" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
+                                        <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
                                     </py:with>
                                 </py:when>
                                 <py:otherwise>${re.sub(r'^[^0-9]+', '', team_key)}</py:otherwise>
@@ -210,15 +212,15 @@
                                         <py:choose>
                                             <py:when test="recipient['team_number'] and 'teams' in page['event'] and page['event']['teams']">
                                                 <py:choose py:with="teams = [t for t in page['event']['teams'] if int(t['team_number']) == int(recipient_team_number_normalized)]; team = teams[0] if len(teams) > 0 else []">
-                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${recipient['team_number']} - ${team['nickname']}</a>
-                                                    <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${recipient_team_number_normalized} - ${team['nickname']}</a>
+                                                    <py:otherwise>${recipient_team_number_normalized}</py:otherwise>
                                                 </py:choose>
                                             </py:when>
-                                            <py:otherwise>${recipient['team_number']}</py:otherwise>
+                                            <py:otherwise>${recipient_team_number_normalized}</py:otherwise>
                                         </py:choose>
                                         <span py:if="recipient['awardee'] and recipient['team_number']">)</span>
                                     </span>
-                                    <span class="fas fa-home" py:if="int(recipient_team_number_normalized or 0) == int(session['team_number'] or -1)"></span>
+                                    <span class="fas fa-home" title="Home Team" py:if="int(recipient_team_number_normalized or 0) == int(session['team_number'] or -1)"></span>
                                 </td>
                             </tr>
                         </py:for>

@@ -11,25 +11,31 @@
 
     <div>
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" py:if="page['attending']">
+            <li role="presentation" py:if="page['events_attending']">
                 <a href="#attending" role="tab" data-toggle="tab">
                     <span class="fas fa-car"></span>&nbsp;&nbsp;Attending
-                    <span class="badge">${len(page['attending'])}</span>
+                    <span class="badge">${len(page['events_attending'])}</span>
                 </a>
             </li>
-            <li role="presentation" py:if="page['active']">
+            <li role="presentation" py:if="page['events_active']">
                 <a href="#active" role="tab" data-toggle="tab">
                     <span class="fas fa-hourglass-half"></span>&nbsp;&nbsp;Active
-                    <span class="badge">${len(page['active'])}</span>
+                    <span class="badge">${len(page['events_active'])}</span>
                 </a>
             </li>
-            <li role="presentation" py:if="page['upcoming']">
-                <a href="#active" role="tab" data-toggle="tab">
+            <li role="presentation" py:if="page['events_district']">
+                <a href="#district" role="tab" data-toggle="tab">
+                    <span class="fas fa-home"></span>&nbsp;&nbsp;${page['district']['display_name']}
+                    <span class="badge">${len(page['events_district'])}</span>
+                </a>
+            </li>
+            <li role="presentation" py:if="page['events_upcoming']">
+                <a href="#upcoming" role="tab" data-toggle="tab">
                     <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;Upcoming
-                    <span class="badge">${len(page['upcoming'])}</span>
+                    <span class="badge">${len(page['events_upcoming'])}</span>
                 </a>
             </li>
-            <li role="presentation">
+            <li role="presentation" py:if="not len(page['events_upcoming']) or len(page['events_upcoming']) != len(page['events'])">
                 <a href="#all" role="tab" data-toggle="tab">
                     <span class="fas fa-calendar-alt"></span>&nbsp;&nbsp;All
                     <span class="badge">${len(page['events'])}</span>
@@ -72,16 +78,19 @@
             </div>
             <div class="panel-body">
                 <div class="tab-content">
-                    <div id="attending" role="tabpanel" class="tab-page" py:if="page['attending']">
-                        ${event_listing(page['attending'])}
+                    <div id="attending" role="tabpanel" class="tab-page" py:if="page['events_attending']">
+                        ${event_listing(page['events_attending'])}
                     </div>
-                    <div id="active" role="tabpanel" class="tab-page" py:if="page['active']">
-                        ${event_listing(page['active'])}
+                    <div id="active" role="tabpanel" class="tab-page" py:if="page['events_active']">
+                        ${event_listing(page['events_active'])}
                     </div>
-                    <div id="active" role="tabpanel" class="tab-page" py:if="page['upcoming']">
-                        ${event_listing(page['upcoming'])}
+                    <div id="district" role="tabpanel" class="tab-page" py:if="page['events_district']">
+                        ${event_listing(page['events_district'])}
                     </div>
-                    <div id="all" role="tabpanel" class="tab-page">
+                    <div id="upcoming" role="tabpanel" class="tab-page" py:if="page['events_upcoming']">
+                        ${event_listing(page['events_upcoming'])}
+                    </div>
+                    <div id="all" role="tabpanel" class="tab-page" py:if="not len(page['events_upcoming']) or len(page['events_upcoming']) != len(page['events'])">
                         ${event_listing(page['events'])}
                     </div>
                 </div>

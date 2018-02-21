@@ -39,6 +39,8 @@ function openSocket() {
     var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws'
     var pingInterval;
     var pingCount = 0;
+    var timeTeamInterval;
+    var timeTeamLast = undefined;
     var submitInterval;
 
     if(window.WebSocket) {
@@ -61,6 +63,17 @@ function openSocket() {
         }
         pingInterval = setInterval(ping, 500);
         ping();
+
+        // Send time team requests every minute
+        var timeTeam = function() {
+            var now = moment();
+            if(typeof(timeTeamLast) == 'undefined' || timeTeamLast.format('YYYY/MM/DD HH:mm') != now.format('YYYY/MM/DD HH:mm')) {
+                ws.send(JSON.stringify({'time_team':'frc' + _.trimStart(now.format('HHmm'),'0')}));
+                timeTeamLast = now;
+            }
+        }
+        timeTeamInterval = setInterval(timeTeam, 100);
+        timeTeam();
 
         var submit = function() {
             for(var key in queue()) {
@@ -89,6 +102,16 @@ function openSocket() {
         // Show elements
         if(data.show) {
             $(data.show).show();
+        }
+
+        // Handle time team messages
+        if(data.time_team) {
+            $('#time').html('<span title="' + timeTeamLast.format('MMM D, YYYY h:mm A') + '">' + timeTeamLast.format('HH:mm') + '</span>');
+            if(typeof(data.time_team['key']) != 'undefined') {
+                $('#time_team').html('<a href="/team/' + data.time_team['key'] + '">' + data.time_team['nickname'] + '</a>');
+            } else {
+                $('#time_team').html('');
+            }
         }
 
         // Dequeue messages
@@ -253,11 +276,12 @@ function deserialize(form, data) {
 // Initialize page
 $(document).ready(function() {
     // Block page changes when offline
-    $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]').not('[offline], a[target="_blank"]').click(function(e) {
-        if(!ws_online) {
-            $('#offline').modal();
-            e.preventDefault();
-        }
+    $('a[href]:not([href^="#"]), [onclick]:not([onclick=""]), button[type="submit"]')
+        .not('[offline], a[target="_blank"], [data-toggle="dropdown"]').click(function(e) {
+            if(!ws_online) {
+                $('#offline').modal();
+                e.preventDefault();
+            }
     });
 
     // btn-group behavior
