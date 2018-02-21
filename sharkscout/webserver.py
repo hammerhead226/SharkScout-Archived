@@ -1,6 +1,6 @@
 import cherrypy
 import csv
-from datetime import datetime, date, timezone
+from datetime import datetime, date
 import genshi.core
 import genshi.template
 import json
