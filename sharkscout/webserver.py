@@ -173,6 +173,7 @@ class CherryServer(object):
                         # Pack files
                         packed = os.path.join(directory, 'packed' + extension)
                         if not os.path.exists(packed) or os.path.getmtime(packed) < mtime:
+                            cherrypy.log('Packing "' + packed + '"')
                             contents = b''
                             for file in static_files[extension][directory]:
                                 with open(file, 'rb') as f:
@@ -515,7 +516,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
 
     def opened(self):
         self.__class__.sockets.append(self)
-        print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Opened (Open: ' + str(len(self.__class__.sockets)) + ')')
         # Note: can't send any messages here
 
     def received_message(self, message):
@@ -544,12 +545,12 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                         self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
 
         except json.JSONDecodeError as e:
-            print(e)
+            cherrypy.log(e)
 
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
             self.__class__.sockets.remove(self)
-        print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
         def basic(data):
