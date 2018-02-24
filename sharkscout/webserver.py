@@ -34,6 +34,7 @@ class WebServer(threading.Thread):
                 'tools.sessions.locking': 'early',
                 'tools.sessions.storage_class': cherrypy.lib.sessions.FileSession,
                 'tools.sessions.storage_path': sessions_path,
+                'tools.sessions.timeout': 12 * 60,  # 12 hours
                 'tools.gzip.on': True,
                 'tools.gzip.mime_types': ['application/*', 'image/*', 'text/*']
             },
