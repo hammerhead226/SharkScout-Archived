@@ -163,24 +163,22 @@ class CherryServer(object):
 
             # If we're rendering the parent template with <html>
             if has_html:
-                # Delete old packed files on first run
-                if not hasattr(self.__class__, 'packed'):
-                    for root, dirs, files in os.walk(self.www):
-                        for file in files:
-                            if os.path.splitext(file)[0] == 'packed':
-                                os.remove(os.path.join(root, file))
-                # Pack files that don't exist
                 for extension in static_files:
                     for directory in static_files[extension]:
+                        # Look for changed files
+                        mtime = 0
+                        for file in static_files[extension][directory]:
+                            mtime = max(mtime, os.path.getmtime(file))
+                        # Pack files
                         packed = os.path.join(directory, 'packed' + extension)
-                        if not os.path.exists(packed):
+                        if not os.path.exists(packed) or os.path.getmtime(packed) < mtime:
                             contents = b''
                             for file in static_files[extension][directory]:
                                 with open(file, 'rb') as f:
                                     contents += f.read().strip() + b'\n'
                             with open(packed, 'wb') as f:
                                 f.write(contents)
-                self.__class__.packed = True
+                            os.utime(packed, (mtime, mtime))
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
