@@ -214,7 +214,7 @@ function serialize(form, serializeAll) {
 
         // Init arrays
         if(key && key.substring(key.length-2) == '[]') {
-            if(!_.isArray(obj[key])) {
+            if(!_.isArray(obj[key.substring(0,key.length-2)])) {
                 obj[key.substring(0,key.length-2)] = [];
             }
         }
