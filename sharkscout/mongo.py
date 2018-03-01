@@ -65,7 +65,7 @@ class Mongo(object):
             known, _ = parser.parse_known_args(sharkscout.Util.pid_to_argv(pid))
             if known.dbpath and not os.path.isabs(known.dbpath):
                 known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
-            if os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
+            if known.dbpath is not None and os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
                 mongo_pid = pid
                 self.__class__.port = known.port
                 print('mongod already running on port ' + str(self.__class__.port))
@@ -75,8 +75,12 @@ class Mongo(object):
             self.__class__.port = sharkscout.Util.open_port(27017)
             try:
                 null = open(os.devnull, 'w')
+                mongod = sharkscout.Util.which('mongod')
+                if mongod is None:
+                    print('mongod not found')
+                    sys.exit(1)
                 subprocess.Popen([
-                    sharkscout.Util.which('mongod'),
+                    mongod,
                     '--port', str(self.__class__.port),
                     '--dbpath', mongo_dir,
                     '--smallfiles'
@@ -493,7 +497,7 @@ class Mongo(object):
                 'matches': {'$slice': [
                     '$matches',
                     0 if int(matches) >= 0 else int(matches),
-                    abs(int(matches)) or sys.maxsize
+                    abs(int(matches)) or 2147483647
                 ]}
             }},
             {'$unwind': '$matches'}
