@@ -248,13 +248,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-            event['modified_timestamp'] = datetime.utcnow()
-            self.tba_events.update_one({
-                'key': event['key']
-            }, {
-                '$set': event,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        event['modified_timestamp'] = datetime.utcnow()
+        self.tba_events.update_one({
+            'key': event_key
+        }, {
+            '$set': event,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -593,11 +593,13 @@ class Mongo(object):
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)}
             }.items() if v})
-            team['modified_timestamp'] = datetime.utcnow()
-            self.tba_teams.update_one({'key': team['key']}, {
-                '$set': team,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        team['modified_timestamp'] = datetime.utcnow()
+        self.tba_teams.update_one({
+            'key': team_key
+        }, {
+            '$set': team,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):

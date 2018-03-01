@@ -34,10 +34,6 @@ class TheBlueAlliance(object):
 
         response = requests.get('https://www.thebluealliance.com/api/v3/' + endpoint, headers=headers, timeout=5)
 
-        # Hide errors
-        if 400 <= response.status_code and response.status_code <= 499:
-            return {}
-
         # Not modified
         if response.status_code == 304:
             return {}
