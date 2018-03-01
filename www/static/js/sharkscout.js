@@ -364,6 +364,123 @@ $(document).ready(function() {
         });
     }
 
+    // Initialize Chart.js
+    $('canvas.chart').each(function() {
+        // Get array of labels
+        var labels = _.split($(this).siblings('input[name="labels"]').val(), ',');
+        if(labels.length == 1 && labels[0] == '') {
+            labels = [];
+        }
+        // Get array of array of values
+        var values = $(this).siblings('input[name="values"]').map(function() {
+            // (Array() because jQuery flattens arrays...)
+            return Array(_.map(_.split(this.value, ','), function(val) {
+                return parseFloat(val);
+            }));
+        }).get();
+        var maxValues = _.max(_.map(values, function(v){return v.length;}));
+        // Find max value
+        var maxValue = 0;
+        for(var i = 0; i < maxValues; i++) {
+            for(var j = 0; j < values.length; j++) {
+                if(i < values[j].length && values[j][i] > maxValue) {
+                    maxValue = values[j][i];
+                }
+            }
+        }
+        // Calculate averages
+        var averages = Array(maxValues);
+        for(var i = 0; i < averages.length; i++) {
+            var sum = 0;
+            var count = 0;
+            for(var j = 0; j < values.length; j++) {
+                if(i < values[j].length) {
+                    sum += values[j][i];
+                    count++;
+                }
+            }
+            averages[i] = sum / count;
+        }
+        // Calculate regression for averages
+        var fitted = regressionFit(
+            _.map(averages, function(y, x) {
+                return [x+1, y];
+            })
+        );
+        // Plot the chart
+        new Chart(this, {
+            'type': 'line',
+            'data': {
+                'labels': Array(maxValues),
+                'datasets': _.map(values, function(val, idx) {
+                    // Raw data set(s)
+                    return {
+                        'label': labels.length == values.length ? labels[idx] : '',
+                        'data': val,
+                        'borderColor': ['#337ab7','#5cb85c','#5bc0de','#f0ad4e','#d9534f'][idx%5],
+                        'backgroundColor': ['rgba(51,122,182,0.5)','rgba(92,184,92,0.5)','rgba(91,192,222,0.5)','rgba(240,173,78,0.5)','rgba(217,83,79,0.5)'][idx%5],
+                        'borderWidth': 3,
+                        'fill': false
+                    };
+                }).concat([{
+                    'data': _.map(Array(maxValues), function(y, x) {
+                        return fitted.predict(x+1)[1];
+                    }),
+                    'borderColor': '#777777',
+                    'backgroundColor': 'rgba(119,119,119,0.2)',
+                    'borderWidth': 2,
+                    'borderDash': [15, 10],
+                    'pointRadius': 0,
+                    'pointHoverRadius': 0
+                }])
+            },
+            'options': {
+                'layout': {
+                    'padding': 5
+                },
+                'legend': {
+                    'display': labels.length == values.length,
+                    'labels': {
+                        'filter': function(item) {
+                            return typeof(item.text) !== 'undefined' && item.text;
+                        },
+                        'boxWidth': 15
+                    }
+                },
+                'scales': {
+                    'yAxes': [{
+                        'ticks': {
+                            'display': false,
+                            'min': 0,
+                            'max': maxValue
+                        },
+                        'gridLines': {
+                            'display': true
+                        }
+                    }],
+                    'xAxes': [{
+                        'ticks': {
+                            'display': false,
+                            'stepSize': 1
+                        },
+                        'gridLines': {
+                            'display': true
+                        }
+                    }]
+                },
+                'maintainAspectRatio': false,
+                // Performance tuning
+                'animation': {
+                    'duration': 0
+                },
+                'hover': {
+                    'animationDuration': 0
+                },
+                'responsiveAnimationDuration': 0
+            }
+        });
+    });
+
     // Initialize DataTable on all Bootstrap <table>s
     $('table.table').filter(function(){return !$(this).find('*[colspan],*[rowspan]').length;}).each(function() {
         var $table = $(this);
@@ -472,4 +589,23 @@ function detectIE() {
         return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
     }
     return false;
+}
+
+// Find the best regression formula for the data set
+function regressionFit(data) {
+    var bestRegression;
+    var bestR2 = NaN;
+    _.forEach([
+        regression.linear(data),
+        regression.exponential(data),
+        regression.logarithmic(data),
+        regression.power(data),
+        regression.polynomial(data)
+    ], function(result) {
+        if(isNaN(bestR2) || (!isNaN(result.r2) && result.r2 > bestR2)) {
+            bestRegression = result;
+            bestR2 = result.r2;
+        }
+    });
+    return bestRegression;
 }

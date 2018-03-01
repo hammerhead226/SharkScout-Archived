@@ -301,6 +301,12 @@ input[type="number"] {
     background-color: rgba(0, 0, 0, 0.50);
 }
 
+.chart {
+    width: 100%;
+    min-width: 200px;
+    max-height: 150px;
+}
+
 /* FIRST colors */
 /* Alliance colors for Bootstrap tables */
 .table > tbody > tr.red,
