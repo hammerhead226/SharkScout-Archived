@@ -486,9 +486,10 @@ $(document).ready(function() {
         var $table = $(this);
         var table = $table.DataTable({
             'paging': false,  // disable paging
-            'info': false,  // disable footer (not needed with no paging)
+            'info': false,    // disable footer (not needed with no paging)
             'filter': false,  // disable filtering
-            'order': [],  // disable initial sorting
+            'order': [],      // disable initial sorting
+            'autoWidth': false,
             'fixedHeader': true
         });
         // Handle DataTable FixedHeader with nav-tab changes
@@ -496,7 +497,6 @@ $(document).ready(function() {
         if($tab_toggle.length) {
             $tab_toggle.on('shown.bs.tab', function() {
                 table.fixedHeader.enable();
-                table.columns.adjust().draw();
             });
             $tab_toggle.on('hide.bs.tab', function() {
                 table.fixedHeader.disable();
