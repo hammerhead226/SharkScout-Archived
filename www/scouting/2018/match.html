@@ -126,13 +126,13 @@
                     <input type="radio" name="auton_cube_position" value="" autocomplete="off"></input> N/A
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="switch" autocomplete="off"></input> Switch
-                </label>
-                <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="scale" autocomplete="off"></input> Scale
-                </label>
-                <label class="btn btn-default">
                     <input type="radio" name="auton_cube_position" value="exchange" autocomplete="off"></input> Exchange
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="switch" autocomplete="off"></input> Switch (Low)
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="scale" autocomplete="off"></input> Scale (High)
                 </label>
             </div>
         </div>
@@ -143,7 +143,7 @@
             <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
-            <textarea name="auton_strategy" class="form-control"></textarea>
+            <textarea name="auton_strategy" class="form-control" required="required"></textarea>
         </div>
     </div>
 
@@ -151,6 +151,19 @@
 
     <h2 class="col-xs-offset-3 col-xs-9">Tele-Op</h2>
 
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cubes in Exchange
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes on Switch (Low)
@@ -179,15 +192,11 @@
     </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">
-            Cubes in Exchange
+            Tele-Op Strategy
             <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off"></input> ${i}
-                </label>
-            </div>
+            <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
         </div>
     </div>
 
