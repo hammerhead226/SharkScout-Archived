@@ -535,14 +535,20 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                 for data in message['scouting_match']:
                     if sharkscout.Mongo().scouting_match_update(data):
                         self.send({'dequeue': {'scouting_match': data}})
-                        self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({
+                            'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check',
+                            'success': data['scouter'] + ' match scouted ' + data['match_key'] + ' ' + data['team_key']
+                        })
 
             # Pit scouting upserts
             if 'scouting_pit' in message:
                 for data in message['scouting_pit']:
                     if sharkscout.Mongo().scouting_pit_update(data):
                         self.send({'dequeue': {'scouting_pit': data}})
-                        self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast({
+                            'show': '.team-listing .' + data['team_key'] + ' .fa-check',
+                            'success': data['scouter'] + ' pit scouted ' + data['event_key'] + ' ' + data['team_key']
+                        })
 
         except json.JSONDecodeError as e:
             print(e)
