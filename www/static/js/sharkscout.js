@@ -160,6 +160,7 @@ function openSocket() {
 
     ws.onclose = function(e) {
         clearInterval(pingInterval);
+        clearInterval(timeTeamInterval);
         clearInterval(submitInterval);
 
         $('#icon-no-websocket').stop().fadeIn();
