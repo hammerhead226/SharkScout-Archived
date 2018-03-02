@@ -43,10 +43,11 @@ function openSocket() {
     var timeTeamLast = undefined;
     var submitInterval;
 
+    var ws = undefined;
     if(window.WebSocket) {
-        var ws = new WebSocket(webSocket);
+        ws = new WebSocket(webSocket);
     } else if(window.MozWebSocket) {
-        var ws = MozWebSocket(webSocket);
+        ws = MozWebSocket(webSocket);
     }
 
     ws.onopen = function() {
@@ -54,8 +55,7 @@ function openSocket() {
         var ping = function() {
             // Too many pings were not ponged, assume disconnected
             if(pingCount >= 5) {
-                // ws.close() doesn't work, it asks host to close
-                ws.onclose();
+                ws.close();
                 return;
             }
             ws.send(JSON.stringify({'ping':'ping'}));

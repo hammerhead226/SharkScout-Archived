@@ -47,8 +47,9 @@ class WebServer(threading.Thread):
             '/ws': {
                 'tools.websocket.on': True,
                 'tools.websocket.handler_cls': WebSocketServer,
-                'tools.gzip.on': False,    # otherwise websockets will always fail
-                'tools.expires.on': False  # otherwise websockets will usually not connect
+                'tools.sessions.on': False,  # unnecessary
+                'tools.gzip.on': False,      # otherwise websockets will always fail
+                'tools.expires.on': False    # otherwise websockets will usually not connect
             }
         }
         self.cherry = None
