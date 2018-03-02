@@ -11,6 +11,7 @@ import string
 import sys
 import tempfile
 import threading
+import time
 import ws4py.server.cherrypyserver
 import ws4py.websocket
 
@@ -513,11 +514,12 @@ class Download(CherryServer):
 
 
 class WebSocketServer(ws4py.websocket.WebSocket):
-    sockets = []
+    sockets = {}
 
     def opened(self):
-        self.__class__.sockets.append(self)
+        self.__class__.sockets[self] = time.time()
         print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Opened (Open: ' + str(len(self.__class__.sockets)) + ')')
         # Note: can't send any messages here
 
     def received_message(self, message):
@@ -556,7 +558,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
 
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
-            self.__class__.sockets.remove(self)
+            del self.__class__.sockets[self]
         print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
