@@ -42,7 +42,7 @@ class TheBlueAlliance(object):
         content = self._tba3_clean(content)
         content = self._tba3_to_tba2(content)
 
-        if self.cache is not None:
+        if self.cache is not None and 'Last-Modified' in response.headers:
             self.cache[endpoint] = response.headers['Last-Modified']
 
         return content
@@ -184,7 +184,8 @@ class TheBlueAlliance(object):
     def events(self, year=None, ignore_cache=False):
         if year is None:
             year = date.today().year
-        return self._get('events/' + str(year), ignore_cache)
+        events = self._get('events/' + str(year), ignore_cache)
+        return events if isinstance(events, list) else []
 
     def event(self, event_key, ignore_cache=False):
         return self._get('event/' + event_key, ignore_cache)
