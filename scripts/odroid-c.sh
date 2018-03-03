@@ -82,7 +82,7 @@ cd "$(dirname "$0")"
 	sleep 10s
 	cd SharkScout
 	while [ "" == "" ]; do
-		./SharkScout.py --no-browser &> /dev/null
+		sudo ./SharkScout.py --port 80 --no-browser &> /dev/null
 	done
 ) &
 
@@ -90,7 +90,7 @@ cd "$(dirname "$0")"
 # Echo info to be printed
 info() {
 	uname -a
-	ps -Afw | grep "SharkScout\|mongod" | grep -v grep | awk '{printf "%s  ",$2;for(i=8;i<=NF;i++)printf "%s ",$i;printf "\n"}'
+	ps -Afw | grep "python.\+SharkScout\|mongod" | grep -v grep | awk '{printf "%s  ",$2;for(i=8;i<=NF;i++)printf "%s ",$i;printf "\n"}'
 	echo ""
 	ip addr | grep -A 2 "^\w" | grep -v "\-\-" | awk '{print $2}' | sed 'N;N;s/\n/\t/g' | grep -v "lo\|bnep" | sort
 	echo ""
