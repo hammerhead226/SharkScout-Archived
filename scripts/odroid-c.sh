@@ -18,12 +18,20 @@ cd "$(dirname "$0")"
 	sudo apt-get -y upgrade
 	sudo apt-get -y dist-upgrade
 	sudo apt-get -y install wget
+	
+	# Set timezone to EST
+	sudo rm /etc/localtime
+	sudo ln -s /usr/share/zoneinfo/US/Eastern /etc/localtime
+	
+	# Turn off fstab fsck (potentially dangerous)
+	sudo sed -i 's/1$/0/g' /etc/fstab
 
 	# ODROID C1/C2 LCD
 	if [ "$(systemctl | grep odroid-lcd35)" == "" ]; then
 		wget -N http://dietpi.com/downloads/misc/community/install_odroid_LCD35.sh
 		chmod +x install_odroid_LCD35.sh
 		./install_odroid_LCD35.sh 1
+		rm install_odroid_LCD35.sh
 		
 		# Put this script in startup
 		if [ "$(lsb_release -a 2>&1 | grep Release | awk '{print $2}')" == "16.04" ]; then
@@ -60,6 +68,7 @@ cd "$(dirname "$0")"
 	sudo apt-get --allow-unauthenticated -y install mongodb-enterprise
 	
 	# SharkScout
+	sudo apt-get -y install git
 	git clone https://github.com/hammerhead226/SharkScout.git
 	chmod +x SharkScout/SharkScout.py
 	chmod +x SharkScout/setup.py
