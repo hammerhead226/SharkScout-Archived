@@ -94,6 +94,12 @@ cd "$(dirname "$0")"
 		sudo ./SharkScout.py --port 80 --no-browser &> /dev/null
 	done
 ) &
+(
+	while [ "" == "" ]; do
+		sleep 5m
+		mongodump --out mongodump-$(date +'%Y%m%d_%H%M%S%z') --db shark_scout --collection scouting --gzip &> /dev/null
+	done
+) &
 
 
 # Echo info to be printed
