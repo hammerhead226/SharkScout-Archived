@@ -63,7 +63,7 @@ cd "$(dirname "$0")"
 	git clone https://github.com/hammerhead226/SharkScout.git
 	chmod +x SharkScout/SharkScout.py
 	chmod +x SharkScout/setup.py
-	./SharkScout/setup.py
+	./SharkScout/setup.py install
 	
 	# Info display tool(s)
 	sudo apt-get -y install bluez-tools
