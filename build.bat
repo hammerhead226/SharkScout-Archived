@@ -39,7 +39,7 @@ xcopy www dist\www /S /V /I /Y /EXCLUDE:exclude
 del /F exclude
 
 :: Export TBA data for this year and next year
-copy /Y mongodump.gz dist\mongodump.gz
+copy /Y build-mongodump.gz dist\mongodump.gz
 cd dist
 for /f "skip=1 tokens=1-6" %%A in ('WMIC Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') do (
     if "%%B" NEQ "" (
@@ -76,6 +76,6 @@ for /f %%i in ('git rev-parse HEAD') do set HASH=%%i
 del /F SharkScout-%HASH:~0,7%-x86.zip
 powershell -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('dist', 'SharkScout-%HASH:~0,7%-x86.zip'); }"
 if %errorlevel% equ 0 (
-	copy /Y dist\mongodump.gz mongodump.gz
+	copy /Y dist\mongodump.gz build-mongodump.gz
 	rmdir /S /Q dist
 )

@@ -96,6 +96,6 @@ ENV/
 mongo/
 sessions/
 SharkScout-*-x86/
-mongodump.gz
+build-mongodump.gz
 packed.*
 SharkScout-*-x86.zip
