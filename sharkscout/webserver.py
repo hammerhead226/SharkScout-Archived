@@ -34,6 +34,7 @@ class WebServer(threading.Thread):
                 'tools.sessions.locking': 'early',
                 'tools.sessions.storage_class': cherrypy.lib.sessions.FileSession,
                 'tools.sessions.storage_path': sessions_path,
+                'tools.sessions.timeout': 12 * 60,  # 12 hours
                 'tools.gzip.on': True,
                 'tools.gzip.mime_types': ['application/*', 'image/*', 'text/*']
             },
@@ -163,24 +164,23 @@ class CherryServer(object):
 
             # If we're rendering the parent template with <html>
             if has_html:
-                # Delete old packed files on first run
-                if not hasattr(self.__class__, 'packed'):
-                    for root, dirs, files in os.walk(self.www):
-                        for file in files:
-                            if os.path.splitext(file)[0] == 'packed':
-                                os.remove(os.path.join(root, file))
-                # Pack files that don't exist
                 for extension in static_files:
                     for directory in static_files[extension]:
+                        # Look for changed files
+                        mtime = 0
+                        for file in static_files[extension][directory]:
+                            mtime = max(mtime, os.path.getmtime(file))
+                        # Pack files
                         packed = os.path.join(directory, 'packed' + extension)
-                        if not os.path.exists(packed):
+                        if not os.path.exists(packed) or os.path.getmtime(packed) < mtime:
+                            cherrypy.log('Packing "' + packed + '"')
                             contents = b''
                             for file in static_files[extension][directory]:
                                 with open(file, 'rb') as f:
                                     contents += f.read().strip() + b'\n'
                             with open(packed, 'wb') as f:
                                 f.write(contents)
-                self.__class__.packed = True
+                            os.utime(packed, (mtime, mtime))
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
@@ -516,7 +516,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
 
     def opened(self):
         self.__class__.sockets.append(self)
-        print(self, 'Opened', '(Total: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Opened (Open: ' + str(len(self.__class__.sockets)) + ')')
         # Note: can't send any messages here
 
     def received_message(self, message):
@@ -545,12 +545,12 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                         self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
 
         except json.JSONDecodeError as e:
-            print(e)
+            cherrypy.log(e)
 
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
             self.__class__.sockets.remove(self)
-        print(self, 'Closed', code, reason, '(Open: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
         def basic(data):

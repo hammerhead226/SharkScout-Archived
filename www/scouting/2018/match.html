@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://genshi.edgewall.org/" xmlns:xi="http://www.w3.org/2001/XInclude">
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Event</label>
+        <div class="col-xs-9">
+            <input type="hidden" name="event_key" value="${page['event']['key']}"></input>
+            <label class="control-label">
+                <a href="/event/${page['event']['key']}#matches">
+                    <span class="fas fa-undo"></span>&nbsp;
+                    ${page['event']['year']} ${page['event']['name']}
+                </a>
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Match</label>
+        <div class="col-xs-9" py:with="match_key = page['match']['key'] if 'key' in page['match'] else ''; match = match_key.replace(page['event']['key']+'_',''); comp_level = ''.join([c for c in match if not c.isdigit()]); match_number = ''.join([c for c in match if c.isdigit()]); set_number = page['match']['set_number'] if 'set_number' in page['match'] else ''">
+            <input type="hidden" name="match_key" value="${match_key}"></input>
+            <div class="input-group inline-min">
+                <select name="comp_level" class="form-control" required="required" serialize="false" py:attrs="{'disabled':'disabled' if comp_level else ''}">
+                    <option value="">Select Level ...</option>
+                    <option value="qm" py:attrs="{'selected':'selected' if comp_level=='qm' else ''}">Quals</option>
+                    <option value="ef" py:attrs="{'selected':'selected' if comp_level=='ef' else ''}">Eights</option>
+                    <option value="qf" py:attrs="{'selected':'selected' if comp_level=='qf' else ''}">Quarters</option>
+                    <option value="sf" py:attrs="{'selected':'selected' if comp_level=='sf' else ''}">Semis</option>
+                    <option value="f" py:attrs="{'selected':'selected' if comp_level=='f' else ''}">Finals</option>
+                </select>
+            </div>
+            <div class="input-group inline-min">
+                <div class="input-group-addon">Match</div>
+                <input type="number" name="match_number" class="form-control" value="${match_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
+            </div>
+            <div class="input-group inline-min" style="${'display:none;' if not comp_level else ''}" py:if="comp_level != 'qm'">
+                <div class="input-group-addon">Set</div>
+                <input type="number" name="set_number" class="form-control" value="${set_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if set_number else ''}"></input>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Team</label>
+        <div class="col-xs-9">
+            <py:choose>
+                <py:when test="page['team']">
+                    <div class="btn-toolbar inline-min" role="toolbar">
+                        <div class="btn-group" role="group" data-toggle="buttons">
+                            <label class="btn ${'btn-primary active' if page['team']['color']==color else 'btn-default'} ${color} disabled" py:for="color in page['teams']">
+                                <input type="radio" name="team_color" value="${color}" autocomplete="off" py:attrs="{'checked':'checked' if page['team']['color']==color else ''}"></input> ${color.title()}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="input-group inline-min">
+                        <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
+                        <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
+                        <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
+                    </div>
+                </py:when>
+                <py:otherwise>
+                    <input type="hidden" name="team_key"></input>
+                    <py:choose>
+                        <div class="btn-toolbar" role="toolbar" py:when="page['teams']">
+                            <div class="btn-group ${color}" role="group" py:for="color in page['teams']" data-toggle="buttons">
+                                <label class="btn btn-default" py:for="team_number in page['teams'][color]">
+                                    <input type="radio" name="team_number" value="${team_number}" autocomplete="off" required="required" serialize="false"></input> ${team_number}
+                                    <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required"></input>
+                                </label>
+                            </div>
+                        </div>
+                        <py:otherwise>
+                            <div class="btn-toolbar inline-min" role="toolbar">
+                                <div class="btn-group" role="group" data-toggle="buttons">
+                                    <label class="btn btn-default ${color}" py:for="color in (page['teams'] if page['teams'] else ['red','blue'])">
+                                        <input type="radio" name="team_color" value="${color}" autocomplete="off"></input> ${color.title()}
+                                    </label>
+                                </div>
+                            </div>
+                            <py:choose>
+                                <div class="input-group inline-min" py:when="'teams' in page['event'] and page['event']['teams']">
+                                    <select name="team_number" class="form-control" required="required" serialize="false" data-selectize-create="true">
+                                        <option value="">Select Team ...</option>
+                                        <option value="${team['team_number']}" py:for="team in page['event']['teams']">${team['team_number']} - ${team['nickname']}</option>
+                                    </select>
+                                </div>
+                                <div class="input-group inline-min" py:otherwise="">
+                                    <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
+                                    <input type="number" name="team_number" class="form-control" required="required" serialize="false"></input>
+                                </div>
+                            </py:choose>
+                        </py:otherwise>
+                    </py:choose>
+                </py:otherwise>
+            </py:choose>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Current Scouter</label>
+        <div class="col-xs-9">
+            <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">Auton</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">Crossed Baseline</label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_crossed_baseline" value="N" autocomplete="off"></input> No
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off"></input> Yes
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cube Position
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="" autocomplete="off"></input> N/A
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="exchange" autocomplete="off"></input> Exchange
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="switch" autocomplete="off"></input> Switch (Low)
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="auton_cube_position" value="scale" autocomplete="off"></input> Scale (High)
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Auton Strategy
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="auton_strategy" class="form-control" required="required"></textarea>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">Tele-Op</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cubes in Exchange
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cubes on Switch (Low)
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="cubes_switch" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cubes on Scale (High)
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default" py:for="i in range(0, 13)">
+                    <input type="radio" name="cubes_scale" value="${i}" autocomplete="off"></input> ${i}
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Tele-Op Strategy
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
+        </div>
+    </div>
+
+    <hr />
+
+    <h2 class="col-xs-offset-3 col-xs-9">End Game</h2>
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Climbed
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default">
+                    <input type="radio" name="climbed" value="N" autocomplete="off" required="required"></input> No
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="climbed" value="A" autocomplete="off" required="required"></input> Attempted
+                </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="climbed" value="Y" autocomplete="off" required="required"></input> Yes
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Offense Comments
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="comments_offense" class="form-control"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Defense Comments
+            <span class="fas fa-exclamation text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <textarea name="comments_defense" class="form-control"></textarea>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-xs-offset-3 col-xs-9">
+            <button type="submit" class="btn btn-primary" offline="offline">Submit</button>
+        </div>
+    </div>
+</html>

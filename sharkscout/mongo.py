@@ -65,7 +65,7 @@ class Mongo(object):
             known, _ = parser.parse_known_args(sharkscout.Util.pid_to_argv(pid))
             if known.dbpath and not os.path.isabs(known.dbpath):
                 known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
-            if os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
+            if known.dbpath is not None and os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
                 mongo_pid = pid
                 self.__class__.port = known.port
                 print('mongod already running on port ' + str(self.__class__.port))
@@ -75,8 +75,12 @@ class Mongo(object):
             self.__class__.port = sharkscout.Util.open_port(27017)
             try:
                 null = open(os.devnull, 'w')
+                mongod = sharkscout.Util.which('mongod')
+                if mongod is None:
+                    print('mongod not found')
+                    sys.exit(1)
                 subprocess.Popen([
-                    sharkscout.Util.which('mongod'),
+                    mongod,
                     '--port', str(self.__class__.port),
                     '--dbpath', mongo_dir,
                     '--smallfiles'
@@ -244,13 +248,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-            event['modified_timestamp'] = datetime.utcnow()
-            self.tba_events.update_one({
-                'key': event['key']
-            }, {
-                '$set': event,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        event['modified_timestamp'] = datetime.utcnow()
+        self.tba_events.update_one({
+            'key': event_key
+        }, {
+            '$set': event,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -493,7 +497,7 @@ class Mongo(object):
                 'matches': {'$slice': [
                     '$matches',
                     0 if int(matches) >= 0 else int(matches),
-                    abs(int(matches)) or sys.maxsize
+                    abs(int(matches)) or 2147483647
                 ]}
             }},
             {'$unwind': '$matches'}
@@ -589,11 +593,13 @@ class Mongo(object):
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)}
             }.items() if v})
-            team['modified_timestamp'] = datetime.utcnow()
-            self.tba_teams.update_one({'key': team['key']}, {
-                '$set': team,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        team['modified_timestamp'] = datetime.utcnow()
+        self.tba_teams.update_one({
+            'key': team_key
+        }, {
+            '$set': team,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):

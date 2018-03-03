@@ -160,8 +160,6 @@ function _scouting(ref, key) {
         // Non-ASCII check
         for(var name in obj) {
             if(String(obj[name]).match(/[^\x09-\x7E]/)) {
-                $('#non-ascii').fadeIn();
-                $('body').scrollTop(0);
                 return;
             }
         }
@@ -184,7 +182,7 @@ function _scouting(ref, key) {
                 $('#queued').stop().fadeOut();
             }, 5000);
             $(ref)[0].reset();
-            $('body').scrollTop(0);
+            $('html').scrollTop(0);
         }
 
         // Clear stored temporary form data
@@ -200,15 +198,23 @@ function scouting_pit(ref) {
     _scouting(ref, 'scouting_pit');
 }
 
-function serialize(form) {
+function serialize(form, serializeAll) {
+    if(typeof serializeAll === 'undefined') {
+        serializeAll = false;
+    }
+
     var obj = {};
-    $(form).find('input, select, textarea').not('[serialize="false"]').each(function() {
+    var $inputs = $(form).find('input, select, textarea');
+    if(!serializeAll) {
+        $inputs = $inputs.not('[serialize="false"]');
+    }
+    $inputs.each(function() {
         var $input = $(this);
         var key = $input.attr('name') || $input.id;
 
         // Init arrays
         if(key && key.substring(key.length-2) == '[]') {
-            if(!_.isArray(obj[key])) {
+            if(!_.isArray(obj[key.substring(0,key.length-2)])) {
                 obj[key.substring(0,key.length-2)] = [];
             }
         }
@@ -244,7 +250,7 @@ function deserialize(form, data) {
         var values = _.isArray(data[name]) ? data[name] : [data[name]];
         for(key in values) {
             // Find the correct element
-            var $tag = $('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
+            var $tag = $(form).find('[name="' + name + '"], [name="' + name + '[]"]').not(':disabled');
             if($tag.closest('.btn-group .btn.disabled').length) {
                 continue;
             }
@@ -260,6 +266,7 @@ function deserialize(form, data) {
                 } else {
                     $tag.val(values[key]);
                 }
+                $tag.change();
             }
         }
     }
@@ -357,14 +364,132 @@ $(document).ready(function() {
         });
     }
 
+    // Initialize Chart.js
+    $('canvas.chart').each(function() {
+        // Get array of labels
+        var labels = _.split($(this).siblings('input[name="labels"]').val(), ',');
+        if(labels.length == 1 && labels[0] == '') {
+            labels = [];
+        }
+        // Get array of array of values
+        var values = $(this).siblings('input[name="values"]').map(function() {
+            // (Array() because jQuery flattens arrays...)
+            return Array(_.map(_.split(this.value, ','), function(val) {
+                return parseFloat(val);
+            }));
+        }).get();
+        var maxValues = _.max(_.map(values, function(v){return v.length;}));
+        // Find max value
+        var maxValue = 0;
+        for(var i = 0; i < maxValues; i++) {
+            for(var j = 0; j < values.length; j++) {
+                if(i < values[j].length && values[j][i] > maxValue) {
+                    maxValue = values[j][i];
+                }
+            }
+        }
+        // Calculate averages
+        var averages = Array(maxValues);
+        for(var i = 0; i < averages.length; i++) {
+            var sum = 0;
+            var count = 0;
+            for(var j = 0; j < values.length; j++) {
+                if(i < values[j].length) {
+                    sum += values[j][i];
+                    count++;
+                }
+            }
+            averages[i] = sum / count;
+        }
+        // Calculate regression for averages
+        var fitted = regressionFit(
+            _.map(averages, function(y, x) {
+                return [x+1, y];
+            })
+        );
+        // Plot the chart
+        new Chart(this, {
+            'type': 'line',
+            'data': {
+                'labels': Array(maxValues),
+                'datasets': _.map(values, function(val, idx) {
+                    // Raw data set(s)
+                    return {
+                        'label': labels.length == values.length ? labels[idx] : '',
+                        'data': val,
+                        'borderColor': ['#337ab7','#5cb85c','#5bc0de','#f0ad4e','#d9534f'][idx%5],
+                        'backgroundColor': ['rgba(51,122,182,0.5)','rgba(92,184,92,0.5)','rgba(91,192,222,0.5)','rgba(240,173,78,0.5)','rgba(217,83,79,0.5)'][idx%5],
+                        'borderWidth': 3,
+                        'fill': false
+                    };
+                }).concat([{
+                    'data': _.map(Array(maxValues), function(y, x) {
+                        return fitted.predict(x+1)[1];
+                    }),
+                    'borderColor': '#777777',
+                    'backgroundColor': 'rgba(119,119,119,0.2)',
+                    'borderWidth': 2,
+                    'borderDash': [15, 10],
+                    'pointRadius': 0,
+                    'pointHoverRadius': 0
+                }])
+            },
+            'options': {
+                'layout': {
+                    'padding': 5
+                },
+                'legend': {
+                    'display': labels.length == values.length,
+                    'labels': {
+                        'filter': function(item) {
+                            return typeof(item.text) !== 'undefined' && item.text;
+                        },
+                        'boxWidth': 15
+                    }
+                },
+                'scales': {
+                    'yAxes': [{
+                        'ticks': {
+                            'display': false,
+                            'min': 0,
+                            'max': maxValue
+                        },
+                        'gridLines': {
+                            'display': true
+                        }
+                    }],
+                    'xAxes': [{
+                        'ticks': {
+                            'display': false,
+                            'stepSize': 1
+                        },
+                        'gridLines': {
+                            'display': true
+                        }
+                    }]
+                },
+                'maintainAspectRatio': false,
+                // Performance tuning
+                'animation': {
+                    'duration': 0
+                },
+                'hover': {
+                    'animationDuration': 0
+                },
+                'responsiveAnimationDuration': 0
+            }
+        });
+    });
+
     // Initialize DataTable on all Bootstrap <table>s
     $('table.table').filter(function(){return !$(this).find('*[colspan],*[rowspan]').length;}).each(function() {
         var $table = $(this);
         var table = $table.DataTable({
             'paging': false,  // disable paging
-            'info': false,  // disable footer (not needed with no paging)
+            'info': false,    // disable footer (not needed with no paging)
             'filter': false,  // disable filtering
-            'order': [],  // disable initial sorting
+            'order': [],      // disable initial sorting
+            'autoWidth': false,
             'fixedHeader': true
         });
         // Handle DataTable FixedHeader with nav-tab changes
@@ -372,7 +497,6 @@ $(document).ready(function() {
         if($tab_toggle.length) {
             $tab_toggle.on('shown.bs.tab', function() {
                 table.fixedHeader.enable();
-                table.columns.adjust().draw();
             });
             $tab_toggle.on('hide.bs.tab', function() {
                 table.fixedHeader.disable();
@@ -383,9 +507,23 @@ $(document).ready(function() {
         }
     });
 
+    // Initialize non-ASCII popovers
+    $('form').find('input, select, textarea').popover({
+        trigger: 'manual',
+        placement: 'auto',
+        content: 'Special characters are not allowed.'
+    }).change(function() {
+        if(String($(this).val()).match(/[^\x09-\x7E]/)) {
+            $(this).popover('show');
+            nonAscii = true;
+        } else {
+            $(this).popover('hide');
+        }
+    });
+
     // Handle form key building
-    $('[name="comp_level"], [name="match_number"], [name="set_number"]').attr('serialize', false).change(function() {
-        if($('[name="comp_level"]').val() == 'qm') {
+    $('[name="comp_level"], [name="match_number"], [name="set_number"]').change(function() {
+        if($('[name="comp_level"]').val() == '' || $('[name="comp_level"]').val() == 'qm') {
             $('[name="set_number"]').removeAttr('required').closest('.input-group').hide();
         } else {
             $('[name="set_number"]').attr('required','required').closest('.input-group').show();
@@ -396,11 +534,11 @@ $(document).ready(function() {
             ($('[name="set_number"]').is(':visible') ? 'm' + $('[name="set_number"]').val() : '')
         );
     });
-    $('[name="team_number"]').attr('serialize', false).change(function() {
+    $('[name="team_number"]').change(function() {
         $('[name="team_key"]').val('frc' + $(this).val());
     });
     // Handle form deserialization
-    var $saved = $('[name="saved"]').attr('serialize', false);
+    var $saved = $('[name="saved"]');
     if($saved.length) {
         deserialize($saved.closest('form'), $saved.val());
     }
@@ -409,7 +547,7 @@ $(document).ready(function() {
     $('form[persistent="true"]').first().each(function() {
         deserialize(this, forms(window.location.pathname));
     }).find('input, select, textarea').change(function() {
-        forms(window.location.pathname, serialize($(this).closest('form')));
+        forms(window.location.pathname, serialize($(this).closest('form'), true));
     });
 });
 
@@ -451,4 +589,23 @@ function detectIE() {
         return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
     }
     return false;
+}
+
+// Find the best regression formula for the data set
+function regressionFit(data) {
+    var bestRegression;
+    var bestR2 = NaN;
+    _.forEach([
+        regression.linear(data),
+        regression.exponential(data),
+        regression.logarithmic(data),
+        regression.power(data),
+        regression.polynomial(data)
+    ], function(result) {
+        if(isNaN(bestR2) || (!isNaN(result.r2) && result.r2 > bestR2)) {
+            bestRegression = result;
+            bestR2 = result.r2;
+        }
+    });
+    return bestRegression;
 }
