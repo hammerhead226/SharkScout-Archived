@@ -20,19 +20,19 @@
                 <select name="comp_level" class="form-control" required="required" serialize="false" py:attrs="{'disabled':'disabled' if comp_level else ''}">
                     <option value="">Select Level ...</option>
                     <option value="qm" py:attrs="{'selected':'selected' if comp_level=='qm' else ''}">Quals</option>
-                    <option value="ef" py:attrs="{'selected':'selected' if comp_level=='ef' else ''}">Eights</option>
+                    <option value="ef" py:attrs="{'selected':'selected' if comp_level=='ef' else ''}">Eighths</option>
                     <option value="qf" py:attrs="{'selected':'selected' if comp_level=='qf' else ''}">Quarters</option>
                     <option value="sf" py:attrs="{'selected':'selected' if comp_level=='sf' else ''}">Semis</option>
                     <option value="f" py:attrs="{'selected':'selected' if comp_level=='f' else ''}">Finals</option>
                 </select>
             </div>
-            <div class="input-group">
-                <div class="input-group-addon">Match</div>
-                <input type="number" name="match_number" class="form-control" value="${match_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
-            </div>
             <div class="input-group" style="${'display:none;' if not comp_level else ''}" py:if="comp_level != 'qm'">
                 <div class="input-group-addon">Set</div>
                 <input type="number" name="set_number" class="form-control" value="${set_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if set_number else ''}"></input>
+            </div>
+            <div class="input-group">
+                <div class="input-group-addon">Match</div>
+                <input type="number" name="match_number" class="form-control" value="${match_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
             </div>
         </div>
     </div>

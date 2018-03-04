@@ -530,9 +530,11 @@ $(document).ready(function() {
         }
         $('[name="match_key"]').val(
             $('[name="event_key"]').val() + '_' +
-            $('[name="comp_level"]').val() + $('[name="match_number"]').val() +
-            ($('[name="set_number"]').is(':visible') ? 'm' + $('[name="set_number"]').val() : '')
+            $('[name="comp_level"]').val() +
+            ($('[name="set_number"]').is(':visible') ? $('[name="set_number"]').val() + 'm' : '') +
+            $('[name="match_number"]').val()
         );
+        console.log($('[name="match_key"]').val());
     });
     $('[name="team_number"]').change(function() {
         $('[name="team_key"]').val('frc' + $(this).val());
