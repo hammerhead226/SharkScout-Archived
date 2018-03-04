@@ -16,7 +16,7 @@
         <label class="col-xs-3 control-label">Match</label>
         <div class="col-xs-9" py:with="match_key = page['match']['key'] if 'key' in page['match'] else ''; match = match_key.replace(page['event']['key']+'_',''); comp_level = ''.join([c for c in match if not c.isdigit()]); match_number = ''.join([c for c in match if c.isdigit()]); set_number = page['match']['set_number'] if 'set_number' in page['match'] else ''">
             <input type="hidden" name="match_key" value="${match_key}"></input>
-            <div class="input-group inline-min">
+            <div class="input-group">
                 <select name="comp_level" class="form-control" required="required" serialize="false" py:attrs="{'disabled':'disabled' if comp_level else ''}">
                     <option value="">Select Level ...</option>
                     <option value="qm" py:attrs="{'selected':'selected' if comp_level=='qm' else ''}">Quals</option>
@@ -26,11 +26,11 @@
                     <option value="f" py:attrs="{'selected':'selected' if comp_level=='f' else ''}">Finals</option>
                 </select>
             </div>
-            <div class="input-group inline-min">
+            <div class="input-group">
                 <div class="input-group-addon">Match</div>
                 <input type="number" name="match_number" class="form-control" value="${match_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if match_number else ''}"></input>
             </div>
-            <div class="input-group inline-min" style="${'display:none;' if not comp_level else ''}" py:if="comp_level != 'qm'">
+            <div class="input-group" style="${'display:none;' if not comp_level else ''}" py:if="comp_level != 'qm'">
                 <div class="input-group-addon">Set</div>
                 <input type="number" name="set_number" class="form-control" value="${set_number}" required="required" serialize="false" py:attrs="{'disabled':'disabled' if set_number else ''}"></input>
             </div>
@@ -41,14 +41,12 @@
         <div class="col-xs-9">
             <py:choose>
                 <py:when test="page['team']">
-                    <div class="btn-toolbar inline-min" role="toolbar">
-                        <div class="btn-group" role="group" data-toggle="buttons">
-                            <label class="btn ${'btn-primary active' if page['team']['color']==color else 'btn-default'} ${color} disabled" py:for="color in page['teams']">
-                                <input type="radio" name="team_color" value="${color}" autocomplete="off" py:attrs="{'checked':'checked' if page['team']['color']==color else ''}"></input> ${color.title()}
-                            </label>
-                        </div>
+                    <div class="btn-group" role="group" data-toggle="buttons">
+                        <label class="btn ${'btn-primary active' if page['team']['color']==color else 'btn-default'} ${color} disabled" py:for="color in page['teams']">
+                            <input type="radio" name="team_color" value="${color}" autocomplete="off" py:attrs="{'checked':'checked' if page['team']['color']==color else ''}"></input> ${color.title()}
+                        </label>
                     </div>
-                    <div class="input-group inline-min">
+                    <div class="input-group">
                         <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                         <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
                         <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
@@ -57,30 +55,26 @@
                 <py:otherwise>
                     <input type="hidden" name="team_key"></input>
                     <py:choose>
-                        <div class="btn-toolbar" role="toolbar" py:when="page['teams']">
-                            <div class="btn-group ${color}" role="group" py:for="color in page['teams']" data-toggle="buttons">
-                                <label class="btn btn-default" py:for="team_number in page['teams'][color]">
-                                    <input type="radio" name="team_number" value="${team_number}" autocomplete="off" required="required" serialize="false"></input> ${team_number}
-                                    <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required"></input>
-                                </label>
-                            </div>
+                        <div class="btn-group ${color}" role="group" py:for="color in page['teams']" py:when="page['teams']" data-toggle="buttons">
+                            <label class="btn btn-default" py:for="team_number in page['teams'][color]">
+                                <input type="radio" name="team_number" value="${team_number}" autocomplete="off" required="required" serialize="false"></input> ${team_number}
+                                <input type="radio" name="team_color" value="${color}" autocomplete="off" required="required"></input>
+                            </label>
                         </div>
                         <py:otherwise>
-                            <div class="btn-toolbar inline-min" role="toolbar">
-                                <div class="btn-group" role="group" data-toggle="buttons">
-                                    <label class="btn btn-default ${color}" py:for="color in (page['teams'] if page['teams'] else ['red','blue'])">
-                                        <input type="radio" name="team_color" value="${color}" autocomplete="off"></input> ${color.title()}
-                                    </label>
-                                </div>
+                            <div class="btn-group" role="group" data-toggle="buttons">
+                                <label class="btn btn-default ${color}" py:for="color in (page['teams'] if page['teams'] else ['red','blue'])">
+                                    <input type="radio" name="team_color" value="${color}" autocomplete="off"></input> ${color.title()}
+                                </label>
                             </div>
                             <py:choose>
-                                <div class="input-group inline-min" py:when="'teams' in page['event'] and page['event']['teams']">
+                                <div class="input-group" py:when="'teams' in page['event'] and page['event']['teams']">
                                     <select name="team_number" class="form-control" required="required" serialize="false" data-selectize-create="true">
                                         <option value="">Select Team ...</option>
                                         <option value="${team['team_number']}" py:for="team in page['event']['teams']">${team['team_number']} - ${team['nickname']}</option>
                                     </select>
                                 </div>
-                                <div class="input-group inline-min" py:otherwise="">
+                                <div class="input-group" py:otherwise="">
                                     <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                                     <input type="number" name="team_number" class="form-control" required="required" serialize="false"></input>
                                 </div>

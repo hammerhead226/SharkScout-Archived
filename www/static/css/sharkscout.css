@@ -39,6 +39,16 @@
     min-width: 50px;
 }
 
+.input-group {
+    width: 100%;
+}
+.input-group + .input-group,
+.input-group + .btn-group,
+.btn-group + .input-group,
+.btn-group + .btn-group {
+    margin-top: 10px;
+}
+
 /* Get rid of unnecessary top margin/padding */
 * > h1:first-child, * > .h1:first-child,
 * > h2:first-child, * > .h2:first-child,
@@ -151,8 +161,17 @@
 
 /***** Selectize Overrides *****/
 
-.selectize-dropdown.form-control {
+/* Fix z-indexing issues */
+.input-group .form-control {
+    position: initial;
+}
+.form-control.selectize-dropdown {
     position: absolute;
+}
+
+/* Make height match .form-control */
+.form-control.selectize-control {
+    height: 34px;
 }
 
 .btn-group-vertical > .btn.active,
