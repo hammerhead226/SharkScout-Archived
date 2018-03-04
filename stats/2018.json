@@ -108,9 +108,19 @@
             "Exchange": "$_exchange",
             "Switch": "$_switch",
             "Scale": "$_scale",
-            "Minimum": "$_cube_min",
-            "Maximum": "$_cube_max",
-            "Average": "$_cube_avg"
+            // 2 decimal point rounding
+            "Minimum": {"$subtract": [
+                {"$add": ["$_cube_min", 0.0049999999999999999]},
+                {"$mod": [{"$add": ["$_cube_min", 0.0049999999999999999]}, 0.01]}
+            ]},
+            "Average": {"$subtract": [
+                {"$add": ["$_cube_avg", 0.0049999999999999999]},
+                {"$mod": [{"$add": ["$_cube_avg", 0.0049999999999999999]}, 0.01]}
+            ]},
+            "Maximum": {"$subtract": [
+                {"$add": ["$_cube_max", 0.0049999999999999999]},
+                {"$mod": [{"$add": ["$_cube_max", 0.0049999999999999999]}, 0.01]}
+            ]}
         }
     }}
 ]

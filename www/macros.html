@@ -311,8 +311,8 @@
                         <canvas class="chart"></canvas>
                         <input type="hidden" name="values" value="${','.join([str(v) for v in data])}"></input>
                         <div>Minimum: ${round(min(data),2)}</div>
-                        <div>Maximum: ${round(statistics.mean(data),2)}</div>
-                        <div>Average: ${round(max(data),2)}</div>
+                        <div>Average: ${round(statistics.mean(data),2)}</div>
+                        <div>Maximum: ${round(max(data),2)}</div>
                     </py:when>
                     <py:otherwise>${Markup(data)}</py:otherwise>
                 </py:choose>
