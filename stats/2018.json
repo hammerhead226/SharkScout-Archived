@@ -16,6 +16,7 @@
     // Bulk of statistics
     {"$group": {
         "_id": "$_id",
+        "_team_number": {"$first": "$team.team_number"},
         // General
         "100_team": {"$first": {"$ifNull": [{"$concat": [
             {"$substr": ["$team.team_number", 0, -1]},

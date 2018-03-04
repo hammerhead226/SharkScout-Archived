@@ -512,6 +512,7 @@ class Mongo(object):
         aggregation.extend(year_stats)
         aggregation.extend([
             {'$sort': {
+                '_team_number': 1,
                 '_id': 1
             }}
         ])
