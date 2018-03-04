@@ -509,6 +509,10 @@ class Mongo(object):
             }},
             {'$unwind': '$matches'}
         ]
+
+        from pprint import pprint
+        pprint(list(self.tba_events.aggregate(aggregation)))
+
         aggregation.extend(year_stats)
         aggregation.extend([
             {'$sort': {
