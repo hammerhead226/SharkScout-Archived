@@ -8,6 +8,11 @@
         "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
     }},
 
+    // So $in operations can succeed
+    {"$addFields": {
+        "pit.cube_scoring_location": {"$ifNull": ["$pit.cube_scoring_location", []]}
+    }},
+
     // Bulk of statistics
     {"$group": {
         "_id": "$_id",
