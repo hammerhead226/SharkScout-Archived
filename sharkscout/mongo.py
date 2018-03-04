@@ -444,10 +444,17 @@ class Mongo(object):
         aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
-            {'$addFields': {'matches': {'$ifNull': ['$matches', [{  # event's match list is missing, fill it in
-                'key': {'$concat': ['$key', '_' + comp_level + str(match_number)]},
-                'event_key': '$key'  # to allow $unwind:$matches
-            } for comp_level in ['qm','ef','qf','sf','f'] for match_number in range(250)]]}}},
+            # Fill in missing match list
+            {'$addFields': {'matches': {'$ifNull': ['$matches',
+                [{
+                    'key': {'$concat': ['$key', '_qm' + str(match_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for match_number in range(250)]
+                + [{
+                    'key': {'$concat': ['$key', '_' + comp_level + str(match_number) + 'm' + str(set_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for comp_level in ['ef', 'qf', 'sf', 'f'] for match_number in range(8) for set_number in range(3)]
+            ]}}},
             {'$unwind': '$matches'},
             {'$replaceRoot': {'newRoot': '$matches'}},
             # Match to scouting information, return scouting data
