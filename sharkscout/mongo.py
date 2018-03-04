@@ -511,8 +511,11 @@ class Mongo(object):
         ]
         aggregation.extend(year_stats)
         aggregation.extend([
+            {'$addFields': {
+               '_team_number':  {'$ifNull': ['$_team_number', '$_id']}
+            }},
             {'$sort': {
-                '_id': 1
+                '_team_number': 1
             }}
         ])
 
