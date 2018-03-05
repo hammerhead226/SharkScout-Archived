@@ -13,7 +13,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">Team</label>
+        <label class="col-xs-3 control-label">
+            Team
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9">
             <py:choose>
                 <py:when test="page['team']">
@@ -42,7 +45,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">Current Scouter</label>
+        <label class="col-xs-3 control-label">
+            Current Scouter
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9">
             <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
         </div>
@@ -65,7 +71,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Drivetrain
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <select name="drivetrain" class="form-control" required="required">
@@ -112,7 +118,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cube Scoring Location
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <label class="checkbox-inline">
@@ -134,7 +140,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Auton Strategy
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="auton_strategy" class="form-control" required="required"></textarea>
@@ -148,17 +154,14 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Tele-Op Strategy
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">
-            Avg. Cubes in Exchange
-            <span class="fas fa-exclamation text-danger"></span>
-        </label>
+        <label class="col-xs-3 control-label">Avg. Cubes in Exchange</label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
@@ -168,10 +171,7 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">
-            Avg. Cubes on Switch (Low)
-            <span class="fas fa-exclamation text-danger"></span>
-        </label>
+        <label class="col-xs-3 control-label">Avg. Cubes on Switch (Low)</label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
@@ -181,10 +181,7 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">
-            Avg. Cubes on Scale (High)
-            <span class="fas fa-exclamation text-danger"></span>
-        </label>
+        <label class="col-xs-3 control-label">Avg. Cubes on Scale (High)</label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
@@ -201,7 +198,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Has Climber
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -236,8 +233,14 @@
         </div>
     </div>
 
+    <hr />
+
     <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-9">
+        <label class="col-xs-3 control-label">
+            <span class="fas fa-asterisk text-danger"></span>
+            Required
+        </label>
+        <div class="col-xs-9">
             <button type="submit" class="btn btn-primary" offline="offline">Submit</button>
         </div>
     </div>
