@@ -466,7 +466,10 @@ class Mongo(object):
             }},
             {'$match': {'scouting': {'$ne': []}}},  # any scouting data exists at all
             {'$unwind': '$scouting'},
-            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': {'$concat':['$event_key','_qm1']}}]]}}},  # to allow $unwind
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{
+                'match_key': {'$concat': ['$event_key', '_qm1']},
+                'event_key': '$event_key'
+            }]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},

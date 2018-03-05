@@ -72,6 +72,7 @@
 }
 .table th > ul,
 .table td > ul {
+    min-width: 100px;
     margin: 0;
     padding-left: 20px;
 }
