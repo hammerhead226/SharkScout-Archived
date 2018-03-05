@@ -1,4 +1,19 @@
 [
+    // Quick references
+    {"$addFields": {
+        "matches.number": {"$toUpper": {"$substr": [
+            "$matches.match_key",
+            {"$add": [{"$strLenCP": "$matches.event_key"}, 1]},
+            -1
+        ]}}
+    }},
+
+    // Change some nulls to empty strings
+    {"$addFields": {
+        "pit.robot_height": {"$ifNull": ["$pit.robot_height", ""]},
+        "pit.robot_weight": {"$ifNull": ["$pit.robot_weight", ""]}
+    }},
+
     // Fill in some match data with pit data
     {"$addFields": {
         "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
@@ -65,7 +80,13 @@
             }}
         ]}},
         // Auton
-        "200_auton_strat": {"$push": "$matches.auton_strategy"},
+        "200_auton_strat": {"$push": {
+            "$concat": [
+                "$matches.number",
+                " ",
+                "$matches.auton_strategy"
+            ]
+        }},
         "201_auton_baseline": {"$push": {
             "$cond": {
                 "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
@@ -73,9 +94,21 @@
                 "else": 0
             }
         }},
-        "202_auton_cube_pos": {"$push": "$matches.auton_cube_position"},
+        "202_auton_cube_pos": {"$push": {
+            "$concat": [
+                "$matches.number",
+                " ",
+                "$matches.auton_cube_position"
+            ]
+        }},
         // Teleop
-        "300_teleop_strat": {"$push": "$matches.teleop_strategy"},
+        "300_teleop_strat": {"$push": {
+            "$concat": [
+                "$matches.number",
+                " ",
+                "$matches.teleop_strategy"
+            ]
+        }},
         "_exchange": {"$push": "$matches.cubes_exchange"},
         "_switch": {"$push": "$matches.cubes_switch"},
         "_scale": {"$push": "$matches.cubes_scale"},
@@ -98,8 +131,28 @@
             }
         }},
         // Comments
-        "600_off_comments": {"$push": "$matches.comments_offense"},
-        "601_def_comments": {"$push": "$matches.comments_defense"}
+        "600_off_comments": {"$push": {
+            "$cond": {
+                "if": {"$ne": ["$matches.comments_offense", ""]},
+                "then": {"$concat": [
+                    "$matches.number",
+                    " ",
+                    "$matches.comments_offense"
+                ]},
+                "else": ""
+            }
+        }},
+        "601_def_comments": {"$push": {
+            "$cond": {
+                "if": {"$ne": ["$matches.comments_defense", ""]},
+                "then": {"$concat": [
+                    "$matches.number",
+                    " ",
+                    "$matches.comments_defense"
+                ]},
+                "else": ""
+            }
+        }}
     }},
 
     // Combine some fields

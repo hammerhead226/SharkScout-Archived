@@ -72,6 +72,7 @@
 }
 .table th > ul,
 .table td > ul {
+    min-width: 100px;
     margin: 0;
     padding-left: 20px;
 }
@@ -155,6 +156,13 @@
 .alert-sm.alert-dismissable,
 .alert-sm.alert-dismissible {
     padding-right: 30px;
+}
+
+.scroll-x {
+    overflow-x: scroll;
+}
+.scroll-y {
+    overflow-y: scroll;
 }
 
 

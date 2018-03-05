@@ -13,7 +13,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">Match</label>
+        <label class="col-xs-3 control-label">
+            Match
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9" py:with="match_key = page['match']['key'] if 'key' in page['match'] else ''; match = match_key.replace(page['event']['key']+'_',''); comp_level = ''.join([c for c in match if not c.isdigit()]); match_number = ''.join([c for c in match if c.isdigit()]); set_number = page['match']['set_number'] if 'set_number' in page['match'] else ''">
             <input type="hidden" name="match_key" value="${match_key}"></input>
             <div class="input-group">
@@ -37,7 +40,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">Team</label>
+        <label class="col-xs-3 control-label">
+            Team
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9">
             <py:choose>
                 <py:when test="page['team']">
@@ -86,7 +92,10 @@
         </div>
     </div>
     <div class="form-group">
-        <label class="col-xs-3 control-label">Current Scouter</label>
+        <label class="col-xs-3 control-label">
+            Current Scouter
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9">
             <input type="text" name="scouter" class="form-control" value="${session['user_name']}" disabled="disabled"></input>
         </div>
@@ -97,14 +106,17 @@
     <h2 class="col-xs-offset-3 col-xs-9">Auton</h2>
 
     <div class="form-group">
-        <label class="col-xs-3 control-label">Crossed Baseline</label>
+        <label class="col-xs-3 control-label">
+            Crossed Baseline
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_crossed_baseline" value="N" autocomplete="off"></input> No
+                    <input type="radio" name="auton_crossed_baseline" value="N" autocomplete="off" required="required"></input> No
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off"></input> Yes
+                    <input type="radio" name="auton_crossed_baseline" value="Y" autocomplete="off" required="required"></input> Yes
                 </label>
             </div>
         </div>
@@ -112,21 +124,21 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cube Position
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="" autocomplete="off"></input> N/A
+                    <input type="radio" name="auton_cube_position" value="n/a" autocomplete="off" required="required"></input> N/A
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="exchange" autocomplete="off"></input> Exchange
+                    <input type="radio" name="auton_cube_position" value="exchange" autocomplete="off" required="required"></input> Exchange
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="switch" autocomplete="off"></input> Switch (Low)
+                    <input type="radio" name="auton_cube_position" value="switch" autocomplete="off" required="required"></input> Switch (Low)
                 </label>
                 <label class="btn btn-default">
-                    <input type="radio" name="auton_cube_position" value="scale" autocomplete="off"></input> Scale (High)
+                    <input type="radio" name="auton_cube_position" value="scale" autocomplete="off" required="required"></input> Scale (High)
                 </label>
             </div>
         </div>
@@ -134,7 +146,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Auton Strategy
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="auton_strategy" class="form-control" required="required"></textarea>
@@ -148,12 +160,12 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes in Exchange
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off"></input> ${i}
+                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off" required="required"></input> ${i}
                 </label>
             </div>
         </div>
@@ -161,12 +173,12 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes on Switch (Low)
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_switch" value="${i}" autocomplete="off"></input> ${i}
+                    <input type="radio" name="cubes_switch" value="${i}" autocomplete="off" required="required"></input> ${i}
                 </label>
             </div>
         </div>
@@ -174,12 +186,12 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Cubes on Scale (High)
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_scale" value="${i}" autocomplete="off"></input> ${i}
+                    <input type="radio" name="cubes_scale" value="${i}" autocomplete="off" required="required"></input> ${i}
                 </label>
             </div>
         </div>
@@ -187,7 +199,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Tele-Op Strategy
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="teleop_strategy" class="form-control" required="required"></textarea>
@@ -201,7 +213,7 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Climbed
-            <span class="fas fa-exclamation text-danger"></span>
+            <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
             <div class="btn-group" data-toggle="buttons">
@@ -223,7 +235,6 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Offense Comments
-            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="comments_offense" class="form-control"></textarea>
@@ -232,15 +243,20 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">
             Defense Comments
-            <span class="fas fa-exclamation text-danger"></span>
         </label>
         <div class="col-xs-9">
             <textarea name="comments_defense" class="form-control"></textarea>
         </div>
     </div>
 
+    <hr />
+
     <div class="form-group">
-        <div class="col-xs-offset-3 col-xs-9">
+        <label class="col-xs-3 control-label">
+            <span class="fas fa-asterisk text-danger"></span>
+            Required
+        </label>
+        <div class="col-xs-9">
             <button type="submit" class="btn btn-primary" offline="offline">Submit</button>
         </div>
     </div>
