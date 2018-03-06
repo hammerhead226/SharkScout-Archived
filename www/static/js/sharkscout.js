@@ -538,7 +538,6 @@ $(document).ready(function() {
             ($('[name="set_number"]').is(':visible') ? $('[name="set_number"]').val() + 'm' : '') +
             $('[name="match_number"]').val()
         );
-        console.log($('[name="match_key"]').val());
     });
     $('[name="team_number"]').change(function() {
         $('[name="team_key"]').val('frc' + $(this).val());

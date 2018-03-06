@@ -11,7 +11,20 @@
     // Change some nulls to empty strings
     {"$addFields": {
         "pit.robot_height": {"$ifNull": ["$pit.robot_height", ""]},
-        "pit.robot_weight": {"$ifNull": ["$pit.robot_weight", ""]}
+        "pit.robot_weight": {"$ifNull": ["$pit.robot_weight", ""]},
+        "pit.cube_lifter": {"$ifNull": ["$pit.cube_lifter", ""]},
+        "pit.cube_intake": {"$ifNull": ["$pit.cube_intake", ""]}
+    }},
+
+    // Week-to-week scouting form changes
+    {"$addFields": {
+        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$matches.cubes_switch"]}
+        "matches.cubes_switch_opponent": {"$ifNull": ["$matches.cubes_switch_opponent", 0]},
+        "matches.end_position": {"$ifNull": ["$matches.end_position", {"$cond": {
+            "if": {"$eq": ["$matches.climbed", "Y"]},
+            "then": "climbed",
+            "else": "n/a"
+        }}]}
     }},
 
     // Fill in some match data with pit data
@@ -19,7 +32,7 @@
         "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
         "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
         "matches.cubes_exchange": {"$ifNull": ["$matches.cubes_exchange", "$pit.avg_cubes_exchange"]},
-        "matches.cubes_switch": {"$ifNull": ["$matches.cubes_switch", "$pit.avg_cubes_switch"]},
+        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$pit.avg_cubes_switch_own"]},
         "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
     }},
 
@@ -59,6 +72,16 @@
                 "else": ""
             }},
             {"$cond": {
+                "if": {"$ne": ["$pit.cube_lifter", ""]},
+                "then": {"$concat": [
+                    "<br/>",
+                    {"$substr": ["$pit.cube_lifter", 0, -1]},
+                    " + ",
+                    {"$substr": ["$pit.cube_intake", 0, -1]}
+                ]},
+                "else": ""
+            }},
+            {"$cond": {
                 "if": {"$in": ["exchange", "$pit.cube_scoring_location"]},
                 "then": "<br/>can do exchange",
                 "else": ""
@@ -76,6 +99,11 @@
             {"$cond": {
                 "if": {"$eq": ["$pit.climber", "Y"]},
                 "then": "<br/>has climber",
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$eq": ["$pit.can_lift", "Y"]},
+                "then": "<br/>can lift others",
                 "else": ""
             }}
         ]}},
@@ -110,20 +138,35 @@
             ]
         }},
         "_exchange": {"$push": "$matches.cubes_exchange"},
-        "_switch": {"$push": "$matches.cubes_switch"},
+        "_switch_own": {"$push": "$matches.cubes_switch_own"},
         "_scale": {"$push": "$matches.cubes_scale"},
-        "_cube_min": {"$min": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
-        "_cube_max": {"$max": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
-        "_cube_avg": {"$avg": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
+        "_switch_opponent": {"$push": "$matches.cubes_switch_opponent"},
+        "_cube_min": {"$min": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
+        "_cube_max": {"$max": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
+        "_cube_avg": {"$avg": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
         // End Game
-        "500_climb_attempt": {"$push": {
+        "_park": {"$push": {
             "$cond": {
-                "if": {"$ne": ["$matches.climbed", "N"]},
+                "if": {"$eq": ["$matches.parked", "Y"]},
                 "then": 1,
                 "else": 0
             }
         }},
-        "501_climb_success": {"$push": {
+        "_park_avg": {"$avg": {
+            "$cond": {
+                "if": {"$eq": ["$matches.parked", "Y"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
+        "_climb": {"$push": {
+            "$cond": {
+                "if": {"$eq": ["$matches.climbed", "Y"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
+        "_climb_avg": {"$avg": {
             "$cond": {
                 "if": {"$eq": ["$matches.climbed", "Y"]},
                 "then": 1,
@@ -160,7 +203,8 @@
         "301_cubes": {
             "_sort": "$_cube_avg",
             "Exchange": "$_exchange",
-            "Switch": "$_switch",
+            "Own Switch": "$_switch_own",
+            "Opp Switch": "$_switch_opponent",
             "Scale": "$_scale",
             // 2 decimal point rounding
             "Minimum": {"$subtract": [
@@ -174,6 +218,20 @@
             "Maximum": {"$subtract": [
                 {"$add": ["$_cube_max", 0.0049999999999999999]},
                 {"$mod": [{"$add": ["$_cube_max", 0.0049999999999999999]}, 0.01]}
+            ]}
+        },
+        "500_end_game": {
+            "_sort": "$_climb_avg",
+            "Park": "$_park",
+            "Climb": "$_climb",
+            // 2 decimal point rounding
+            "Park Average": {"$subtract": [
+                {"$add": ["$_park_avg", 0.0049999999999999999]},
+                {"$mod": [{"$add": ["$_park_avg", 0.0049999999999999999]}, 0.01]}
+            ]},
+            "Climb Average": {"$subtract": [
+                {"$add": ["$_climb_avg", 0.0049999999999999999]},
+                {"$mod": [{"$add": ["$_climb_avg", 0.0049999999999999999]}, 0.01]}
             ]}
         }
     }}
