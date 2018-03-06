@@ -236,9 +236,9 @@ body {
     pointer-events: none;
 }
 
-.opacity-25 {
-    opacity: 0.25;
-    filter: alpha(opacity=25);
+.opacity-15 {
+    opacity: 0.15;
+    filter: alpha(opacity=15);
 }
 
 .font-25vh {
