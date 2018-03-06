@@ -11,6 +11,7 @@ import string
 import sys
 import tempfile
 import threading
+import time
 import ws4py.server.cherrypyserver
 import ws4py.websocket
 
@@ -48,8 +49,9 @@ class WebServer(threading.Thread):
             '/ws': {
                 'tools.websocket.on': True,
                 'tools.websocket.handler_cls': WebSocketServer,
-                'tools.gzip.on': False,    # otherwise websockets will always fail
-                'tools.expires.on': False  # otherwise websockets will usually not connect
+                'tools.sessions.on': False,  # unnecessary
+                'tools.gzip.on': False,      # otherwise websockets will always fail
+                'tools.expires.on': False    # otherwise websockets will usually not connect
             }
         }
         self.cherry = None
@@ -516,10 +518,10 @@ class Download(CherryServer):
 
 
 class WebSocketServer(ws4py.websocket.WebSocket):
-    sockets = []
+    sockets = {}
 
     def opened(self):
-        self.__class__.sockets.append(self)
+        self.__class__.sockets[self] = time.time()
         cherrypy.log(str(self) + ' Opened (Open: ' + str(len(self.__class__.sockets)) + ')')
         # Note: can't send any messages here
 
@@ -538,22 +540,48 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             if 'scouting_match' in message:
                 for data in message['scouting_match']:
                     if sharkscout.Mongo().scouting_match_update(data):
-                        self.send({'dequeue': {'scouting_match': data}})
+                        self.send({
+                            'dequeue': {'scouting_match': data},
+                            'toast': {
+                                'message': 'You Match Scouted ' + data['match_key'] + ' ' + data['team_key'],
+                                'type': 'success'
+                            }
+                        })
                         self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast_others({
+                            'toast': {
+                                'message': data['scouter'] + ' Match Scouted ' + data['match_key'] + ' ' + data['team_key'],
+                                'type': 'success',
+                                'mobile': False
+                            }
+                        })
 
             # Pit scouting upserts
             if 'scouting_pit' in message:
                 for data in message['scouting_pit']:
                     if sharkscout.Mongo().scouting_pit_update(data):
-                        self.send({'dequeue': {'scouting_pit': data}})
+                        self.send({
+                            'dequeue': {'scouting_pit': data},
+                            'toast': {
+                                'message': 'You Pit Scouted ' + data['event_key'] + ' ' + data['team_key'],
+                                'type': 'success'
+                            }
+                        })
                         self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast_others({
+                            'toast': {
+                                'message': data['scouter'] + ' Pit Scouted ' + data['event_key'] + ' ' + data['team_key'],
+                                'type': 'success',
+                                'mobile': False
+                            }
+                        })
 
         except json.JSONDecodeError as e:
             cherrypy.log(e)
 
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
-            self.__class__.sockets.remove(self)
+            del self.__class__.sockets[self]
         cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
@@ -575,3 +603,8 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def broadcast(self, payload):
         for socket in self.__class__.sockets:
             socket.send(payload)
+
+    def broadcast_others(self, payload):
+        for socket in self.__class__.sockets:
+            if socket != self:
+                socket.send(payload)

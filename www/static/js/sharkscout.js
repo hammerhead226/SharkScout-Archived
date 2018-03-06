@@ -43,10 +43,11 @@ function openSocket() {
     var timeTeamLast = undefined;
     var submitInterval;
 
+    var ws = undefined;
     if(window.WebSocket) {
-        var ws = new WebSocket(webSocket);
+        ws = new WebSocket(webSocket);
     } else if(window.MozWebSocket) {
-        var ws = MozWebSocket(webSocket);
+        ws = MozWebSocket(webSocket);
     }
 
     ws.onopen = function() {
@@ -54,8 +55,7 @@ function openSocket() {
         var ping = function() {
             // Too many pings were not ponged, assume disconnected
             if(pingCount >= 5) {
-                // ws.close() doesn't work, it asks host to close
-                ws.onclose();
+                ws.close();
                 return;
             }
             ws.send(JSON.stringify({'ping':'ping'}));
@@ -114,6 +114,30 @@ function openSocket() {
             }
         }
 
+        if(data.toast) {
+            $.notify({
+                'message': data.toast.message,
+                'icon': 'fas fa-check'
+            }, {
+                'template': '<div data-notify="container" class="col-xs-6 col-sm-4 col-lg-3 ' + (data.toast.hasOwnProperty('mobile') && !data.toast.mobile ? 'hidden-xs' : '') + ' alert alert-{0}" role="alert">' +
+                                '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
+                                '<span data-notify="icon"></span>&nbsp; ' +
+                                '<span data-notify="title">{1}</span> ' +
+                                '<span data-notify="message">{2}</span>' +
+                                '<div class="progress" data-notify="progressbar">' +
+                                    '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+                                '</div>' +
+                                '<a href="{3}" target="{4}" data-notify="url"></a>' +
+                            '</div>',
+                'type': data.toast.type,
+                'offset': {
+                    'y': 65,
+                    'x': 10
+                },
+                'mouse_over': 'pause'
+            });
+        }
+
         // Dequeue messages
         if(data.dequeue) {
             for(var key in data.dequeue) {
@@ -140,6 +164,7 @@ function openSocket() {
 
     ws.onclose = function(e) {
         clearInterval(pingInterval);
+        clearInterval(timeTeamInterval);
         clearInterval(submitInterval);
 
         $('#icon-no-websocket').stop().fadeIn();
