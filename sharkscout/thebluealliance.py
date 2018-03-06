@@ -58,8 +58,19 @@ class TheBlueAlliance(object):
         models_list = models if isinstance(models, list) else [models]
 
         for model_idx, model in enumerate(models_list):
+            # Get rid of "sponsored by" information
             if 'name' in model:
-                model['name'] = re.sub(r' (co-)?sponsored by .+', '', model['name'], re.IGNORECASE)
+                model['name'] = re.sub(r'(co-)?sponsored by .+$', '', model['name'], re.IGNORECASE)
+
+            # Fix poorly formatted team names
+            if 'nickname' in model and 'team_number' in model:
+                model['nickname'] = re.sub(str(model['team_number']) + '$', '', model['nickname'])
+
+            # Trim string values
+            for key in model:
+                if isinstance(model[key], str):
+                    model[key] = model[key].strip()
+
             models_list[model_idx] = model
 
         return models_list if isinstance(models, list) else models_list[0]
