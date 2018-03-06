@@ -296,7 +296,6 @@ class Index(CherryServer):
         page = {
             'event': event,
             'stats_matches': int(stats_matches),
-            'stats': sharkscout.Mongo().scouting_stats(event_key, stats_matches),
             'years': sharkscout.Mongo().event_years(event['event_code']),
             'can_scout': {
                 'match': self.can_render('scouting/' + str(event['year']) + '/match'),
@@ -304,6 +303,11 @@ class Index(CherryServer):
             },
             'modified_timestamp': event['modified_timestamp']
         }
+        try:
+            page['stats'] = sharkscout.Mongo().scouting_stats(event_key, stats_matches)
+        except Exception as e:
+            page['stats'] = []
+            cherrypy.log(e)
         return self.display('event', page)
 
     @cherrypy.expose
