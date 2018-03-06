@@ -1,0 +1,111 @@
+[
+    // Fill in some match data with pit data
+    {"$addFields": {
+        "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
+        "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
+        "matches.cubes_exchange": {"$ifNull": ["$matches.cubes_exchange", "$pit.avg_cubes_exchange"]},
+        "matches.cubes_switch": {"$ifNull": ["$matches.cubes_switch", "$pit.avg_cubes_switch"]},
+        "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
+    }},
+
+    // Bulk of statistics
+    {"$group": {
+        "_id": "$_id",
+        // General
+        "100_team": {"$first": {"$ifNull": [{"$concat": [
+            {"$substr": ["$team.team_number", 0, -1]},
+            "<br/><br/>",
+            "$team.nickname"
+        ]}, "$_id"]}},
+        "101_properties": {"$first": {"$concat": [
+            {"$substr": ["$pit.drivetrain", 0, -1]},
+            {"$cond": {
+                "if": {"$ne": ["$pit.robot_height", ""]},
+                "then": {"$concat": [
+                    "<br/>",
+                    {"$substr": ["$pit.robot_height", 0, -1]},
+                    " in"
+                ]},
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$ne": ["$pit.robot_weight", ""]},
+                "then": {"$concat": [
+                    "<br/>",
+                    {"$substr": ["$pit.robot_weight", 0, -1]},
+                    " lb"
+                ]},
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$in": ["exchange", "$pit.cube_scoring_location"]},
+                "then": "<br/>can do exchange",
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$in": ["switch", "$pit.cube_scoring_location"]},
+                "then": "<br/>can do switch",
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$in": ["scale", "$pit.cube_scoring_location"]},
+                "then": "<br/>can do scale",
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$eq": ["$pit.climber", "Y"]},
+                "then": "<br/>has climber",
+                "else": ""
+            }}
+        ]}},
+        // Auton
+        "200_auton_strat": {"$push": "$matches.auton_strategy"},
+        "201_auton_baseline": {"$push": {
+            "$cond": {
+                "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
+        "202_auton_cube_pos": {"$push": "$matches.auton_cube_position"},
+        // Teleop
+        "300_teleop_strat": {"$push": "$matches.teleop_strategy"},
+        "_exchange": {"$push": "$matches.cubes_exchange"},
+        "_switch": {"$push": "$matches.cubes_switch"},
+        "_scale": {"$push": "$matches.cubes_scale"},
+        "_cube_min": {"$min": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
+        "_cube_max": {"$max": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
+        "_cube_avg": {"$avg": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch", "$matches.cubes_scale"]}},
+        // End Game
+        "500_climb_attempt": {"$push": {
+            "$cond": {
+                "if": {"$ne": ["$matches.climbed", "N"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
+        "501_climb_success": {"$push": {
+            "$cond": {
+                "if": {"$eq": ["$matches.climbed", "Y"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
+        // Comments
+        "600_off_comments": {"$push": "$matches.comments_offense"},
+        "601_def_comments": {"$push": "$matches.comments_defense"}
+    }},
+
+    // Combine some fields
+    {"$addFields": {
+        "301_cubes": {
+            "_sort": "$_cube_avg",
+            "Exchange": "$_exchange",
+            "Switch": "$_switch",
+            "Scale": "$_scale",
+            "Minimum": "$_cube_min",
+            "Maximum": "$_cube_max",
+            "Average": "$_cube_avg"
+        }
+    }}
+]

@@ -2,12 +2,13 @@
 Offline web app with TBA integration for competition scouting.
 
 
-## Getting Started
+## Getting Started on Windows
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Download the [latest release](https://github.com/hammerhead226/SharkScout/releases/latest).
+3. Run `SharkScout.exe`.
 
 
-## Executing From Source
+## Running From Source
 #### Installing Dependencies
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Install [Python 3](https://www.python.org/downloads/).
@@ -19,10 +20,10 @@ Offline web app with TBA integration for competition scouting.
 5. Configure your TBA Read API Key in `config.json`
 
 #### Execution
-Execute `SharkScout.py`.
+Run `SharkScout.py`.
 
-#### Building Windows Executable
-Execute `build.bat`.
+#### Building for Windows
+Run `build.bat`.
 
 
 ## Updating TBA Information
@@ -56,10 +57,10 @@ In order to be a responsible user of The Blue Alliance's API it is recommended t
 The easiest setup is to run the server remotely and use cell phones to access it. This can be challenging, though, because competition venues are notorious for poor cell signal.
 
 #### Local Server
-An alternative to running the server remotely is to run it locally on a laptop at the competition. Because WiFi access points are banned there are 2 options for this:
-1. Use a network switch and all wired connections to either laptops or tablets (OTG ethernet adapters).
-2. Run the server on a Linux laptop and use [panr](https://github.com/emmercm/panr) to create a Bluetooth PAN network.
-2. Run the server on a Windows laptop and bridge a connection to a Linux device connected over ethernet, and use [panr](https://github.com/emmercm/panr) with the `-nd` flag on the Linux device to create a Bluetooth PAN network.
+An alternative to running the server remotely is to run it locally on a laptop at the competition. Because WiFi access points are banned there are some options for this:
+1. Use a network switch and all wired connections to either laptops or tablets (with OTG ethernet adapters).
+2. Run the server in Linux and use [panr](https://github.com/emmercm/panr) to create a Bluetooth PAN network.
+2. Run the server in Windows and bridge a connection to a Linux device connected with ethernet, and run [panr](https://github.com/emmercm/panr) on the Linux device with the `-nd` flag to create a Bluetooth PAN network.
 
 
 ## Additional Thoughts
