@@ -163,23 +163,39 @@
             <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_exchange" value="${i}" autocomplete="off" required="required"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="cubes_exchange" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">
-            Cubes on Switch (Low)
+            Cubes on Own Switch (Low)
             <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_switch" value="${i}" autocomplete="off" required="required"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="cubes_switch_own" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
@@ -189,10 +205,39 @@
             <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="cubes_scale" value="${i}" autocomplete="off" required="required"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="cubes_scale" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-xs-3 control-label">
+            Cubes on Opponent's Switch (Low)
+            <span class="fas fa-asterisk text-danger"></span>
+        </label>
+        <div class="col-xs-9">
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="cubes_switch_opponent" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
@@ -212,7 +257,7 @@
 
     <div class="form-group">
         <label class="col-xs-3 control-label">
-            Climbed Scale (No Park)
+            End Position
             <span class="fas fa-asterisk text-danger"></span>
         </label>
         <div class="col-xs-9">

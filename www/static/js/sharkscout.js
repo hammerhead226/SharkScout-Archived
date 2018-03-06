@@ -317,12 +317,22 @@ $(document).ready(function() {
     });
     $('.btn[data-toggle="subtract"]').click(function() {
         var $input = $('[name="' + $(this).attr('data-target') + '"]');
-        if($input.is('[min]') && parseInt($input.val())-1 < $input.attr('min')){ return; }
+        if(isNaN(parseInt($input.val()))) {
+            $input.val(0);
+        }
+        if($input.is('[min]') && parseInt($input.val())-1 < $input.attr('min')) {
+            return;
+        }
         $input.val(parseInt($input.val())-1);
     });
     $('.btn[data-toggle="add"]').click(function() {
         var $input = $('[name="' + $(this).attr('data-target') + '"]');
-        if($input.is('[max]') && parseInt($input.val())+1 > $input.attr('max')){ return; }
+        if(isNaN(parseInt($input.val()))) {
+            $input.val(0);
+        }
+        if($input.is('[max]') && parseInt($input.val())+1 > $input.attr('max')) {
+            return;
+        }
         $input.val(parseInt($input.val())+1);
     });
 
