@@ -35,6 +35,14 @@
     display: none;
 }
 
+/* Minimum button widths */
+.btn-group .btn {
+    min-width: 75px;
+}
+.input-group-btn .btn {
+    min-width: 40px;
+}
+
 .btn-group .input-group input[type="number"] {
     min-width: 50px;
 }
