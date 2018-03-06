@@ -360,7 +360,11 @@ $(document).ready(function() {
                     options[this.name.replace(/^data-selectize-/,'')] = this.value;
                 }
             });
-            $(this).selectize(options);
+            $(this)
+                .selectize(options)
+                .find('.selectize-input input').change(function() {
+                    this.blur();
+                });
         });
     }
 
