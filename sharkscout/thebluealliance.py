@@ -60,6 +60,7 @@ class TheBlueAlliance(object):
         for model_idx, model in enumerate(models_list):
             if 'name' in model:
                 model['name'] = re.sub(r' (co-)?sponsored by .+', '', model['name'], re.IGNORECASE)
+            models_list[model_idx] = model
 
         return models_list if isinstance(models, list) else models_list[0]
 
