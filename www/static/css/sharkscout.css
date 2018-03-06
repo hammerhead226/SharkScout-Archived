@@ -148,7 +148,6 @@
 }
 
 
-
 /***** Selectize Overrides *****/
 
 .selectize-dropdown.form-control {
@@ -175,6 +174,15 @@ table.dataTable:first-child {
 }
 table.dataTable:last-child {
     margin-bottom: 0 !important;
+}
+
+
+/***** Bootstrap Notify Additions *****/
+
+.alert[data-notify] {
+    -webkit-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.5);
+       -moz-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.5);
+            box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.5);
 }
 
 

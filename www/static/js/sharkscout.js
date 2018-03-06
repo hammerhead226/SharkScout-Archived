@@ -114,14 +114,14 @@ function openSocket() {
             }
         }
 
-        if(data.success) {
+        if(data.toast) {
             $.notify({
-                'message': data.success,
+                'message': data.toast.message,
                 'icon': 'fas fa-check'
             }, {
-                'template': '<div data-notify="container" class="col-xs-6 col-sm-4 col-lg-3 hidden-xs alert alert-{0}" role="alert">' +
+                'template': '<div data-notify="container" class="col-xs-6 col-sm-4 col-lg-3 ' + (data.toast.hasOwnProperty('mobile') && !data.toast.mobile ? 'hidden-xs' : '') + ' alert alert-{0}" role="alert">' +
                                 '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-                                '<span data-notify="icon"></span> ' +
+                                '<span data-notify="icon"></span>&nbsp; ' +
                                 '<span data-notify="title">{1}</span> ' +
                                 '<span data-notify="message">{2}</span>' +
                                 '<div class="progress" data-notify="progressbar">' +
@@ -129,7 +129,11 @@ function openSocket() {
                                 '</div>' +
                                 '<a href="{3}" target="{4}" data-notify="url"></a>' +
                             '</div>',
-                'type': 'success',
+                'type': data.toast.type,
+                'offset': {
+                    'y': 65,
+                    'x': 10
+                },
                 'mouse_over': 'pause'
             });
         }
