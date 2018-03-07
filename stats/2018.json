@@ -173,6 +173,13 @@
                 "else": 0
             }
         }},
+        "_picked_up": {"$push": {
+            "$cond": {
+                "if": {"$eq": ["$matches.end_position", "picked_up"]},
+                "then": 1,
+                "else": 0
+            }
+        }},
         // Comments
         "600_off_comments": {"$push": {
             "$cond": {
@@ -217,6 +224,7 @@
             // Lines
             "Park": "$_park",
             "Climb": "$_climb",
+            "Picked Up": "$_picked_up",
             // Stirngs
             "Park Average": "$_park_avg",
             "Climb Average": "$_climb_avg"
