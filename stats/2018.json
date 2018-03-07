@@ -32,7 +32,7 @@
         "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
         "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
         "matches.cubes_exchange": {"$ifNull": ["$matches.cubes_exchange", "$pit.avg_cubes_exchange"]},
-        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$pit.avg_cubes_switch_own"]},
+        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$pit.avg_cubes_switch"]},
         "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
     }},
 
