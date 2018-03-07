@@ -170,30 +170,54 @@
     <div class="form-group">
         <label class="col-xs-3 control-label">Avg. Cubes in Exchange</label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="avg_cubes_exchange" value="${i}" autocomplete="off"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="avg_cubes_exchange" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">Avg. Cubes on Switch (Low)</label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="avg_cubes_switch" value="${i}" autocomplete="off"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="avg_cubes_switch" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
     <div class="form-group">
         <label class="col-xs-3 control-label">Avg. Cubes on Scale (High)</label>
         <div class="col-xs-9">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default" py:for="i in range(0, 13)">
-                    <input type="radio" name="avg_cubes_scale" value="${i}" autocomplete="off"></input> ${i}
-                </label>
+            <div class="input-group" style="width:150px;">
+                <span class="input-group-btn">
+                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                        <span class="fas fa-minus"></span>
+                    </button>
+                </span>
+                <input type="number" name="avg_cubes_scale" class="form-control" min="0" value="0"></input>
+                <span class="input-group-btn">
+                    <button class="btn btn-success" type="button" data-toggle="add">
+                        <span class="fas fa-plus"></span>
+                    </button>
+                </span>
             </div>
         </div>
     </div>
