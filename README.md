@@ -12,12 +12,12 @@ Offline web app with TBA integration for competition scouting.
 #### Installing Dependencies
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Install [Python 3](https://www.python.org/downloads/).
-3. Windows users: ensure Python 3 (`%LOCALAPPDATA%\Programs\Python\*` and `%LOCALAPPDATA%\Programs\Python\*\Scripts`) and MongoDB (`%PROGRAMFILES%\MongoDB\Server\*\bin`) are in your PATH variable.
-4. Install PyPi dependencies:<br/>
+3. Windows users: ensure Python 3 (`%LOCALAPPDATA%\Programs\Python\*` and `%LOCALAPPDATA%\Programs\Python\*\Scripts`) and MongoDB (`%PROGRAMFILES%\MongoDB\Server\*\bin`) are in your `PATH` variable.
+4. Run `setup.py`:
 ```batch
-> pip3 install backoff cherrypy genshi hjson psutil pymongo pynumparser requests tqdm ws4py
+> py setup.py install
 ```
-5. Configure your TBA Read API Key in `config.json`
+5. Configure your TBA Read API Key in `config.json`.
 
 #### Execution
 Run `SharkScout.py`.
@@ -41,12 +41,12 @@ To update team information only:
 
 To update the event listings for all years:
 ```batch
-> python SharkScout.py -ue 1992-2017
+> python SharkScout.py -ue 1992-2018
 ```
 
 To update detailed event information for this year:
 ```batch
-> python SharkScout.py -ue 2017 -uei 2017
+> python SharkScout.py -ue 2018 -uei 2018
 ```
 
 In order to be a responsible user of The Blue Alliance's API it is recommended that you only update as little and as infrequently as needed.
