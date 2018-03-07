@@ -147,28 +147,28 @@
         // End Game
         "_park": {"$push": {
             "$cond": {
-                "if": {"$eq": ["$matches.parked", "Y"]},
+                "if": {"$eq": ["$matches.end_position", "parked"]},
                 "then": 1,
                 "else": 0
             }
         }},
         "_park_avg": {"$avg": {
             "$cond": {
-                "if": {"$eq": ["$matches.parked", "Y"]},
+                "if": {"$eq": ["$matches.end_position", "parked"]},
                 "then": 1,
                 "else": 0
             }
         }},
         "_climb": {"$push": {
             "$cond": {
-                "if": {"$eq": ["$matches.climbed", "Y"]},
+                "if": {"$eq": ["$matches.end_position", "climbed"]},
                 "then": 1,
                 "else": 0
             }
         }},
         "_climb_avg": {"$avg": {
             "$cond": {
-                "if": {"$eq": ["$matches.climbed", "Y"]},
+                "if": {"$eq": ["$matches.end_position", "climbed"]},
                 "then": 1,
                 "else": 0
             }
