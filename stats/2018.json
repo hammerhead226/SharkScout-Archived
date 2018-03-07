@@ -202,37 +202,24 @@
     {"$addFields": {
         "301_cubes": {
             "_sort": "$_cube_avg",
+            // Lines
             "Exchange": "$_exchange",
             "Own Switch": "$_switch_own",
             "Opp Switch": "$_switch_opponent",
             "Scale": "$_scale",
-            // 2 decimal point rounding
-            "Minimum": {"$subtract": [
-                {"$add": ["$_cube_min", 0.0049999999999999999]},
-                {"$mod": [{"$add": ["$_cube_min", 0.0049999999999999999]}, 0.01]}
-            ]},
-            "Average": {"$subtract": [
-                {"$add": ["$_cube_avg", 0.0049999999999999999]},
-                {"$mod": [{"$add": ["$_cube_avg", 0.0049999999999999999]}, 0.01]}
-            ]},
-            "Maximum": {"$subtract": [
-                {"$add": ["$_cube_max", 0.0049999999999999999]},
-                {"$mod": [{"$add": ["$_cube_max", 0.0049999999999999999]}, 0.01]}
-            ]}
+            // Strings
+            "Minimum": "$_cube_min",
+            "Average": "$_cube_avg",
+            "Maximum": "$_cube_max"
         },
         "500_end_game": {
             "_sort": "$_climb_avg",
+            // Lines
             "Park": "$_park",
             "Climb": "$_climb",
-            // 2 decimal point rounding
-            "Park Average": {"$subtract": [
-                {"$add": ["$_park_avg", 0.0049999999999999999]},
-                {"$mod": [{"$add": ["$_park_avg", 0.0049999999999999999]}, 0.01]}
-            ]},
-            "Climb Average": {"$subtract": [
-                {"$add": ["$_climb_avg", 0.0049999999999999999]},
-                {"$mod": [{"$add": ["$_climb_avg", 0.0049999999999999999]}, 0.01]}
-            ]}
+            // Stirngs
+            "Park Average": "$_park_avg",
+            "Climb Average": "$_climb_avg"
         }
     }}
 ]

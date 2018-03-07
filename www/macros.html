@@ -325,6 +325,7 @@
                     ${k}: ${stats_cell(data[k])}
                 </div>
             </py:when>
+            <py:when test="sharkscout.Util.isnumeric(data)">${round(data,2)}</py:when>
             <py:otherwise>${Markup(data)}</py:otherwise>
         </py:choose>
     </py:def>
