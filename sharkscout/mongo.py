@@ -444,10 +444,17 @@ class Mongo(object):
         aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
-            {'$addFields': {'matches': {'$ifNull': ['$matches', [{  # event's match list is missing, fill it in
-                'key': {'$concat': ['$key', '_' + comp_level + str(match_number)]},
-                'event_key': '$key'  # to allow $unwind:$matches
-            } for comp_level in ['qm','ef','qf','sf','f'] for match_number in range(250)]]}}},
+            # Fill in missing match list
+            {'$addFields': {'matches': {'$ifNull': ['$matches',
+                [{
+                    'key': {'$concat': ['$key', '_qm' + str(match_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for match_number in range(250)]
+                + [{
+                    'key': {'$concat': ['$key', '_' + comp_level + str(match_number) + 'm' + str(set_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for comp_level in ['ef', 'qf', 'sf', 'f'] for match_number in range(8) for set_number in range(3)]
+            ]}}},
             {'$unwind': '$matches'},
             {'$replaceRoot': {'newRoot': '$matches'}},
             # Match to scouting information, return scouting data
@@ -459,7 +466,10 @@ class Mongo(object):
             }},
             {'$match': {'scouting': {'$ne': []}}},  # any scouting data exists at all
             {'$unwind': '$scouting'},
-            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': {'$concat':['$event_key','_qm1']}}]]}}},  # to allow $unwind
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{
+                'match_key': {'$concat': ['$event_key', '_qm1']},
+                'event_key': '$event_key'
+            }]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},
@@ -504,7 +514,11 @@ class Mongo(object):
         ]
         aggregation.extend(year_stats)
         aggregation.extend([
+            {'$addFields': {
+               '_team_number':  {'$ifNull': ['$_team_number', '$_id']}
+            }},
             {'$sort': {
+                '_team_number': 1,
                 '_id': 1
             }}
         ])

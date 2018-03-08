@@ -342,12 +342,22 @@ $(document).ready(function() {
     });
     $('.btn[data-toggle="subtract"]').click(function() {
         var $input = $('[name="' + $(this).attr('data-target') + '"]');
-        if($input.is('[min]') && parseInt($input.val())-1 < $input.attr('min')){ return; }
+        if(isNaN(parseInt($input.val()))) {
+            $input.val(0);
+        }
+        if($input.is('[min]') && parseInt($input.val())-1 < $input.attr('min')) {
+            return;
+        }
         $input.val(parseInt($input.val())-1);
     });
     $('.btn[data-toggle="add"]').click(function() {
         var $input = $('[name="' + $(this).attr('data-target') + '"]');
-        if($input.is('[max]') && parseInt($input.val())+1 > $input.attr('max')){ return; }
+        if(isNaN(parseInt($input.val()))) {
+            $input.val(0);
+        }
+        if($input.is('[max]') && parseInt($input.val())+1 > $input.attr('max')) {
+            return;
+        }
         $input.val(parseInt($input.val())+1);
     });
 
@@ -385,7 +395,11 @@ $(document).ready(function() {
                     options[this.name.replace(/^data-selectize-/,'')] = this.value;
                 }
             });
-            $(this).selectize(options);
+            $(this)
+                .selectize(options)
+                .find('.selectize-input input').change(function() {
+                    this.blur();
+                });
         });
     }
 
@@ -555,8 +569,9 @@ $(document).ready(function() {
         }
         $('[name="match_key"]').val(
             $('[name="event_key"]').val() + '_' +
-            $('[name="comp_level"]').val() + $('[name="match_number"]').val() +
-            ($('[name="set_number"]').is(':visible') ? 'm' + $('[name="set_number"]').val() : '')
+            $('[name="comp_level"]').val() +
+            ($('[name="set_number"]').is(':visible') ? $('[name="set_number"]').val() + 'm' : '') +
+            $('[name="match_number"]').val()
         );
     });
     $('[name="team_number"]').change(function() {

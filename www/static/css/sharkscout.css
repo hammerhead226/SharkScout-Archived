@@ -35,8 +35,26 @@
     display: none;
 }
 
+/* Minimum button widths */
+.btn-group .btn {
+    min-width: 75px;
+}
+.input-group-btn .btn {
+    min-width: 40px;
+}
+
 .btn-group .input-group input[type="number"] {
     min-width: 50px;
+}
+
+.input-group {
+    width: 100%;
+}
+.input-group + .input-group,
+.input-group + .btn-group,
+.btn-group + .input-group,
+.btn-group + .btn-group {
+    margin-top: 10px;
 }
 
 /* Get rid of unnecessary top margin/padding */
@@ -62,6 +80,7 @@
 }
 .table th > ul,
 .table td > ul {
+    min-width: 100px;
     margin: 0;
     padding-left: 20px;
 }
@@ -147,11 +166,27 @@
     padding-right: 30px;
 }
 
+.scroll-x {
+    overflow-x: scroll;
+}
+.scroll-y {
+    overflow-y: scroll;
+}
+
 
 /***** Selectize Overrides *****/
 
-.selectize-dropdown.form-control {
+/* Fix z-indexing issues */
+.input-group .form-control {
+    position: initial;
+}
+.form-control.selectize-dropdown {
     position: absolute;
+}
+
+/* Make height match .form-control */
+.form-control.selectize-control {
+    height: 34px;
 }
 
 .btn-group-vertical > .btn.active,
