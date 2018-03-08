@@ -7,6 +7,8 @@ import re
 import subprocess
 import sys
 
+import hjson
+
 import sharkscout
 
 
@@ -63,7 +65,7 @@ class Mongo(object):
             known, _ = parser.parse_known_args(sharkscout.Util.pid_to_argv(pid))
             if known.dbpath and not os.path.isabs(known.dbpath):
                 known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
-            if os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
+            if known.dbpath is not None and os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
                 mongo_pid = pid
                 self.__class__.port = known.port
                 print('mongod already running on port ' + str(self.__class__.port))
@@ -73,8 +75,12 @@ class Mongo(object):
             self.__class__.port = sharkscout.Util.open_port(27017)
             try:
                 null = open(os.devnull, 'w')
+                mongod = sharkscout.Util.which('mongod')
+                if mongod is None:
+                    print('mongod not found')
+                    sys.exit(1)
                 subprocess.Popen([
-                    sharkscout.Util.which('mongod'),
+                    mongod,
                     '--port', str(self.__class__.port),
                     '--dbpath', mongo_dir,
                     '--smallfiles'
@@ -242,13 +248,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-            event['modified_timestamp'] = datetime.utcnow()
-            self.tba_events.update_one({
-                'key': event['key']
-            }, {
-                '$set': event,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        event['modified_timestamp'] = datetime.utcnow()
+        self.tba_events.update_one({
+            'key': event_key
+        }, {
+            '$set': event,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -428,13 +434,27 @@ class Mongo(object):
         return (result.upserted_id or result.matched_count or result.modified_count)
 
     def scouting_stats(self, event_key, matches=0):
+        event = self.event(event_key)
+        year_json = os.path.join(os.path.dirname(sys.argv[0]), 'stats', str(event['year']) + '.json')
+        if not os.path.exists(year_json):
+            return []
+        with open(year_json, 'r') as f:
+            year_stats = hjson.load(f)
+
         aggregation = [
             # Get matches from TBA data (so they're in order)
             {'$match': {'key': event_key}},
-            {'$addFields': {'matches': {'$ifNull': ['$matches', [{  # event's match list is missing, fill it in
-                'key': {'$concat': ['$key', '_' + comp_level + str(match_number)]},
-                'event_key': '$key'  # to allow $unwind:$matches
-            } for comp_level in ['qm','ef','qf','sf','f'] for match_number in range(250)]]}}},
+            # Fill in missing match list
+            {'$addFields': {'matches': {'$ifNull': ['$matches',
+                [{
+                    'key': {'$concat': ['$key', '_qm' + str(match_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for match_number in range(250)]
+                + [{
+                    'key': {'$concat': ['$key', '_' + comp_level + str(match_number) + 'm' + str(set_number)]},
+                    'event_key': '$key'  # to allow $unwind:$matches
+                } for comp_level in ['ef', 'qf', 'sf', 'f'] for match_number in range(8) for set_number in range(3)]
+            ]}}},
             {'$unwind': '$matches'},
             {'$replaceRoot': {'newRoot': '$matches'}},
             # Match to scouting information, return scouting data
@@ -446,7 +466,10 @@ class Mongo(object):
             }},
             {'$match': {'scouting': {'$ne': []}}},  # any scouting data exists at all
             {'$unwind': '$scouting'},
-            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{'match_key': {'$concat':['$event_key','_qm1']}}]]}}},  # to allow $unwind
+            {'$addFields': {'scouting.matches': {'$ifNull': ['$scouting.matches', [{
+                'match_key': {'$concat': ['$event_key', '_qm1']},
+                'event_key': '$event_key'
+            }]]}}},  # to allow $unwind
             {'$unwind': '$scouting.matches'},
             {'$redact': {'$cond': {
                 'if': {'$eq': ['$key', '$scouting.matches.match_key']},
@@ -484,100 +507,18 @@ class Mongo(object):
                 'matches': {'$slice': [
                     '$matches',
                     0 if int(matches) >= 0 else int(matches),
-                    abs(int(matches)) or sys.maxsize
+                    abs(int(matches)) or 2147483647
                 ]}
             }},
             {'$unwind': '$matches'}
         ]
+        aggregation.extend(year_stats)
         aggregation.extend([
-            # Enforce pit data to exist
             {'$addFields': {
-                'pit.robot_height': {'$ifNull': ['$pit.robot_height', '']}
+               '_team_number':  {'$ifNull': ['$_team_number', '$_id']}
             }},
-            # Fill in some match data with pit data
-            {'$addFields': {
-                'matches.auton_strategy': {'$ifNull': ['$matches.auton_strategy', '$pit.auton_strategy']},
-                'matches.teleop_strategy': {'$ifNull': ['$matches.teleop_strategy', '$pit.teleop_strategy']},
-                'matches.gears': {'$ifNull': ['$matches.gears', '$pit.avg_gears']},
-                'matches.high_goals': {'$ifNull': ['$matches.high_goals', '$pit.avg_high_goals']},
-                'matches.high_goal_position': {'$ifNull': ['$matches.high_goal_position', '$pit.high_goal_position']}
-            }},
-            # So $group operations can succeed
-            {'$addFields': {
-                'matches.auton_gear': {'$ifNull': ['$matches.auton_gear', 'N']},
-                'matches.scaled': {'$ifNull': ['$matches.scaled', 'N']}
-            }},
-            # Bulk of statistics
-            {'$group': {
-                '_id': '$_id',
-                '0_team': {'$first': {'$ifNull': [{'$concat': [
-                    {'$substr': ['$team.team_number', 0, -1]},
-                    ' - ',
-                    '$team.nickname'
-                ]}, '$_id']}},
-                # General
-                '100_properties': {'$first': {'$concat': [
-                    {'$substr': ['$pit.drivetrain', 0, -1]},
-                    {'$cond': {
-                        'if': {'$ne': ['$pit.robot_height', '']},
-                        'then': {'$concat': [', ', '$pit.robot_height']},
-                        'else': ''
-                    }},
-                    {'$cond': {
-                        'if': {'$eq': ['$pit.climber', 'Y']},
-                        'then': ', climber',
-                        'else': ''
-                    }},
-                    {'$cond': {
-                        'if': {'$eq': ['$pit.ground_gear_pickup', 'Y']},
-                        'then': ', ground pickup',
-                        'else': ''
-                    }}
-                ]}},
-                # Auton
-                '200_auton_strat': {'$push': '$matches.auton_strategy'},
-                '201_auton_gear': {'$push': {'$concat': [
-                    '$matches.auton_gear',
-                    '@',
-                    '$matches.auton_gear_position',
-                ]}},
-                '204_auton_high_goals': {'$push': '$matches.auton_high_goals'},
-                # Teleop
-                '300_teleop_strat': {'$push': '$matches.teleop_strategy'},
-                '301_gears_min': {'$min': '$matches.gears'},
-                '302_gears_max': {'$max': '$matches.gears'},
-                '303_gears_avg': {'$avg': '$matches.gears'},
-                '304_gear_drop_loading_avg': {'$avg': '$matches.dropped_gears__loading_station'},
-                '305_gear_drop_airship_avg': {'$avg': '$matches.dropped_gears__airship'},
-                '400_high_goals': {'$push': '$matches.high_goals'},
-                '401_high_loc': {'$push': '$matches.high_goal_position'},
-                # End Game
-                '500_climb_attempt_avg': {'$avg': {'$cond': {
-                    'if': {'$ne': ['$matches.scaled', 'N']},
-                    'then': 1,
-                    'else': 0
-                }}},
-                '_scaled_Y': {'$sum': {'$cond': {
-                    'if': {'$eq': ['$matches.scaled', 'Y']},
-                    'then': 1,
-                    'else': 0
-                }}},
-                '_scaled_A': {'$sum': {'$cond': {
-                    'if': {'$ne': ['$matches.scaled', 'N']},
-                    'then': 1,
-                    'else': 0.000001  # prevent divide by zero
-                }}},
-                # Comments
-                '600_off_comments': {'$push': '$matches.comments_offense'},
-                '601_def_comments': {'$push': '$matches.comments_defense'}
-            }},
-            # Do some extra math that can't be done during $group
-            {'$addFields': {
-                '501_climb_success_avg': {'$divide': ['$_scaled_Y', '$_scaled_A']}
-            }}
-        ])
-        aggregation.extend([
             {'$sort': {
+                '_team_number': 1,
                 '_id': 1
             }}
         ])
@@ -666,11 +607,13 @@ class Mongo(object):
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)}
             }.items() if v})
-            team['modified_timestamp'] = datetime.utcnow()
-            self.tba_teams.update_one({'key': team['key']}, {
-                '$set': team,
-                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-            }, upsert=True)
+        team['modified_timestamp'] = datetime.utcnow()
+        self.tba_teams.update_one({
+            'key': team_key
+        }, {
+            '$set': team,
+            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+        }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):

@@ -4,7 +4,7 @@ cd "%~dp0"
 pip3 install --upgrade virtualenv
 rmdir /S /Q venv
 virtualenv venv
-venv\Scripts\pip3 install backoff cherrypy genshi psutil pymongo pynumparser requests tqdm ws4py
+venv\Scripts\python setup.py install
 
 :: Syntax test the script
 venv\Scripts\python SharkScout.py -h > nul
@@ -16,7 +16,7 @@ if %errorlevel% neq 0 (
 :: Run pyinstaller
 rmdir /S /Q dist
 venv\Scripts\pip3 install pyinstaller
-venv\Scripts\pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --icon "venv\Scripts\python.exe,0" SharkScout.py
+venv\Scripts\pyinstaller --noconfirm --clean --onefile --add-data "config.json;." --hidden-import "statistics" --icon "venv\Scripts\python.exe,0" SharkScout.py
 del /F SharkScout.spec
 rmdir /S /Q __pycache__
 rmdir /S /Q build
@@ -39,6 +39,7 @@ xcopy www dist\www /S /V /I /Y /EXCLUDE:exclude
 del /F exclude
 
 :: Export TBA data for this year and next year
+copy /Y build-mongodump.gz dist\mongodump.gz
 cd dist
 for /f "skip=1 tokens=1-6" %%A in ('WMIC Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') do (
     if "%%B" NEQ "" (
@@ -49,7 +50,7 @@ for /f "skip=1 tokens=1-6" %%A in ('WMIC Path Win32_LocalTime Get Day^,Hour^,Min
 set YEAR_CURR=%FDATE:~0,4%
 set /A YEAR_PREV=%YEAR_CURR%-1
 set /A YEAR_NEXT=%YEAR_CURR%+1
-SharkScout.exe --update-teams --update-events "1992-%YEAR_NEXT%" --update-events-info "%YEAR_PREV%-%YEAR_NEXT%" --dump mongodump.gz
+SharkScout.exe --update-teams --update-teams-info --update-events "1992-%YEAR_NEXT%" --update-events-info "%YEAR_PREV%-%YEAR_NEXT%" --dump mongodump.gz
 if %errorlevel% neq 0 (
 	cd ..
 	rmdir /S /Q dist
@@ -74,4 +75,7 @@ rmdir /S /Q venv
 for /f %%i in ('git rev-parse HEAD') do set HASH=%%i
 del /F SharkScout-%HASH:~0,7%-x86.zip
 powershell -nologo -noprofile -command "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::CreateFromDirectory('dist', 'SharkScout-%HASH:~0,7%-x86.zip'); }"
-if %errorlevel% equ 0 rmdir /S /Q dist
+if %errorlevel% equ 0 (
+	copy /Y dist\mongodump.gz build-mongodump.gz
+	rmdir /S /Q dist
+)

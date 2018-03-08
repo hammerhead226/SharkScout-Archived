@@ -1,0 +1,90 @@
+[
+    // Enforce pit data to exist
+    {"$addFields": {
+        "pit.robot_height": {"$ifNull": ["$pit.robot_height", ""]}
+    }},
+
+    // Fill in some match data with pit data
+    {"$addFields": {
+        "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
+        "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
+        "matches.gears": {"$ifNull": ["$matches.gears", "$pit.avg_gears"]},
+        "matches.high_goals": {"$ifNull": ["$matches.high_goals", "$pit.avg_high_goals"]},
+        "matches.high_goal_position": {"$ifNull": ["$matches.high_goal_position", "$pit.high_goal_position"]}
+    }},
+    // So $group operations can succeed
+    {"$addFields": {
+        "matches.auton_gear": {"$ifNull": ["$matches.auton_gear", "N"]},
+        "matches.scaled": {"$ifNull": ["$matches.scaled", "N"]}
+    }},
+
+    // Bulk of statistics
+    {"$group": {
+        "_id": "$_id",
+        "0_team": {"$first": {"$ifNull": [{"$concat": [
+            {"$substr": ["$team.team_number", 0, -1]},
+            " - ",
+            "$team.nickname"
+        ]}, "$_id"]}},
+        // General
+        "100_properties": {"$first": {"$concat": [
+            {"$substr": ["$pit.drivetrain", 0, -1]},
+            {"$cond": {
+                "if": {"$ne": ["$pit.robot_height", ""]},
+                "then": {"$concat": [", ", "$pit.robot_height"]},
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$eq": ["$pit.climber", "Y"]},
+                "then": ", climber",
+                "else": ""
+            }},
+            {"$cond": {
+                "if": {"$eq": ["$pit.ground_gear_pickup", "Y"]},
+                "then": ", ground pickup",
+                "else": ""
+            }}
+        ]}},
+        // Auton
+        "200_auton_strat": {"$push": "$matches.auton_strategy"},
+        "201_auton_gear": {"$push": {"$concat": [
+            "$matches.auton_gear",
+            "@",
+            "$matches.auton_gear_position",
+        ]}},
+        "204_auton_high_goals": {"$push": "$matches.auton_high_goals"},
+        // Teleop
+        "300_teleop_strat": {"$push": "$matches.teleop_strategy"},
+        "301_gears_min": {"$min": "$matches.gears"},
+        "302_gears_max": {"$max": "$matches.gears"},
+        "303_gears_avg": {"$avg": "$matches.gears"},
+        "304_gear_drop_loading_avg": {"$avg": "$matches.dropped_gears__loading_station"},
+        "305_gear_drop_airship_avg": {"$avg": "$matches.dropped_gears__airship"},
+        "400_high_goals": {"$push": "$matches.high_goals"},
+        "401_high_loc": {"$push": "$matches.high_goal_position"},
+        // End Game
+        "500_climb_attempt_avg": {"$avg": {"$cond": {
+            "if": {"$ne": ["$matches.scaled", "N"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_scaled_Y": {"$sum": {"$cond": {
+            "if": {"$eq": ["$matches.scaled", "Y"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_scaled_A": {"$sum": {"$cond": {
+            "if": {"$ne": ["$matches.scaled", "N"]},
+            "then": 1,
+            "else": 0.000001  // prevent divide by zero
+        }}},
+        /// Comments
+        "600_off_comments": {"$push": "$matches.comments_offense"},
+        "601_def_comments": {"$push": "$matches.comments_defense"}
+    }},
+
+    // Do some extra math that can"t be done during $group
+    {"$addFields": {
+        "501_climb_success_avg": {"$divide": ["$_scaled_Y", "$_scaled_A"]}
+    }}
+]

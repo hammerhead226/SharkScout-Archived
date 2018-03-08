@@ -4,6 +4,9 @@
         from datetime import datetime, date, timezone
         import platform
         import re
+        import statistics
+
+        from genshi.core import Markup
 
         import sharkscout
     ?>
@@ -282,15 +285,49 @@
             </thead>
             <tbody>
                 <tr py:for="team in stats">
-                    <td py:for="key in keys" py:choose="">
-                        <ul py:when="type(team[key]) is list">
-                            <li py:for="item in team[key]">${item}</li>
-                        </ul>
-                        <py:otherwise>${team[key]}</py:otherwise>
-                    </td>
+                    <py:for each="key in keys">
+                        <?python
+                            data_sort = team[key]
+                            if isinstance(team[key], dict) and '_sort' in team[key]:
+                                data_sort = team[key]['_sort']
+                        ?>
+                        <td data-sort="${data_sort}">${stats_cell(team[key])}</td>
+                    </py:for>
                 </tr>
             </tbody>
         </table>
+    </py:def>
+
+    <py:def function="stats_cell(data)">
+        <py:choose>
+            <py:when test="isinstance(data, list)">
+                <py:choose>
+                    <ul py:when="not data or [v for v in data if str(v).isdigit()] != data">
+                        <py:for each="item in data">
+                            <li py:if="item">${item}</li>
+                        </py:for>
+                    </ul>
+                    <py:when test="data and [v for v in data if str(v).isdigit()] == data">
+                        <canvas class="chart"></canvas>
+                        <input type="hidden" name="values" value="${','.join([str(v) for v in data])}"></input>
+                        <div>Minimum: ${round(min(data),2)}</div>
+                        <div>Average: ${round(statistics.mean(data),2)}</div>
+                        <div>Maximum: ${round(max(data),2)}</div>
+                    </py:when>
+                    <py:otherwise>${Markup(data)}</py:otherwise>
+                </py:choose>
+            </py:when>
+            <py:when test="isinstance(data, dict)">
+                <canvas class="chart"></canvas>
+                <input type="hidden" name="labels" value="${','.join([k for k in data if isinstance(data[k], list)])}"></input>
+                <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in [k for k in data if isinstance(data[k], list)]"></input>
+                <div py:for="k in [k for k in data if not isinstance(data[k], list) and not k.startswith('_')]">
+                    ${k}: ${stats_cell(data[k])}
+                </div>
+            </py:when>
+            <py:when test="sharkscout.Util.isnumeric(data)">${round(data,2)}</py:when>
+            <py:otherwise>${Markup(data)}</py:otherwise>
+        </py:choose>
     </py:def>
 
 
