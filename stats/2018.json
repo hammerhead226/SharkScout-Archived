@@ -120,7 +120,7 @@
             "$concat": [
                 "$matches.number",
                 " ",
-                "$matches.auton_strategy"
+                {"$substr": ["$matches.auton_strategy", 0, -1]}
             ]
         }},
         "201_auton_baseline": {"$push": {
@@ -142,7 +142,7 @@
             "$concat": [
                 "$matches.number",
                 " ",
-                "$matches.teleop_strategy"
+                {"$substr": ["$matches.teleop_strategy", 0, -1]}
             ]
         }},
         "_exchange": {"$push": "$matches.cubes_exchange"},
