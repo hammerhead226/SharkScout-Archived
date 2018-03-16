@@ -75,7 +75,7 @@
             {"$cond": {
                 "if": {"$ne": ["$pit.drivetrain", ""]},
                 "then": {"$concat": [
-                    "- ",
+                    "&bull; ",
                     {"$substr": ["$pit.drivetrain", 0, -1]}
                 ]},
                 "else": ""
@@ -83,7 +83,7 @@
             {"$cond": {
                 "if": {"$ne": ["$pit.robot_height", ""]},
                 "then": {"$concat": [
-                    "<br/>- ",
+                    "<br/>&bull; ",
                     {"$substr": ["$pit.robot_height", 0, -1]},
                     " in"
                 ]},
@@ -92,7 +92,7 @@
             {"$cond": {
                 "if": {"$ne": ["$pit.robot_weight", ""]},
                 "then": {"$concat": [
-                    "<br/>- ",
+                    "<br/>&bull; ",
                     {"$substr": ["$pit.robot_weight", 0, -1]},
                     " lb"
                 ]},
@@ -101,7 +101,7 @@
             {"$cond": {
                 "if": {"$ne": ["$pit.cube_lifter", ""]},
                 "then": {"$concat": [
-                    "<br/>- ",
+                    "<br/>&bull; ",
                     {"$substr": ["$pit.cube_lifter", 0, -1]},
                     " + ",
                     {"$substr": ["$pit.cube_intake", 0, -1]}
@@ -110,27 +110,27 @@
             }},
             {"$cond": {
                 "if": {"$in": ["exchange", "$pit.cube_scoring_location"]},
-                "then": "<br/>- can do exchange",
+                "then": "<br/>&bull; can do exchange",
                 "else": ""
             }},
             {"$cond": {
                 "if": {"$in": ["switch", "$pit.cube_scoring_location"]},
-                "then": "<br/>- can do switch",
+                "then": "<br/>&bull; can do switch",
                 "else": ""
             }},
             {"$cond": {
                 "if": {"$in": ["scale", "$pit.cube_scoring_location"]},
-                "then": "<br/>- can do scale",
+                "then": "<br/>&bull; can do scale",
                 "else": ""
             }},
             {"$cond": {
                 "if": {"$eq": ["$pit.climber", "Y"]},
-                "then": "<br/>- has climber",
+                "then": "<br/>&bull; has climber",
                 "else": ""
             }},
             {"$cond": {
                 "if": {"$eq": ["$pit.can_lift", "Y"]},
-                "then": "<br/>- can lift others",
+                "then": "<br/>&bull; can lift others",
                 "else": ""
             }}
         ]}},
