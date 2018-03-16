@@ -456,10 +456,12 @@ $(document).ready(function() {
                     return {
                         'label': labels.length == values.length ? labels[idx] : '',
                         'data': val,
+                        'lineTension': 0,
                         'borderColor': ['#337ab7','#5cb85c','#5bc0de','#f0ad4e','#d9534f'][idx%5],
                         'backgroundColor': ['rgba(51,122,182,0.5)','rgba(92,184,92,0.5)','rgba(91,192,222,0.5)','rgba(240,173,78,0.5)','rgba(217,83,79,0.5)'][idx%5],
                         'borderWidth': 3,
-                        'fill': false
+                        'pointRadius': 2,
+                        'fill': idx ? '-1' : 'origin'
                     };
                 }).concat([{
                     'data': _.map(Array(maxValues), function(y, x) {
