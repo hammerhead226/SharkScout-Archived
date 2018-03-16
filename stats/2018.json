@@ -41,37 +41,37 @@
     {"$addFields": {
         "matches.auton_crossed_baseline_int": {"$cond": {
             "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
-            "then": 0.25,
+            "then": 5,
             "else": 0
         }},
         "matches.auton_exchange": {"$cond": {
             "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
-            "then": 0.50,
+            "then": 5,
             "else": 0
         }},
         "matches.auton_switch": {"$cond": {
             "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
-            "then": 0.75,
+            "then": 10,
             "else": 0
         }},
         "matches.auton_scale": {"$cond": {
             "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
-            "then": 1,
+            "then": 10,
             "else": 0
         }},
         "matches.parked": {"$cond": {
             "if": {"$eq": ["$matches.end_position", "parked"]},
-            "then": 0.33,
+            "then": 5,
             "else": 0
         }},
         "matches.picked_up": {"$cond": {
             "if": {"$eq": ["$matches.end_position", "picked_up"]},
-            "then": 0.67,
+            "then": 30,
             "else": 0
         }},
         "matches.climbed": {"$cond": {
             "if": {"$eq": ["$matches.end_position", "climbed"]},
-            "then": 1,
+            "then": 30,
             "else": 0
         }}
     }},
@@ -198,18 +198,6 @@
             "then": 1,
             "else": 0
         }}},
-        "_auton_min": {"$min": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange",
-            "$matches.auton_switch",
-            "$matches.auton_scale"
-        ]}},
-        "_auton_max": {"$max": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange",
-            "$matches.auton_switch",
-            "$matches.auton_scale"
-        ]}},
         "_auton_avg": {"$avg": {"$add": [
             "$matches.auton_crossed_baseline_int",
             "$matches.auton_exchange",
@@ -260,7 +248,11 @@
         ]}},
         // End Game
         "_park": {"$push": "$matches.parked"},
-        "_park_avg": {"$avg": "$matches.parked"},
+        "_park_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.end_position", "parked"]},
+            "then": 1,
+            "else": 0
+        }}},
         "_picked_up": {"$push": {"$add": [
             "$matches.parked",
             "$matches.picked_up"
@@ -270,7 +262,11 @@
             "$matches.picked_up",
             "$matches.climbed"
         ]}},
-        "_climb_avg": {"$avg": "$matches.climbed"},
+        "_climb_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.end_position", "climbed"]},
+            "then": 1,
+            "else": 0
+        }}},
         "_end_position_avg": {"$avg": {"$add": [
             "$matches.parked",
             "$matches.climbed"
@@ -303,20 +299,22 @@
     // Combine some fields
     {"$addFields": {
         "201_auton": {
+            "_sort": "$_auton_avg",
             // Graph properties
             "_name": "auton",
             "_min": 0,
-            "_max": "$_auton_max",
+            "_max": 15,
             // Lines
             "1 Baseline": "$_auton_crossed_baseline",
             "2 Exchange": "$_auton_exchange",
             "3 Switch": "$_auton_switch",
             "4 Scale": "$_auton_scale",
             // Strings
-            "1 Baseline Average": "$_auton_crossed_baseline_avg",
-            "2 Exchange Average": "$_auton_exchange_avg",
-            "3 Switch Average": "$_auton_switch_avg",
-            "4 Scale Average": "$_auton_scale_avg"
+            "1 <b>Average Score</b>": "$_auton_avg",
+            "2 Baseline %": "$_auton_crossed_baseline_avg",
+            "3 Exchange %": "$_auton_exchange_avg",
+            "4 Switch %": "$_auton_switch_avg",
+            "5 Scale %": "$_auton_scale_avg"
         },
         "301_cubes": {
             "_sort": "$_cube_avg",
@@ -331,7 +329,7 @@
             "4 Opp Switch": "$_switch_opponent",
             // Strings
             "1 Cubes Minimum": "$_cube_min",
-            "2 Cubes Average": "$_cube_avg",
+            "2 <b>Cubes Average</b>": "$_cube_avg",
             "3 Cubes Maximum": "$_cube_max"
         },
         "500_end_game": {
@@ -339,14 +337,15 @@
             // Graph properties
             "_name": "end_game",
             "_min": 0,
-            "_max": 1,
+            "_max": 30,
             // Lines
             "1 Park": "$_park",
             "2 Picked Up": "$_picked_up",
             "3 Climb": "$_climb",
             // Stirngs
-            "1 Park Average": "$_park_avg",
-            "2 Climb Average": "$_climb_avg"
+            "1 <b>Average Score</b>": "$_end_position_avg",
+            "2 Park %": "$_park_avg",
+            "3 Climb %": "$_climb_avg"
         }
     }}
 ]
