@@ -293,7 +293,9 @@
                             elif isinstance(team[key], list) and [v for v in team[key] if str(v).isdigit()] == team[key]:
                                 data_sort = statistics.mean(team[key])
                         ?>
-                        <td data-sort="${data_sort}">${stats_cell(team[key])}</td>
+                        <td class="${key}" data-sort="${data_sort}">
+                            ${stats_cell(team[key])}
+                        </td>
                     </py:for>
                 </tr>
             </tbody>
@@ -310,7 +312,12 @@
                         </py:for>
                     </ul>
                     <py:when test="data and [v for v in data if str(v).isdigit()] == data">
-                        <canvas class="chart"></canvas>
+                        <canvas
+                            class="chart"
+                            data-name="${data['_name'] if '_name' in data else ''}"
+                            data-min="${data['_min'] if '_min' in data else ''}"
+                            data-max="${data['_max'] if '_max' in data else ''}">
+                        </canvas>
                         <input type="hidden" name="values" value="${','.join([str(v) for v in data])}"></input>
                         <div>Minimum: ${round(min(data),2)}</div>
                         <div>Average: ${round(statistics.mean(data),2)}</div>
@@ -320,7 +327,12 @@
                 </py:choose>
             </py:when>
             <py:when test="isinstance(data, dict)">
-                <canvas class="chart"></canvas>
+                <canvas
+                    class="chart"
+                    data-name="${data['_name'] if '_name' in data else ''}"
+                    data-min="${data['_min'] if '_min' in data else ''}"
+                    data-max="${data['_max'] if '_max' in data else ''}">
+                </canvas>
                 <input type="hidden" name="labels" value="${','.join([k for k in data if isinstance(data[k], list)])}"></input>
                 <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in [k for k in data if isinstance(data[k], list)]"></input>
                 <div py:for="k in [k for k in data if not isinstance(data[k], list) and not k.startswith('_')]">
