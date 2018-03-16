@@ -229,6 +229,10 @@
     {"$addFields": {
         "301_cubes": {
             "_sort": "$_cube_avg",
+            // Graph properties
+            "_name": "cubes",
+            "_min": "$_cube_min",
+            "_max": "$_cube_max",
             // Lines
             "Exchange": "$_exchange",
             "Own Switch": "$_switch_own",
@@ -241,6 +245,10 @@
         },
         "500_end_game": {
             "_sort": "$_end_position_avg",
+            // Graph properties
+            "_name": "end_game",
+            "_min": 0,
+            "_max": 1,
             // Lines
             "Park": "$_park",
             "Picked Up": "$_picked_up",
