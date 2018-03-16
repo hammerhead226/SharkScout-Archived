@@ -308,15 +308,15 @@
             "_min": 0,
             "_max": "$_auton_max",
             // Lines
-            "Baseline": "$_auton_crossed_baseline",
-            "Exchange": "$_auton_exchange",
-            "Switch": "$_auton_switch",
-            "Scale": "$_auton_scale",
+            "1 Baseline": "$_auton_crossed_baseline",
+            "2 Exchange": "$_auton_exchange",
+            "3 Switch": "$_auton_switch",
+            "4 Scale": "$_auton_scale",
             // Strings
-            "Baseline Average": "$_auton_crossed_baseline_avg",
-            "Exchange Average": "$_auton_exchange_avg",
-            "Switch Average": "$_auton_switch_avg",
-            "Scale Average": "$_auton_scale_avg"
+            "1 Baseline Average": "$_auton_crossed_baseline_avg",
+            "2 Exchange Average": "$_auton_exchange_avg",
+            "3 Switch Average": "$_auton_switch_avg",
+            "4 Scale Average": "$_auton_scale_avg"
         },
         "301_cubes": {
             "_sort": "$_cube_avg",
@@ -325,14 +325,14 @@
             "_min": 0,
             "_max": "$_cube_max",
             // Lines
-            "Exchange": "$_exchange",
-            "Own Switch": "$_switch_own",
-            "Scale": "$_scale",
-            "Opp Switch": "$_switch_opponent",
+            "1 Exchange": "$_exchange",
+            "2 Own Switch": "$_switch_own",
+            "3 Scale": "$_scale",
+            "4 Opp Switch": "$_switch_opponent",
             // Strings
-            "Cubes Minimum": "$_cube_min",
-            "Cubes Average": "$_cube_avg",
-            "Cubes Maximum": "$_cube_max"
+            "1 Cubes Minimum": "$_cube_min",
+            "2 Cubes Average": "$_cube_avg",
+            "3 Cubes Maximum": "$_cube_max"
         },
         "500_end_game": {
             "_sort": "$_end_position_avg",
@@ -341,12 +341,12 @@
             "_min": 0,
             "_max": 1,
             // Lines
-            "Park": "$_park",
-            "Picked Up": "$_picked_up",
-            "Climb": "$_climb",
+            "1 Park": "$_park",
+            "2 Picked Up": "$_picked_up",
+            "3 Climb": "$_climb",
             // Stirngs
-            "Park Average": "$_park_avg",
-            "Climb Average": "$_climb_avg"
+            "1 Park Average": "$_park_avg",
+            "2 Climb Average": "$_climb_avg"
         }
     }}
 ]
