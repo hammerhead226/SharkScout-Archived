@@ -477,7 +477,7 @@ class Download(CherryServer):
         filename = tempfile.gettempdir() + '/' + prefix + datetime.now().strftime('%Y%m%d-%H%M%S') + '.csv'
         with open(filename, 'w', newline='') as temp:
             writer = csv.DictWriter(temp, fieldnames=keys)
-            writer.writerow({k: re.sub(r'^[0-9]+_+', '', k) for k in keys})
+            writer.writerow({k: k.lstrip('0123456789').strip(' _') for k in keys})
             # Write each row
             for item in items:
                 row = {}

@@ -280,7 +280,7 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
-                    <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
+                    <th py:for="key in keys">${key.lstrip('0123456789').strip(' _').replace('_',' ').title()}</th>
                 </tr>
             </thead>
             <tbody>
@@ -333,10 +333,10 @@
                     data-min="${data['_min'] if '_min' in data else ''}"
                     data-max="${data['_max'] if '_max' in data else ''}">
                 </canvas>
-                <input type="hidden" name="labels" value="${','.join([k.lstrip('0123456789').strip() for k in sorted([k for k in data if isinstance(data[k], list)])])}"></input>
+                <input type="hidden" name="labels" value="${','.join([k.lstrip('0123456789').strip(' _') for k in sorted([k for k in data if isinstance(data[k], list)])])}"></input>
                 <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in sorted([k for k in data if isinstance(data[k], list)])"></input>
                 <div py:for="k in sorted([k for k in data if not isinstance(data[k], list) and not k.startswith('_')])">
-                    ${k.lstrip('0123456789').strip()}: ${stats_cell(data[k])}
+                    ${k.lstrip('0123456789').strip(' _')}: ${stats_cell(data[k])}
                 </div>
             </py:when>
             <py:when test="sharkscout.Util.isnumeric(data)">${round(data,2)}</py:when>
