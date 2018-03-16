@@ -290,6 +290,8 @@
                             data_sort = team[key]
                             if isinstance(team[key], dict) and '_sort' in team[key]:
                                 data_sort = team[key]['_sort']
+                            elif isinstance(team[key], list) and [v for v in team[key] if str(v).isdigit()] == team[key]:
+                                data_sort = statistics.mean(team[key])
                         ?>
                         <td data-sort="${data_sort}">${stats_cell(team[key])}</td>
                     </py:for>
