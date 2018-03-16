@@ -215,14 +215,13 @@
                     <!--! Full table -->
                     <tr class="visible-md visible-lg ${match['key']}">
                         <td>
-                            <py:if test="page['can_scout']['match']">
-                                <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout"><span class="fas fa-binoculars"></span></a>&nbsp;
-                            </py:if>
-                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="far fa-chart-bar"></span></a>&nbsp;
-                            ${match_name(match)}
+                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="far fa-chart-bar"></span></a>
+                            &nbsp;&bull;&nbsp;
+                            <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout" py:strip="not page['can_scout']['match']">${match_name(match)}</a>
                             <py:if test="'videos' in match">
+                                &nbsp;&bull;&nbsp;
                                 <py:for each="video in match['videos']">
-                                    &nbsp;${video_icon(video, 'icon')}
+                                    ${video_icon(video, 'icon')}
                                 </py:for>
                             </py:if>
                         </td>
@@ -244,6 +243,10 @@
                     <!--! Collapsed table -->
                     <tr class="hidden-md hidden-lg ${match['key']} ${'border-bottom-dark' if alliance == alliances[::-1][0] else ''}" py:for="alliance in alliances">
                         <td py:if="alliance == alliances[0]">
+                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats">
+                                <span class="far fa-chart-bar"></span>
+                            </a>
+                            &nbsp;&bull;&nbsp;
                             <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout" py:strip="not page['can_scout']['match']">
                                 ${match_name(match)}
                             </a>
@@ -314,6 +317,7 @@
                     <py:when test="data and [v for v in data if str(v).isdigit()] == data">
                         <canvas
                             class="chart"
+                            data-type="line"
                             data-name="${data['_name'] if '_name' in data else ''}"
                             data-min="${data['_min'] if '_min' in data else ''}"
                             data-max="${data['_max'] if '_max' in data else ''}">
@@ -329,6 +333,7 @@
             <py:when test="isinstance(data, dict)">
                 <canvas
                     class="chart"
+                    data-type="line"
                     data-name="${data['_name'] if '_name' in data else ''}"
                     data-min="${data['_min'] if '_min' in data else ''}"
                     data-max="${data['_max'] if '_max' in data else ''}">
@@ -336,7 +341,7 @@
                 <input type="hidden" name="labels" value="${','.join([k.lstrip('0123456789').strip(' _') for k in sorted([k for k in data if isinstance(data[k], list)])])}"></input>
                 <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in sorted([k for k in data if isinstance(data[k], list)])"></input>
                 <div py:for="k in sorted([k for k in data if not isinstance(data[k], list) and not k.startswith('_')])">
-                    ${k.lstrip('0123456789').strip(' _')}: ${stats_cell(data[k])}
+                    ${Markup(k.lstrip('0123456789').strip(' _'))}: ${stats_cell(data[k])}
                 </div>
             </py:when>
             <py:when test="sharkscout.Util.isnumeric(data)">${round(data,2)}</py:when>
