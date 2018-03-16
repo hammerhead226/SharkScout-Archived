@@ -543,14 +543,14 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                         self.send({
                             'dequeue': {'scouting_match': data},
                             'toast': {
-                                'message': 'You Match Scouted ' + data['match_key'] + ' ' + data['team_key'],
+                                'message': 'You match scouted ' + data['match_key'] + ' ' + data['team_key'],
                                 'type': 'success'
                             }
                         })
                         self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
                         self.broadcast_others({
                             'toast': {
-                                'message': data['scouter'] + ' Match Scouted ' + data['match_key'] + ' ' + data['team_key'],
+                                'message': data['scouter'] + ' match scouted ' + data['match_key'] + ' ' + data['team_key'],
                                 'type': 'success',
                                 'mobile': False
                             }
@@ -563,14 +563,14 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                         self.send({
                             'dequeue': {'scouting_pit': data},
                             'toast': {
-                                'message': 'You Pit Scouted ' + data['event_key'] + ' ' + data['team_key'],
+                                'message': 'You pit scouted ' + data['event_key'] + ' ' + data['team_key'],
                                 'type': 'success'
                             }
                         })
                         self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
                         self.broadcast_others({
                             'toast': {
-                                'message': data['scouter'] + ' Pit Scouted ' + data['event_key'] + ' ' + data['team_key'],
+                                'message': data['scouter'] + ' pit scouted ' + data['event_key'] + ' ' + data['team_key'],
                                 'type': 'success',
                                 'mobile': False
                             }
