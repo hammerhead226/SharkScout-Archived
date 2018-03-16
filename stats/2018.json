@@ -39,14 +39,34 @@
 
     // Change some strings to ints
     {"$addFields": {
+        "matches.auton_crossed_baseline_int": {"$cond": {
+            "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
+            "then": 0.25,
+            "else": 0
+        }},
+        "matches.auton_exchange": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
+            "then": 0.50,
+            "else": 0
+        }},
+        "matches.auton_switch": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
+            "then": 0.75,
+            "else": 0
+        }},
+        "matches.auton_scale": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
+            "then": 1,
+            "else": 0
+        }},
         "matches.parked": {"$cond": {
             "if": {"$eq": ["$matches.end_position", "parked"]},
-            "then": 0.5,
+            "then": 0.33,
             "else": 0
         }},
         "matches.picked_up": {"$cond": {
             "if": {"$eq": ["$matches.end_position", "picked_up"]},
-            "then": 1,
+            "then": 0.67,
             "else": 0
         }},
         "matches.climbed": {"$cond": {
@@ -142,20 +162,60 @@
                 {"$substr": ["$matches.auton_strategy", 0, -1]}
             ]
         }},
-        "201_auton_baseline": {"$push": {
-            "$cond": {
-                "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
-                "then": 1,
-                "else": 0
-            }
-        }},
-        "202_auton_cube_pos": {"$push": {
-            "$concat": [
-                "$matches.number",
-                " ",
-                "$matches.auton_cube_position"
-            ]
-        }},
+        "_auton_crossed_baseline": {"$push": "$matches.auton_crossed_baseline_int"},
+        "_auton_crossed_baseline_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_auton_exchange": {"$push": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange"
+        ]}},
+        "_auton_exchange_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_auton_switch": {"$push": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange",
+            "$matches.auton_switch"
+        ]}},
+        "_auton_switch_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_auton_scale": {"$push": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange",
+            "$matches.auton_switch",
+            "$matches.auton_scale"
+        ]}},
+        "_auton_scale_avg": {"$avg": {"$cond": {
+            "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
+            "then": 1,
+            "else": 0
+        }}},
+        "_auton_min": {"$min": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange",
+            "$matches.auton_switch",
+            "$matches.auton_scale"
+        ]}},
+        "_auton_max": {"$max": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange",
+            "$matches.auton_switch",
+            "$matches.auton_scale"
+        ]}},
+        "_auton_avg": {"$avg": {"$add": [
+            "$matches.auton_crossed_baseline_int",
+            "$matches.auton_exchange",
+            "$matches.auton_switch",
+            "$matches.auton_scale"
+        ]}},
         // Teleop
         "300_teleop_strat": {"$push": {
             "$concat": [
@@ -180,9 +240,24 @@
             "$matches.cubes_scale",
             "$matches.cubes_switch_opponent"
         ]}},
-        "_cube_min": {"$min": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
-        "_cube_max": {"$max": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
-        "_cube_avg": {"$avg": {"$add": ["$matches.cubes_exchange", "$matches.cubes_switch_own", "$matches.cubes_scale", "$matches.cubes_switch_opponent"]}},
+        "_cube_min": {"$min": {"$add": [
+            "$matches.cubes_exchange",
+            "$matches.cubes_switch_own",
+            "$matches.cubes_scale",
+            "$matches.cubes_switch_opponent"
+        ]}},
+        "_cube_max": {"$max": {"$add": [
+            "$matches.cubes_exchange",
+            "$matches.cubes_switch_own",
+            "$matches.cubes_scale",
+            "$matches.cubes_switch_opponent"
+        ]}},
+        "_cube_avg": {"$avg": {"$add": [
+            "$matches.cubes_exchange",
+            "$matches.cubes_switch_own",
+            "$matches.cubes_scale",
+            "$matches.cubes_switch_opponent"
+        ]}},
         // End Game
         "_park": {"$push": "$matches.parked"},
         "_park_avg": {"$avg": "$matches.parked"},
@@ -227,11 +302,27 @@
 
     // Combine some fields
     {"$addFields": {
+        "201_auton": {
+            // Graph properties
+            "_name": "auton",
+            "_min": 0,
+            "_max": "$_auton_max",
+            // Lines
+            "Baseline": "$_auton_crossed_baseline",
+            "Exchange": "$_auton_exchange",
+            "Switch": "$_auton_switch",
+            "Scale": "$_auton_scale",
+            // Strings
+            "Baseline Average": "$_auton_crossed_baseline_avg",
+            "Exchange Average": "$_auton_exchange_avg",
+            "Switch Average": "$_auton_switch_avg",
+            "Scale Average": "$_auton_scale_avg"
+        },
         "301_cubes": {
             "_sort": "$_cube_avg",
             // Graph properties
             "_name": "cubes",
-            "_min": "$_cube_min",
+            "_min": 0,
             "_max": "$_cube_max",
             // Lines
             "Exchange": "$_exchange",
@@ -239,9 +330,9 @@
             "Scale": "$_scale",
             "Opp Switch": "$_switch_opponent",
             // Strings
-            "Minimum": "$_cube_min",
-            "Average": "$_cube_avg",
-            "Maximum": "$_cube_max"
+            "Cubes Minimum": "$_cube_min",
+            "Cubes Average": "$_cube_avg",
+            "Cubes Maximum": "$_cube_max"
         },
         "500_end_game": {
             "_sort": "$_end_position_avg",
