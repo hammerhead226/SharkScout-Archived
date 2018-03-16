@@ -516,6 +516,7 @@ $(document).ready(function() {
                     'yAxes': [{
                         'ticks': {
                             'display': false,
+                            'stepSize': 1,
                             'min': minValue,
                             'max': maxValue
                         },
