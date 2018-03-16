@@ -190,13 +190,16 @@
             "$matches.parked",
             "$matches.picked_up"
         ]}},
-        "_climb":
-        {"$push": {"$add": [
+        "_climb": {"$push": {"$add": [
             "$matches.parked",
             "$matches.picked_up",
             "$matches.climbed"
         ]}},
         "_climb_avg": {"$avg": "$matches.climbed"},
+        "_end_position_avg": {"$avg": {"$add": [
+            "$matches.parked",
+            "$matches.climbed"
+        ]}},
         // Comments
         "600_off_comments": {"$push": {
             "$cond": {
@@ -237,7 +240,7 @@
             "Maximum": "$_cube_max"
         },
         "500_end_game": {
-            "_sort": "$_climb_avg",
+            "_sort": "$_end_position_avg",
             // Lines
             "Park": "$_park",
             "Picked Up": "$_picked_up",
