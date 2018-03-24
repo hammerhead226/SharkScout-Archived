@@ -20,10 +20,13 @@
         <div class="col-xs-9">
             <py:choose>
                 <py:when test="page['team']">
-                    <div class="input-group inline-min">
+                    <div class="input-group">
                         <div class="input-group-addon"><span class="fas fa-hashtag"></span></div>
                         <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
                         <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" disabled="disabled" serialize="false"></input>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" name="team_number" class="form-control" value="${page['team']['nickname']}" required="required" disabled="disabled" serialize="false"></input>
                     </div>
                 </py:when>
                 <py:otherwise>
