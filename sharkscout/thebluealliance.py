@@ -38,7 +38,11 @@ class TheBlueAlliance(object):
         if response.status_code == 304:
             return {}
 
-        content = response.json()
+        try:
+            content = response.json()
+        except json.JSONDecodeError as e:
+            print(endpoint, response.status_code, response.text)
+            raise e
         content = self._tba3_clean(content)
         content = self._tba3_to_tba2(content)
 
