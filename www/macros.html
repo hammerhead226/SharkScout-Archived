@@ -26,9 +26,6 @@
                     <td py:if="show_weeks">${event['week']}</td>
                     <td class="clearfix">
                         <span class="pull-left">
-                            <py:if test="'district' in event and event['district'] and 'abbreviation' in event['district']">
-                                <span class="badge alert-info" title="${event['district']['year']} ${event['district']['display_name']} District">${event['district']['abbreviation'].upper()}</span>
-                            </py:if>
                             <span class="fas fa-car" title="Attending" py:if="'teams' in event and 'frc' + str(session['team_number'] or -1) in event['teams']"></span>
                             <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                                 <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
@@ -38,6 +35,9 @@
                                 <py:when test="3"><span class="fas fa-globe" title="Championship Division"></span>&nbsp;</py:when>
                                 <py:when test="4"><span class="fas fa-trophy" title="Championship Finals"></span>&nbsp;</py:when>
                             </py:choose>
+                            <py:if test="'district' in event and event['district'] and 'abbreviation' in event['district']">
+                                <span class="badge alert-info" title="${event['district']['year']} ${event['district']['display_name']} District">${event['district']['abbreviation'].upper()}</span>
+                            </py:if>
                             <a href="/event/${event['key']}">${event['name']}</a>
                         </span>
                         <span class="pull-right hidden-sm hidden-xs">
