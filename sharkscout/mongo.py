@@ -202,8 +202,10 @@ class Mongo(object):
                     # Add teams to alliance list from scouting data
                     for alliance in match['alliances']:
                         if match['key'] in scouting_matches and alliance in scouting_matches[match['key']]['alliances']:
-                            match['alliances'][alliance]['team_keys'] = list(set(match['alliances'][alliance]['team_keys'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
-                            match['alliances'][alliance]['teams'] = list(set(match['alliances'][alliance]['teams'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                            if 'team_keys' in match['alliances'][alliance]:
+                                match['alliances'][alliance]['team_keys'] = list(set(match['alliances'][alliance]['team_keys'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                            if 'teams' in match['alliances'][alliance]:
+                                match['alliances'][alliance]['teams'] = list(set(match['alliances'][alliance]['teams'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
                     # Attach scouting data to matches
                     if match['key'] in scouting_match_teams:
                         match['scouting'] = scouting_match_teams[match['key']]
