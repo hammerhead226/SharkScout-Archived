@@ -405,25 +405,49 @@ $(document).ready(function() {
 
     // Initialize Chart.js
     $('canvas.chart').each(function() {
+        var $chart = $(this);
         // Get array of labels
-        var labels = _.split($(this).siblings('input[name="labels"]').val(), ',');
+        var labels = _.split($chart.siblings('input[name="labels"]').val(), ',');
         if(labels.length == 1 && labels[0] == '') {
             labels = [];
         }
         // Get array of array of values
-        var values = $(this).siblings('input[name="values"]').map(function() {
+        var values = $chart.siblings('input[name="values"]').map(function() {
             // (Array() because jQuery flattens arrays...)
             return Array(_.map(_.split(this.value, ','), function(val) {
                 return parseFloat(val);
             }));
         }).get();
         var maxValues = _.max(_.map(values, function(v){return v.length;}));
+        // Find min value
+        var minValue = 0;
+        if($chart.attr('data-min') && $chart.attr('data-name')) {
+            minValue = _.min($('canvas[data-name="' + $chart.attr('data-name') + '"]')
+                .filter(function() {
+                    return $(this).attr('data-min');
+                })
+                .map(function() {
+                    return parseFloat($(this).attr('data-min'));
+                })
+                .get());
+        }
         // Find max value
         var maxValue = 0;
-        for(var i = 0; i < maxValues; i++) {
-            for(var j = 0; j < values.length; j++) {
-                if(i < values[j].length && values[j][i] > maxValue) {
-                    maxValue = values[j][i];
+        if($chart.attr('data-max') && $chart.attr('data-name')) {
+            maxValue = _.max($('canvas[data-name="' + $chart.attr('data-name') + '"]')
+                .filter(function() {
+                    return $(this).attr('data-max');
+                })
+                .map(function() {
+                    return parseFloat($(this).attr('data-max'));
+                })
+                .get());
+        } else {
+            for(var i = 0; i < maxValues; i++) {
+                for(var j = 0; j < values.length; j++) {
+                    if(i < values[j].length && values[j][i] > maxValue) {
+                        maxValue = values[j][i];
+                    }
                 }
             }
         }
@@ -456,10 +480,12 @@ $(document).ready(function() {
                     return {
                         'label': labels.length == values.length ? labels[idx] : '',
                         'data': val,
+                        'lineTension': 0,
                         'borderColor': ['#337ab7','#5cb85c','#5bc0de','#f0ad4e','#d9534f'][idx%5],
                         'backgroundColor': ['rgba(51,122,182,0.5)','rgba(92,184,92,0.5)','rgba(91,192,222,0.5)','rgba(240,173,78,0.5)','rgba(217,83,79,0.5)'][idx%5],
                         'borderWidth': 3,
-                        'fill': false
+                        'pointRadius': 2,
+                        'fill': idx ? '-1' : 'origin'
                     };
                 }).concat([{
                     'data': _.map(Array(maxValues), function(y, x) {
@@ -490,7 +516,8 @@ $(document).ready(function() {
                     'yAxes': [{
                         'ticks': {
                             'display': false,
-                            'min': 0,
+                            'stepSize': 1,
+                            'min': minValue,
                             'max': maxValue
                         },
                         'gridLines': {

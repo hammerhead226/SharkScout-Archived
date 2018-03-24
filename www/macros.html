@@ -215,14 +215,13 @@
                     <!--! Full table -->
                     <tr class="visible-md visible-lg ${match['key']}">
                         <td>
-                            <py:if test="page['can_scout']['match']">
-                                <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout"><span class="fas fa-binoculars"></span></a>&nbsp;
-                            </py:if>
-                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="far fa-chart-bar"></span></a>&nbsp;
-                            ${match_name(match)}
-                            <py:if test="'videos' in match">
+                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats"><span class="far fa-chart-bar"></span></a>
+                            &nbsp;&bull;&nbsp;
+                            <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout" py:strip="not page['can_scout']['match']">${match_name(match)}</a>
+                            <py:if test="'videos' in match and match['videos']">
+                                &nbsp;&bull;&nbsp;
                                 <py:for each="video in match['videos']">
-                                    &nbsp;${video_icon(video, 'icon')}
+                                    ${video_icon(video, 'icon')}
                                 </py:for>
                             </py:if>
                         </td>
@@ -244,6 +243,10 @@
                     <!--! Collapsed table -->
                     <tr class="hidden-md hidden-lg ${match['key']} ${'border-bottom-dark' if alliance == alliances[::-1][0] else ''}" py:for="alliance in alliances">
                         <td py:if="alliance == alliances[0]">
+                            <a href="/stats/${match['event_key']}/${match['key']}" title="Match Stats">
+                                <span class="far fa-chart-bar"></span>
+                            </a>
+                            &nbsp;&bull;&nbsp;
                             <a href="/scout/match/${match['event_key']}/${match['key']}" title="Match Scout" py:strip="not page['can_scout']['match']">
                                 ${match_name(match)}
                             </a>
@@ -280,7 +283,7 @@
         <table class="table table-bordered table-striped table-condensed">
             <thead>
                 <tr>
-                    <th py:for="key in keys">${re.sub(r'^[0-9]+_+', '', key).replace('_',' ').title()}</th>
+                    <th py:for="key in keys">${key.lstrip('0123456789').strip(' _').replace('_',' ').title()}</th>
                 </tr>
             </thead>
             <tbody>
@@ -288,10 +291,15 @@
                     <py:for each="key in keys">
                         <?python
                             data_sort = team[key]
-                            if isinstance(team[key], dict) and '_sort' in team[key]:
-                                data_sort = team[key]['_sort']
+                            if team[key]:
+                                if isinstance(team[key], dict) and '_sort' in team[key]:
+                                    data_sort = team[key]['_sort']
+                                elif isinstance(team[key], list) and [v for v in team[key] if str(v).isdigit()] == team[key]:
+                                    data_sort = statistics.mean(team[key])
                         ?>
-                        <td data-sort="${data_sort}">${stats_cell(team[key])}</td>
+                        <td class="${key}" data-sort="${data_sort}">
+                            ${stats_cell(team[key])}
+                        </td>
                     </py:for>
                 </tr>
             </tbody>
@@ -308,7 +316,13 @@
                         </py:for>
                     </ul>
                     <py:when test="data and [v for v in data if str(v).isdigit()] == data">
-                        <canvas class="chart"></canvas>
+                        <canvas
+                            class="chart"
+                            data-type="line"
+                            data-name="${data['_name'] if '_name' in data else ''}"
+                            data-min="${data['_min'] if '_min' in data else ''}"
+                            data-max="${data['_max'] if '_max' in data else ''}">
+                        </canvas>
                         <input type="hidden" name="values" value="${','.join([str(v) for v in data])}"></input>
                         <div>Minimum: ${round(min(data),2)}</div>
                         <div>Average: ${round(statistics.mean(data),2)}</div>
@@ -318,11 +332,17 @@
                 </py:choose>
             </py:when>
             <py:when test="isinstance(data, dict)">
-                <canvas class="chart"></canvas>
-                <input type="hidden" name="labels" value="${','.join([k for k in data if isinstance(data[k], list)])}"></input>
-                <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in [k for k in data if isinstance(data[k], list)]"></input>
-                <div py:for="k in [k for k in data if not isinstance(data[k], list) and not k.startswith('_')]">
-                    ${k}: ${stats_cell(data[k])}
+                <canvas
+                    class="chart"
+                    data-type="line"
+                    data-name="${data['_name'] if '_name' in data else ''}"
+                    data-min="${data['_min'] if '_min' in data else ''}"
+                    data-max="${data['_max'] if '_max' in data else ''}">
+                </canvas>
+                <input type="hidden" name="labels" value="${','.join([k.lstrip('0123456789').strip(' _') for k in sorted([k for k in data if isinstance(data[k], list)])])}"></input>
+                <input type="hidden" name="values" value="${','.join([str(v) for v in data[k]])}" py:for="k in sorted([k for k in data if isinstance(data[k], list)])"></input>
+                <div py:for="k in sorted([k for k in data if not isinstance(data[k], list) and not k.startswith('_')])">
+                    ${Markup(k.lstrip('0123456789').strip(' _'))}: ${stats_cell(data[k])}
                 </div>
             </py:when>
             <py:when test="sharkscout.Util.isnumeric(data)">${round(data,2)}</py:when>

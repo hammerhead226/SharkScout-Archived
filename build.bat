@@ -68,6 +68,7 @@ if %errorlevel% neq 0 (
 )
 
 rmdir /S /Q mongo
+rmdir /S /Q sessions
 cd ..
 rmdir /S /Q venv
 
