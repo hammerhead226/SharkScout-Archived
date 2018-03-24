@@ -436,3 +436,48 @@ input[type="number"] {
 .fa-bookmark {
     color: #0066b3;
 }
+
+/**
+ * https://material.io/guidelines/style/color.html#color-color-palette
+ * Color 100 and 900
+ */
+.badge.chs {
+    color: #B71C1C;
+    background: #FFCDD2;
+}
+.badge.in {
+    color: #311B92;
+    background: #D1C4E9;
+}
+.badge.isr {
+    color: #01579B;
+    background: #B3E5FC;
+}
+.badge.fim {
+    color: #1B5E20;
+    background: #C8E6C9;
+}
+.badge.mar {
+    color: #880E4F;
+    background: #F8BBD0;
+}
+.badge.ne {
+    color: #BF360C;
+    background: #FFCCBC;
+}
+.badge.nc {
+    color: #33691E;
+    background: #DCEDC8;
+}
+.badge.ont {
+    color: #4A148C;
+    background: #E1BEE7;
+}
+.badge.pnw {
+    color: #004D40;
+    background: #B2DFDB;
+}
+.badge.pch {
+    color: #3E2723;
+    background: #D7CCC8;
+}
