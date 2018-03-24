@@ -233,7 +233,7 @@ class Mongo(object):
 
     # TBA update an individual event
     def event_update(self, event_key):
-        event = self.tba_api.event(event_key)
+        event = self.tba_api.event(event_key, True)
         if event:
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
@@ -601,7 +601,7 @@ class Mongo(object):
 
     # TBA update an individual team
     def team_update(self, team_key):
-        team = self.tba_api.team(team_key)
+        team = self.tba_api.team(team_key, True)
         if team:
             team.update({k:v for k, v in {
                 'awards': self.tba_api.team_history_awards(team_key),
