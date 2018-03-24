@@ -413,10 +413,18 @@ $(document).ready(function() {
         }
         // Get array of array of values
         var values = $chart.siblings('input[name="values"]').map(function() {
-            // (Array() because jQuery flattens arrays...)
-            return Array(_.map(_.split(this.value, ','), function(val) {
-                return parseFloat(val);
-            }));
+            var value = this.value;
+            try {
+                value = JSON.parse(value);
+            } catch(e) {}
+            if(_.isObject(value)) {
+                return value;
+            } else {
+                // (Array() because jQuery flattens arrays...)
+                return Array(_.map(_.split(this.value, ','), function(val) {
+                    return parseFloat(val);
+                }));
+            }
         }).get();
         var maxValues = _.max(_.map(values, function(v){return v.length;}));
         // Find min value
@@ -471,11 +479,24 @@ $(document).ready(function() {
             })
         );
         // Plot the chart
+        var chartType = $chart.attr('data-type') || 'line';
         new Chart(this, {
-            'type': 'line',
+            'type': chartType,
             'data': {
                 'labels': Array(maxValues),
                 'datasets': _.map(values, function(val, idx) {
+                    if(_.isObject(val) && !_.isArray(val)) {
+                        val = _.map(val, function(val, key) {
+                            return {
+                                label: key,
+                                x: val.x,
+                                y: val.y
+                            };
+                        });
+                        console.log(val);
+                        console.log(minValue);
+                        console.log(maxValue || undefined);
+                    }
                     // Raw data set(s)
                     return {
                         'label': labels.length == values.length ? labels[idx] : '',
@@ -518,7 +539,7 @@ $(document).ready(function() {
                             'display': false,
                             'stepSize': 1,
                             'min': minValue,
-                            'max': maxValue
+                            'max': maxValue || undefined
                         },
                         'gridLines': {
                             'display': true
