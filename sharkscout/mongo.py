@@ -174,27 +174,33 @@ class Mongo(object):
                 event['teams'] = []
 
             # Infer missing team information from scouting information
-            pit_scouting = self.scouting_pit_teams(event_key)
-            event['teams'] = list(set(event['teams'] + list(pit_scouting.keys())))
-            match_scouting = self.scouting_matches_teams(event['key'])
-            event['teams'] = list(set(event['teams'] + [t for m in match_scouting.values() for t in m]))
+            scouting_pit = self.scouting_pit_teams(event_key)
+            event['teams'] = list(set(event['teams'] + list(scouting_pit.keys())))
+            scouting_match_teams = self.scouting_matches_teams(event['key'])
+            event['teams'] = list(set(event['teams'] + [t for m in scouting_match_teams.values() for t in m]))
 
             # Resolve team list to full team information
             event['teams'] = self.teams_list(event['teams'])
 
             # Attach scouting data to teams
             for team_idx, team in enumerate(event['teams']):
-                if team['key'] in pit_scouting:
-                    event['teams'][team_idx]['scouting'] = pit_scouting[team['key']]
+                if team['key'] in scouting_pit:
+                    event['teams'][team_idx]['scouting'] = scouting_pit[team['key']]
 
             # Infer missing match information from scouting information
-            if 'matches' not in event:
-                event.update({'matches': self.scouting_matches(event_key)})
-            # Attach scouting data to matches
+            scouting_matches = {m['key']: m for m in self.scouting_matches(event_key)}
+            if 'matches' not in event or not event['matches']:
+                event['matches'] = list(scouting_matches.values())
             if 'matches' in event:
                 for match_idx, match in enumerate(event['matches']):
-                    if match['key'] in match_scouting:
-                        match['scouting'] = match_scouting[match['key']]
+                    # Add teams to alliance list from scouting data
+                    for alliance in match['alliances']:
+                        if match['key'] in scouting_matches and alliance in scouting_matches[match['key']]['alliances']:
+                            match['alliances'][alliance]['team_keys'] = list(set(match['alliances'][alliance]['team_keys'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                            match['alliances'][alliance]['teams'] = list(set(match['alliances'][alliance]['teams'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                    # Attach scouting data to matches
+                    if match['key'] in scouting_match_teams:
+                        match['scouting'] = scouting_match_teams[match['key']]
                     event['matches'][match_idx] = match
             return event
         else:
