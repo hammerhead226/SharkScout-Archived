@@ -72,14 +72,12 @@
             <py:if test="event['start_date'] and datetime.strptime(event['start_date'], '%Y-%m-%d').date() &lt;= date.today() and event['end_date'] and date.today() &lt;= datetime.strptime(event['end_date'], '%Y-%m-%d').date()">
                 <span class="fas fa-hourglass-half" title="Happening Now"></span>&nbsp;
             </py:if>
+            <span class="badge alert-info" title="${event['district']['year']} ${event['district']['display_name']} District" py:if="event['district']">${event['district']['abbreviation'].upper()}</span>
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
-            <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
+            <small>
+                <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
+            </small>
         </h2>
-        <h4 py:if="'district' in event and event['district'] and 'display_name' in event['district']">
-            ${event['district']['year']}
-            ${event['district']['display_name']}
-            District
-        </h4>
         <h5>
             <span class="fas fa-calendar-alt"></span>&nbsp;
             <py:if test="event['week'] or event['week'] == 0">Week ${event['week']} &mdash;</py:if>
@@ -402,6 +400,7 @@
     <py:def function="team_info(team)">
         <h2>
             <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
+            <span class="badge alert-info" title="${team['districts'][str(page['year'])]['year']} ${team['districts'][str(page['year'])]['display_name']} District" py:if="'districts' in team and team['districts'] and str(page['year']) in team['districts']">${team['districts'][str(page['year'])]['abbreviation'].upper()}</span>
             <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
         </h2>
         <h4><strong><em>${team['motto']}</em></strong></h4>

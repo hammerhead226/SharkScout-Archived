@@ -93,6 +93,40 @@
     border-bottom-color: #999999;
 }
 
+.badge {
+    vertical-align: initial;
+    border-radius: 100px;
+}
+h1 > .badge, .h1 > .badge,
+h2 > .badge, .h2 > .badge,
+h3 > .badge, .h3 > .badge,
+h4 > .badge, .h4 > .badge,
+h5 > .badge, .h5 > .badge {
+    font-size: inherit;
+}
+h1 > small > .badge, .h1 > small > .badge, h1 > .small > .badge, .h1 > .small > .badge,
+h2 > small > .badge, .h2 > small > .badge, h2 > .small > .badge, .h2 > .small > .badge,
+h3 > small > .badge, .h3 > small > .badge, h3 > .small > .badge, .h3 > .small > .badge,
+h4 > small > .badge, .h4 > small > .badge, h4 > .small > .badge, .h4 > .small > .badge,
+h5 > small > .badge, .h5 > small > .badge, h5 > .small > .badge, .h5 > .small > .badge {
+    vertical-align: text-top;
+}
+h1 > .badge, .h1 > .badge {
+    padding: 3px 18px;
+}
+h2 > .badge, .h2 > .badge {
+    padding: 3px 15px;
+}
+h3 > .badge, .h3 > .badge {
+    padding: 3px 12px;
+}
+h4 > .badge, .h4 > .badge {
+    padding: 3px 9px;
+}
+h5 > .badge, .h5 > .badge {
+    padding: 3px 7px;
+}
+
 
 /***** Bootstrap Additions *****/
 
