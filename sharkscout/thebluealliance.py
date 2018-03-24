@@ -215,9 +215,7 @@ class TheBlueAlliance(object):
 
     def event_rankings_v2(self, event_key, ignore_cache=False):
         rankings = self.event_rankings_raw(event_key, ignore_cache)
-        if rankings is None:
-            return rankings
-        if 'rankings' in rankings and rankings['rankings']:
+        if rankings and 'rankings' in rankings and rankings['rankings']:
             for idx, ranking in enumerate(rankings['rankings']):
                 rankings['rankings'][idx] = [
                     ranking['rank'],
@@ -227,7 +225,8 @@ class TheBlueAlliance(object):
                     ranking['matches_played']
                 ]
             rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
-        return rankings['rankings']
+            return rankings['rankings']
+        return []
 
     def event_rankings(self, event_key, ignore_cache=False):
         rankings = self.event_rankings_v2(event_key, ignore_cache)
