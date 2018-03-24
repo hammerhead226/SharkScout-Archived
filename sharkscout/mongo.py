@@ -156,7 +156,13 @@ class Mongo(object):
 
     # List of all events in a given year
     def events(self, year):
-        return list(self.tba_events.find({'year': int(year)}).sort('start_date'))
+        return list(self.tba_events.find({
+            'year': int(year)
+        }).sort([
+            ('start_date', pymongo.ASCENDING),
+            ('district.abbreviation', pymongo.ASCENDING),
+            ('name', pymongo.ASCENDING)
+        ]))
 
     # List of all years with events, and all weeks in a given year
     def events_stats(self, year):
