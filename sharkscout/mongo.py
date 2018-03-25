@@ -105,7 +105,9 @@ class Mongo(object):
         self.tba_events.create_index('teams')
         self.tba_events.create_index([
             ('year', pymongo.ASCENDING),
-            ('start_date', pymongo.ASCENDING)
+            ('start_date', pymongo.ASCENDING),
+            ('district.abbreviation', pymongo.ASCENDING),
+            ('name', pymongo.ASCENDING)
         ])
         self.tba_teams.create_index('key', unique=True)
         self.tba_teams.create_index('team_number', unique=True)
