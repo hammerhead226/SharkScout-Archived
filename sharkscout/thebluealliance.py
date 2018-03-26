@@ -146,11 +146,11 @@ class TheBlueAlliance(object):
         teams = self._team_map(teams)
         return teams
 
-    def teams_all(self):
+    def teams_all(self, ignore_cache=False):
         teams = []
         page_num = 0
         while True:
-            page = self.teams(page_num)
+            page = self.teams(page_num, ignore_cache)
             if not page:
                 break
             teams.extend(page)

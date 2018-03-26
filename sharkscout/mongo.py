@@ -585,7 +585,7 @@ class Mongo(object):
 
     # TBA update the team listing
     def teams_update(self):
-        teams = self.tba_api.teams_all()
+        teams = self.tba_api.teams_all(True)
         bulk = self.tba_teams.initialize_unordered_bulk_op()
 
         # Upsert teams
