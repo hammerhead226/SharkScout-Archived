@@ -27,6 +27,7 @@ SharkScout.exe -h
 if %errorlevel% neq 0 (
 	cd ..
 	rmdir /S /Q dist
+	rmdir /S /Q venv
 	exit /B 1
 )
 cd ..
@@ -37,10 +38,20 @@ copy README* dist\
 echo .rar\ > exclude
 xcopy www dist\www /S /V /I /Y /EXCLUDE:exclude
 del /F exclude
-
-:: Export TBA data for this year and next year
 copy /Y build-mongodump.gz dist\mongodump.gz
 cd dist
+
+:: Run the test script (fast check before TBA update)
+..\venv\Scripts\pip3 install requests pynumparser scrapy
+..\venv\Scripts\python ..\SharkScout-Test.py --level 1 SharkScout.exe --port 22600 --no-browser
+if %errorlevel% neq 0 (
+	cd ..
+	rmdir /S /Q dist
+	rmdir /S /Q venv
+	exit /B 1
+)
+
+:: Export TBA data for last year through next year
 for /f "skip=1 tokens=1-6" %%A in ('WMIC Path Win32_LocalTime Get Day^,Hour^,Minute^,Month^,Second^,Year /Format:table') do (
     if "%%B" NEQ "" (
         set /A FDATE=%%F*10000+%%D*100+%%A
@@ -54,11 +65,11 @@ SharkScout.exe --update-teams --update-teams-info --update-events "1992-%YEAR_NE
 if %errorlevel% neq 0 (
 	cd ..
 	rmdir /S /Q dist
+	rmdir /S /Q venv
 	exit /B 1
 )
 
 :: Run the test script
-..\venv\Scripts\pip3 install requests pynumparser scrapy
 ..\venv\Scripts\python ..\SharkScout-Test.py --level 2 SharkScout.exe --port 22600 --no-browser
 if %errorlevel% neq 0 (
 	cd ..

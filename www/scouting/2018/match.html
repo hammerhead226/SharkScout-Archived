@@ -57,6 +57,9 @@
                         <input type="hidden" name="team_key" class="form-control" value="${page['team']['key']}"></input>
                         <input type="number" name="team_number" class="form-control" value="${page['team']['team_number']}" required="required" disabled="disabled" serialize="false"></input>
                     </div>
+                    <div class="input-group">
+                        <input type="text" name="team_number" class="form-control" value="${page['team']['nickname']}" required="required" disabled="disabled" serialize="false"></input>
+                    </div>
                 </py:when>
                 <py:otherwise>
                     <input type="hidden" name="team_key"></input>
@@ -165,13 +168,13 @@
         <div class="col-xs-9">
             <div class="input-group" style="width:150px;">
                 <span class="input-group-btn">
-                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                    <button class="btn btn-primary" type="button" data-toggle="subtract">
                         <span class="fas fa-minus"></span>
                     </button>
                 </span>
                 <input type="number" name="cubes_exchange" class="form-control" min="0" value="0"></input>
                 <span class="input-group-btn">
-                    <button class="btn btn-success" type="button" data-toggle="add">
+                    <button class="btn btn-primary" type="button" data-toggle="add">
                         <span class="fas fa-plus"></span>
                     </button>
                 </span>
@@ -186,13 +189,13 @@
         <div class="col-xs-9">
             <div class="input-group" style="width:150px;">
                 <span class="input-group-btn">
-                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                    <button class="btn btn-primary" type="button" data-toggle="subtract">
                         <span class="fas fa-minus"></span>
                     </button>
                 </span>
                 <input type="number" name="cubes_switch_own" class="form-control" min="0" value="0"></input>
                 <span class="input-group-btn">
-                    <button class="btn btn-success" type="button" data-toggle="add">
+                    <button class="btn btn-primary" type="button" data-toggle="add">
                         <span class="fas fa-plus"></span>
                     </button>
                 </span>
@@ -207,13 +210,13 @@
         <div class="col-xs-9">
             <div class="input-group" style="width:150px;">
                 <span class="input-group-btn">
-                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                    <button class="btn btn-primary" type="button" data-toggle="subtract">
                         <span class="fas fa-minus"></span>
                     </button>
                 </span>
                 <input type="number" name="cubes_scale" class="form-control" min="0" value="0"></input>
                 <span class="input-group-btn">
-                    <button class="btn btn-success" type="button" data-toggle="add">
+                    <button class="btn btn-primary" type="button" data-toggle="add">
                         <span class="fas fa-plus"></span>
                     </button>
                 </span>
@@ -228,13 +231,13 @@
         <div class="col-xs-9">
             <div class="input-group" style="width:150px;">
                 <span class="input-group-btn">
-                    <button class="btn btn-danger" type="button" data-toggle="subtract">
+                    <button class="btn btn-primary" type="button" data-toggle="subtract">
                         <span class="fas fa-minus"></span>
                     </button>
                 </span>
                 <input type="number" name="cubes_switch_opponent" class="form-control" min="0" value="0"></input>
                 <span class="input-group-btn">
-                    <button class="btn btn-success" type="button" data-toggle="add">
+                    <button class="btn btn-primary" type="button" data-toggle="add">
                         <span class="fas fa-plus"></span>
                     </button>
                 </span>

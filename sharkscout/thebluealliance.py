@@ -58,8 +58,23 @@ class TheBlueAlliance(object):
         models_list = models if isinstance(models, list) else [models]
 
         for model_idx, model in enumerate(models_list):
-            if 'name' in model:
-                model['name'] = re.sub(r' (co-)?sponsored by .+', '', model['name'], re.IGNORECASE)
+            # Clean event names
+            if 'name' in model and 'event_code' in model:
+                model['name'] = re.sub(r'(co-)?sponsored by .+$', '', model['name'], re.IGNORECASE)
+                if 'Event' in model['name'] and 'District' in model['name']:
+                    model['name'] = model['name'].replace(' District', '')
+                    model['name'] = model['name'].replace('Event', 'District')
+
+            # Clean team names
+            if 'nickname' in model and 'team_number' in model:
+                model['nickname'] = re.sub(str(model['team_number']) + '$', '', model['nickname'])
+
+            # Trim string values
+            for key in model:
+                if isinstance(model[key], str):
+                    model[key] = model[key].strip()
+
+            models_list[model_idx] = model
 
         return models_list if isinstance(models, list) else models_list[0]
 
@@ -131,11 +146,11 @@ class TheBlueAlliance(object):
         teams = self._team_map(teams)
         return teams
 
-    def teams_all(self):
+    def teams_all(self, ignore_cache=False):
         teams = []
         page_num = 0
         while True:
-            page = self.teams(page_num)
+            page = self.teams(page_num, ignore_cache)
             if not page:
                 break
             teams.extend(page)

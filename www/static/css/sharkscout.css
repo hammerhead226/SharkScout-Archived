@@ -93,6 +93,40 @@
     border-bottom-color: #999999;
 }
 
+.badge {
+    vertical-align: initial;
+    border-radius: 100px;
+}
+h1 > .badge, .h1 > .badge,
+h2 > .badge, .h2 > .badge,
+h3 > .badge, .h3 > .badge,
+h4 > .badge, .h4 > .badge,
+h5 > .badge, .h5 > .badge {
+    font-size: inherit;
+}
+h1 > small > .badge, .h1 > small > .badge, h1 > .small > .badge, .h1 > .small > .badge,
+h2 > small > .badge, .h2 > small > .badge, h2 > .small > .badge, .h2 > .small > .badge,
+h3 > small > .badge, .h3 > small > .badge, h3 > .small > .badge, .h3 > .small > .badge,
+h4 > small > .badge, .h4 > small > .badge, h4 > .small > .badge, .h4 > .small > .badge,
+h5 > small > .badge, .h5 > small > .badge, h5 > .small > .badge, .h5 > .small > .badge {
+    vertical-align: text-top;
+}
+h1 > .badge, .h1 > .badge {
+    padding: 3px 18px;
+}
+h2 > .badge, .h2 > .badge {
+    padding: 3px 15px;
+}
+h3 > .badge, .h3 > .badge {
+    padding: 3px 12px;
+}
+h4 > .badge, .h4 > .badge {
+    padding: 3px 9px;
+}
+h5 > .badge, .h5 > .badge {
+    padding: 3px 7px;
+}
+
 
 /***** Bootstrap Additions *****/
 
@@ -293,9 +327,9 @@ body {
     pointer-events: none;
 }
 
-.opacity-25 {
-    opacity: 0.25;
-    filter: alpha(opacity=25);
+.opacity-15 {
+    opacity: 0.15;
+    filter: alpha(opacity=15);
 }
 
 .font-25vh {
@@ -401,4 +435,49 @@ input[type="number"] {
 /* Blue banners */
 .fa-bookmark {
     color: #0066b3;
+}
+
+/**
+ * https://material.io/guidelines/style/color.html#color-color-palette
+ * Color 100 and 900
+ */
+.badge.chs {
+    color: #B71C1C;
+    background: #FFCDD2;
+}
+.badge.in {
+    color: #311B92;
+    background: #D1C4E9;
+}
+.badge.isr {
+    color: #01579B;
+    background: #B3E5FC;
+}
+.badge.fim {
+    color: #1B5E20;
+    background: #C8E6C9;
+}
+.badge.mar {
+    color: #880E4F;
+    background: #F8BBD0;
+}
+.badge.ne {
+    color: #BF360C;
+    background: #FFCCBC;
+}
+.badge.nc {
+    color: #33691E;
+    background: #DCEDC8;
+}
+.badge.ont {
+    color: #4A148C;
+    background: #E1BEE7;
+}
+.badge.pnw {
+    color: #004D40;
+    background: #B2DFDB;
+}
+.badge.pch {
+    color: #3E2723;
+    background: #D7CCC8;
 }
