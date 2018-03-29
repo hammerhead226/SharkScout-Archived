@@ -444,7 +444,10 @@ class Mongo(object):
         with open(year_json, 'r') as f:
             year_stats = hjson.load(f)
             year_individual = year_stats
-            year_scatter = {}
+            year_scatter = {
+                'axes': {},
+                'dataset': {}
+            }
             if isinstance(year_stats, dict):
                 if 'individual' in year_stats:
                     year_individual = year_stats['individual']
@@ -536,7 +539,10 @@ class Mongo(object):
         individual = list(self.tba_events.aggregate(aggregation))
         return {
             'individual': individual,
-            'scatter': {t['_id']:{k:t[year_scatter[k]] for k in year_scatter} for t in individual}
+            'scatter': {
+                'axes': year_scatter['axes'],
+                'dataset': {t['_team_number']:{k:t[year_scatter['dataset'][k]] for k in year_scatter['dataset']} for t in individual}
+            }
         }
 
     # List of all teams

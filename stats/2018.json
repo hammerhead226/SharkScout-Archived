@@ -247,6 +247,12 @@
                 "$matches.cubes_scale",
                 "$matches.cubes_switch_opponent"
             ]}},
+            "_cube_avg_low": {"$avg": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_avg_high": {"$avg": "$matches.cubes_scale"},
             // End Game
             "_park": {"$push": "$matches.parked"},
             "_park_avg": {"$avg": {"$cond": {
@@ -351,8 +357,15 @@
         }}
     ],
     "scatter": {
-        "x": "_auton_avg",
-        "y": "_cube_avg",
-        "radius": "_climb_avg"
+        "axes": {
+            "x": "Low Cube Average",
+            "y": "High Cube Average",
+            "radius": "Climb Average %"
+        },
+        "dataset": {
+            "x": "_cube_avg_low",
+            "y": "_cube_avg_high",
+            "radius": "_climb_avg"
+        }
     }
 }
