@@ -18,11 +18,11 @@ cd "$(dirname "$0")"
 	sudo apt-get -y upgrade
 	sudo apt-get -y dist-upgrade
 	sudo apt-get -y install wget
-	
+
 	# Set timezone to EST
 	sudo rm /etc/localtime
 	sudo ln -s /usr/share/zoneinfo/US/Eastern /etc/localtime
-	
+
 	# Turn off startup fsck (potentially dangerous)
 	sudo sed -i 's/1$/0/g' /etc/fstab
 	sudo tune2fs -c 0 -i 0 -l /dev/mmcblk0p2
@@ -33,7 +33,7 @@ cd "$(dirname "$0")"
 		chmod +x install_odroid_LCD35.sh
 		./install_odroid_LCD35.sh 1
 		rm install_odroid_LCD35.sh
-		
+
 		# Put this script in startup
 		if [ "$(lsb_release -a 2>&1 | grep Release | awk '{print $2}')" == "16.04" ]; then
 			if [ ! -e "/etc/systemd/system/getty@tty1.service.d" ]; then
@@ -60,21 +60,21 @@ cd "$(dirname "$0")"
 	pip3 install pexpect
 	wget -N https://raw.githubusercontent.com/emmercm/panr/master/panr-acceptr
 	chmod +x panr-acceptr
-	
+
 	# mongodb
 	sudo apt-get -y install curl
 	MONGODB_VER=$(curl -s http://repo.mongodb.com/apt/ubuntu/dists/xenial/mongodb-enterprise/ | grep "[0-9]\+\.[0-9]\+" | sed 's/\s*<[^>]\+>//g' | tail -1)
 	echo "deb [ arch=amd64,arm64,ppc64el,s390x ] http://repo.mongodb.com/apt/ubuntu xenial/mongodb-enterprise/${MONGODB_VER} multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-enterprise.list > /dev/null
 	sudo apt-get -y update
 	sudo apt-get --allow-unauthenticated -y install mongodb-enterprise
-	
+
 	# SharkScout
 	sudo apt-get -y install git
 	git clone https://github.com/hammerhead226/SharkScout.git
 	chmod +x SharkScout/SharkScout.py
 	chmod +x SharkScout/setup.py
 	./SharkScout/setup.py install
-	
+
 	# Info display tool(s)
 	sudo apt-get -y install bluez-tools
 )
@@ -91,6 +91,7 @@ cd "$(dirname "$0")"
 (
 	sleep 10s
 	cd SharkScout
+	sed -i 's/\r\n/\n/g' *.py
 	while [ "" == "" ]; do
 		sudo ./SharkScout.py --port 80 --no-browser &> /dev/null
 	done
