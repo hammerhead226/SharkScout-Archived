@@ -1,351 +1,371 @@
-[
-    // Quick references
-    {"$addFields": {
-        "matches.number": {"$toUpper": {"$substr": [
-            "$matches.match_key",
-            {"$add": [{"$strLenCP": "$matches.event_key"}, 1]},
-            -1
-        ]}}
-    }},
-
-    // Change some nulls to empty strings
-    {"$addFields": {
-        "pit.robot_height": {"$ifNull": ["$pit.robot_height", ""]},
-        "pit.robot_weight": {"$ifNull": ["$pit.robot_weight", ""]},
-        "pit.drivetrain": {"$ifNull": ["$pit.drivetrain", ""]},
-        "pit.cube_lifter": {"$ifNull": ["$pit.cube_lifter", ""]},
-        "pit.cube_intake": {"$ifNull": ["$pit.cube_intake", ""]}
-    }},
-
-    // Week-to-week scouting form changes
-    {"$addFields": {
-        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$matches.cubes_switch"]}
-        "matches.cubes_switch_opponent": {"$ifNull": ["$matches.cubes_switch_opponent", 0]},
-        "matches.end_position": {"$ifNull": ["$matches.end_position", {"$cond": {
-            "if": {"$eq": ["$matches.climbed", "Y"]},
-            "then": "climbed",
-            "else": "n/a"
-        }}]}
-    }},
-
-    // Fill in some match data with pit data
-    {"$addFields": {
-        "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
-        "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
-        "matches.cubes_exchange": {"$ifNull": ["$matches.cubes_exchange", "$pit.avg_cubes_exchange"]},
-        "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$pit.avg_cubes_switch"]},
-        "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
-    }},
-
-    // Change some strings to ints
-    {"$addFields": {
-        "matches.auton_crossed_baseline_int": {"$cond": {
-            "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
-            "then": 5,
-            "else": 0
+{
+    "individual": [
+        // Quick references
+        {"$addFields": {
+            "matches.number": {"$toUpper": {"$substr": [
+                "$matches.match_key",
+                {"$add": [{"$strLenCP": "$matches.event_key"}, 1]},
+                -1
+            ]}}
         }},
-        "matches.auton_exchange": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
-            "then": 5,
-            "else": 0
-        }},
-        "matches.auton_switch": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
-            "then": 10,
-            "else": 0
-        }},
-        "matches.auton_scale": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
-            "then": 10,
-            "else": 0
-        }},
-        "matches.parked": {"$cond": {
-            "if": {"$eq": ["$matches.end_position", "parked"]},
-            "then": 5,
-            "else": 0
-        }},
-        "matches.picked_up": {"$cond": {
-            "if": {"$eq": ["$matches.end_position", "picked_up"]},
-            "then": 30,
-            "else": 0
-        }},
-        "matches.climbed": {"$cond": {
-            "if": {"$eq": ["$matches.end_position", "climbed"]},
-            "then": 30,
-            "else": 0
-        }}
-    }},
 
-    // So $in operations can succeed
-    {"$addFields": {
-        "pit.cube_scoring_location": {"$ifNull": ["$pit.cube_scoring_location", []]}
-    }},
+        // Change some nulls to empty strings
+        {"$addFields": {
+            "pit.robot_height": {"$ifNull": ["$pit.robot_height", ""]},
+            "pit.robot_weight": {"$ifNull": ["$pit.robot_weight", ""]},
+            "pit.drivetrain": {"$ifNull": ["$pit.drivetrain", ""]},
+            "pit.cube_lifter": {"$ifNull": ["$pit.cube_lifter", ""]},
+            "pit.cube_intake": {"$ifNull": ["$pit.cube_intake", ""]}
+        }},
 
-    // Bulk of statistics
-    {"$group": {
-        "_id": "$team.key",
-        "_team_number": {"$first": "$team.team_number"},
-        // General
-        "100_team": {"$first": {"$ifNull": [{"$concat": [
-            {"$substr": ["$team.team_number", 0, -1]},
-            "<br/><br/>",
-            "$team.nickname"
-        ]}, "$_id"]}},
-        "101_properties": {"$first": {"$concat": [
-            {"$cond": {
-                "if": {"$ne": ["$pit.drivetrain", ""]},
-                "then": {"$concat": [
-                    "&bull; ",
-                    {"$substr": ["$pit.drivetrain", 0, -1]}
-                ]},
-                "else": ""
+        // Week-to-week scouting form changes
+        {"$addFields": {
+            "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$matches.cubes_switch"]}
+            "matches.cubes_switch_opponent": {"$ifNull": ["$matches.cubes_switch_opponent", 0]},
+            "matches.end_position": {"$ifNull": ["$matches.end_position", {"$cond": {
+                "if": {"$eq": ["$matches.climbed", "Y"]},
+                "then": "climbed",
+                "else": "n/a"
+            }}]}
+        }},
+
+        // Fill in some match data with pit data
+        {"$addFields": {
+            "matches.auton_strategy": {"$ifNull": ["$matches.auton_strategy", "$pit.auton_strategy"]},
+            "matches.teleop_strategy": {"$ifNull": ["$matches.teleop_strategy", "$pit.teleop_strategy"]},
+            "matches.cubes_exchange": {"$ifNull": ["$matches.cubes_exchange", "$pit.avg_cubes_exchange"]},
+            "matches.cubes_switch_own": {"$ifNull": ["$matches.cubes_switch_own", "$pit.avg_cubes_switch"]},
+            "matches.cubes_scale": {"$ifNull": ["$matches.cubes_scale", "$pit.avg_cubes_scale"]}
+        }},
+
+        // Change some strings to ints
+        {"$addFields": {
+            "matches.auton_crossed_baseline_int": {"$cond": {
+                "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
+                "then": 5,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$ne": ["$pit.robot_height", ""]},
-                "then": {"$concat": [
-                    "<br/>&bull; ",
-                    {"$substr": ["$pit.robot_height", 0, -1]},
-                    " in"
-                ]},
-                "else": ""
+            "matches.auton_exchange": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
+                "then": 5,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$ne": ["$pit.robot_weight", ""]},
-                "then": {"$concat": [
-                    "<br/>&bull; ",
-                    {"$substr": ["$pit.robot_weight", 0, -1]},
-                    " lb"
-                ]},
-                "else": ""
+            "matches.auton_switch": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
+                "then": 10,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$ne": ["$pit.cube_lifter", ""]},
-                "then": {"$concat": [
-                    "<br/>&bull; ",
-                    {"$substr": ["$pit.cube_lifter", 0, -1]},
-                    " + ",
-                    {"$substr": ["$pit.cube_intake", 0, -1]}
-                ]},
-                "else": ""
+            "matches.auton_scale": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
+                "then": 10,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$in": ["exchange", "$pit.cube_scoring_location"]},
-                "then": "<br/>&bull; can do exchange",
-                "else": ""
+            "matches.parked": {"$cond": {
+                "if": {"$eq": ["$matches.end_position", "parked"]},
+                "then": 5,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$in": ["switch", "$pit.cube_scoring_location"]},
-                "then": "<br/>&bull; can do switch",
-                "else": ""
+            "matches.picked_up": {"$cond": {
+                "if": {"$eq": ["$matches.end_position", "picked_up"]},
+                "then": 30,
+                "else": 0
             }},
-            {"$cond": {
-                "if": {"$in": ["scale", "$pit.cube_scoring_location"]},
-                "then": "<br/>&bull; can do scale",
-                "else": ""
-            }},
-            {"$cond": {
-                "if": {"$eq": ["$pit.climber", "Y"]},
-                "then": "<br/>&bull; has climber",
-                "else": ""
-            }},
-            {"$cond": {
-                "if": {"$eq": ["$pit.can_lift", "Y"]},
-                "then": "<br/>&bull; can lift others",
-                "else": ""
+            "matches.climbed": {"$cond": {
+                "if": {"$eq": ["$matches.end_position", "climbed"]},
+                "then": 30,
+                "else": 0
             }}
-        ]}},
-        // Auton
-        "200_auton_strat": {"$push": {
-            "$concat": [
-                "$matches.number",
-                " ",
-                {"$substr": ["$matches.auton_strategy", 0, -1]}
-            ]
         }},
-        "_auton_crossed_baseline": {"$push": "$matches.auton_crossed_baseline_int"},
-        "_auton_crossed_baseline_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_auton_exchange": {"$push": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange"
-        ]}},
-        "_auton_exchange_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_auton_switch": {"$push": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange",
-            "$matches.auton_switch"
-        ]}},
-        "_auton_switch_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_auton_scale": {"$push": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange",
-            "$matches.auton_switch",
-            "$matches.auton_scale"
-        ]}},
-        "_auton_scale_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_auton_avg": {"$avg": {"$add": [
-            "$matches.auton_crossed_baseline_int",
-            "$matches.auton_exchange",
-            "$matches.auton_switch",
-            "$matches.auton_scale"
-        ]}},
-        // Teleop
-        "300_teleop_strat": {"$push": {
-            "$concat": [
-                "$matches.number",
-                " ",
-                {"$substr": ["$matches.teleop_strategy", 0, -1]}
-            ]
+
+        // So $in operations can succeed
+        {"$addFields": {
+            "pit.cube_scoring_location": {"$ifNull": ["$pit.cube_scoring_location", []]}
         }},
-        "_exchange": {"$push": "$matches.cubes_exchange"},
-        "_switch_own": {"$push": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own"
-        ]}},
-        "_scale": {"$push": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own",
-            "$matches.cubes_scale"
-        ]}},
-        "_switch_opponent": {"$push": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own",
-            "$matches.cubes_scale",
-            "$matches.cubes_switch_opponent"
-        ]}},
-        "_cube_min": {"$min": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own",
-            "$matches.cubes_scale",
-            "$matches.cubes_switch_opponent"
-        ]}},
-        "_cube_max": {"$max": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own",
-            "$matches.cubes_scale",
-            "$matches.cubes_switch_opponent"
-        ]}},
-        "_cube_avg": {"$avg": {"$add": [
-            "$matches.cubes_exchange",
-            "$matches.cubes_switch_own",
-            "$matches.cubes_scale",
-            "$matches.cubes_switch_opponent"
-        ]}},
-        // End Game
-        "_park": {"$push": "$matches.parked"},
-        "_park_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.end_position", "parked"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_picked_up": {"$push": {"$add": [
-            "$matches.parked",
-            "$matches.picked_up"
-        ]}},
-        "_climb": {"$push": {"$add": [
-            "$matches.parked",
-            "$matches.picked_up",
-            "$matches.climbed"
-        ]}},
-        "_climb_avg": {"$avg": {"$cond": {
-            "if": {"$eq": ["$matches.end_position", "climbed"]},
-            "then": 1,
-            "else": 0
-        }}},
-        "_end_position_avg": {"$avg": {"$add": [
-            "$matches.parked",
-            "$matches.climbed"
-        ]}},
-        // Comments
-        "600_off_comments": {"$push": {
-            "$cond": {
-                "if": {"$ne": ["$matches.comments_offense", ""]},
-                "then": {"$concat": [
+
+        // Bulk of statistics
+        {"$group": {
+            "_id": "$team.key",
+            "_team_number": {"$first": "$team.team_number"},
+            // General
+            "100_team": {"$first": {"$ifNull": [{"$concat": [
+                {"$substr": ["$team.team_number", 0, -1]},
+                "<br/><br/>",
+                "$team.nickname"
+            ]}, "$_id"]}},
+            "101_properties": {"$first": {"$concat": [
+                {"$cond": {
+                    "if": {"$ne": ["$pit.drivetrain", ""]},
+                    "then": {"$concat": [
+                        "&bull; ",
+                        {"$substr": ["$pit.drivetrain", 0, -1]}
+                    ]},
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$ne": ["$pit.robot_height", ""]},
+                    "then": {"$concat": [
+                        "<br/>&bull; ",
+                        {"$substr": ["$pit.robot_height", 0, -1]},
+                        " in"
+                    ]},
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$ne": ["$pit.robot_weight", ""]},
+                    "then": {"$concat": [
+                        "<br/>&bull; ",
+                        {"$substr": ["$pit.robot_weight", 0, -1]},
+                        " lb"
+                    ]},
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$ne": ["$pit.cube_lifter", ""]},
+                    "then": {"$concat": [
+                        "<br/>&bull; ",
+                        {"$substr": ["$pit.cube_lifter", 0, -1]},
+                        " + ",
+                        {"$substr": ["$pit.cube_intake", 0, -1]}
+                    ]},
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$in": ["exchange", "$pit.cube_scoring_location"]},
+                    "then": "<br/>&bull; can do exchange",
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$in": ["switch", "$pit.cube_scoring_location"]},
+                    "then": "<br/>&bull; can do switch",
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$in": ["scale", "$pit.cube_scoring_location"]},
+                    "then": "<br/>&bull; can do scale",
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$eq": ["$pit.climber", "Y"]},
+                    "then": "<br/>&bull; has climber",
+                    "else": ""
+                }},
+                {"$cond": {
+                    "if": {"$eq": ["$pit.can_lift", "Y"]},
+                    "then": "<br/>&bull; can lift others",
+                    "else": ""
+                }}
+            ]}},
+            // Auton
+            "200_auton_strat": {"$push": {
+                "$concat": [
                     "$matches.number",
                     " ",
-                    "$matches.comments_offense"
-                ]},
-                "else": ""
-            }
-        }},
-        "601_def_comments": {"$push": {
-            "$cond": {
-                "if": {"$ne": ["$matches.comments_defense", ""]},
-                "then": {"$concat": [
+                    {"$substr": ["$matches.auton_strategy", 0, -1]}
+                ]
+            }},
+            "_auton_crossed_baseline": {"$push": "$matches.auton_crossed_baseline_int"},
+            "_auton_crossed_baseline_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.auton_crossed_baseline", "Y"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_auton_exchange": {"$push": {"$add": [
+                "$matches.auton_crossed_baseline_int",
+                "$matches.auton_exchange"
+            ]}},
+            "_auton_exchange_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "exchange"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_auton_switch": {"$push": {"$add": [
+                "$matches.auton_crossed_baseline_int",
+                "$matches.auton_exchange",
+                "$matches.auton_switch"
+            ]}},
+            "_auton_switch_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "switch"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_auton_scale": {"$push": {"$add": [
+                "$matches.auton_crossed_baseline_int",
+                "$matches.auton_exchange",
+                "$matches.auton_switch",
+                "$matches.auton_scale"
+            ]}},
+            "_auton_scale_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.auton_cube_position", "scale"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_auton_avg": {"$avg": {"$add": [
+                "$matches.auton_crossed_baseline_int",
+                "$matches.auton_exchange",
+                "$matches.auton_switch",
+                "$matches.auton_scale"
+            ]}},
+            // Teleop
+            "300_teleop_strat": {"$push": {
+                "$concat": [
                     "$matches.number",
                     " ",
-                    "$matches.comments_defense"
-                ]},
-                "else": ""
+                    {"$substr": ["$matches.teleop_strategy", 0, -1]}
+                ]
+            }},
+            "_exchange": {"$push": "$matches.cubes_exchange"},
+            "_switch_own": {"$push": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own"
+            ]}},
+            "_scale": {"$push": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_scale"
+            ]}},
+            "_switch_opponent": {"$push": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_scale",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_min": {"$min": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_scale",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_max": {"$max": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_scale",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_avg": {"$avg": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_scale",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_avg_low": {"$avg": {"$add": [
+                "$matches.cubes_exchange",
+                "$matches.cubes_switch_own",
+                "$matches.cubes_switch_opponent"
+            ]}},
+            "_cube_avg_high": {"$avg": "$matches.cubes_scale"},
+            // End Game
+            "_park": {"$push": "$matches.parked"},
+            "_park_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.end_position", "parked"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_picked_up": {"$push": {"$add": [
+                "$matches.parked",
+                "$matches.picked_up"
+            ]}},
+            "_climb": {"$push": {"$add": [
+                "$matches.parked",
+                "$matches.picked_up",
+                "$matches.climbed"
+            ]}},
+            "_climb_avg": {"$avg": {"$cond": {
+                "if": {"$eq": ["$matches.end_position", "climbed"]},
+                "then": 1,
+                "else": 0
+            }}},
+            "_end_position_avg": {"$avg": {"$add": [
+                "$matches.parked",
+                "$matches.climbed"
+            ]}},
+            // Comments
+            "600_off_comments": {"$push": {
+                "$cond": {
+                    "if": {"$ne": ["$matches.comments_offense", ""]},
+                    "then": {"$concat": [
+                        "$matches.number",
+                        " ",
+                        "$matches.comments_offense"
+                    ]},
+                    "else": ""
+                }
+            }},
+            "601_def_comments": {"$push": {
+                "$cond": {
+                    "if": {"$ne": ["$matches.comments_defense", ""]},
+                    "then": {"$concat": [
+                        "$matches.number",
+                        " ",
+                        "$matches.comments_defense"
+                    ]},
+                    "else": ""
+                }
+            }}
+        }},
+
+        // Combine some fields
+        {"$addFields": {
+            "201_auton": {
+                "_sort": "$_auton_avg",
+                // Graph properties
+                "_name": "auton",
+                "_min": 0,
+                "_max": 15,
+                // Lines
+                "1 Baseline": "$_auton_crossed_baseline",
+                "2 Exchange": "$_auton_exchange",
+                "3 Switch": "$_auton_switch",
+                "4 Scale": "$_auton_scale",
+                // Strings
+                "1 <b>Average Score</b>": "$_auton_avg",
+                "2 Baseline %": "$_auton_crossed_baseline_avg",
+                "3 Exchange %": "$_auton_exchange_avg",
+                "4 Switch %": "$_auton_switch_avg",
+                "5 Scale %": "$_auton_scale_avg"
+            },
+            "301_cubes": {
+                "_sort": "$_cube_avg",
+                // Graph properties
+                "_name": "cubes",
+                "_min": 0,
+                "_max": "$_cube_max",
+                // Lines
+                "1 Exchange": "$_exchange",
+                "2 Own Switch": "$_switch_own",
+                "3 Scale": "$_scale",
+                "4 Opp Switch": "$_switch_opponent",
+                // Strings
+                "1 Cubes Minimum": "$_cube_min",
+                "2 <b>Cubes Average</b>": "$_cube_avg",
+                "3 Cubes Maximum": "$_cube_max"
+            },
+            "500_end_game": {
+                "_sort": "$_end_position_avg",
+                // Graph properties
+                "_name": "end_game",
+                "_min": 0,
+                "_max": 30,
+                // Lines
+                "1 Park": "$_park",
+                "2 Picked Up": "$_picked_up",
+                "3 Climb": "$_climb",
+                // Stirngs
+                "1 <b>Average Score</b>": "$_end_position_avg",
+                "2 Park %": "$_park_avg",
+                "3 Climb %": "$_climb_avg"
             }
         }}
-    }},
-
-    // Combine some fields
-    {"$addFields": {
-        "201_auton": {
-            "_sort": "$_auton_avg",
-            // Graph properties
-            "_name": "auton",
-            "_min": 0,
-            "_max": 15,
-            // Lines
-            "1 Baseline": "$_auton_crossed_baseline",
-            "2 Exchange": "$_auton_exchange",
-            "3 Switch": "$_auton_switch",
-            "4 Scale": "$_auton_scale",
-            // Strings
-            "1 <b>Average Score</b>": "$_auton_avg",
-            "2 Baseline %": "$_auton_crossed_baseline_avg",
-            "3 Exchange %": "$_auton_exchange_avg",
-            "4 Switch %": "$_auton_switch_avg",
-            "5 Scale %": "$_auton_scale_avg"
+    ],
+    "scatter": {
+        "axes": {
+            "x": "Low Cube Average",
+            "y": "High Cube Average",
+            "radius": "Climb Average %"
         },
-        "301_cubes": {
-            "_sort": "$_cube_avg",
-            // Graph properties
-            "_name": "cubes",
-            "_min": 0,
-            "_max": "$_cube_max",
-            // Lines
-            "1 Exchange": "$_exchange",
-            "2 Own Switch": "$_switch_own",
-            "3 Scale": "$_scale",
-            "4 Opp Switch": "$_switch_opponent",
-            // Strings
-            "1 Cubes Minimum": "$_cube_min",
-            "2 <b>Cubes Average</b>": "$_cube_avg",
-            "3 Cubes Maximum": "$_cube_max"
-        },
-        "500_end_game": {
-            "_sort": "$_end_position_avg",
-            // Graph properties
-            "_name": "end_game",
-            "_min": 0,
-            "_max": 30,
-            // Lines
-            "1 Park": "$_park",
-            "2 Picked Up": "$_picked_up",
-            "3 Climb": "$_climb",
-            // Stirngs
-            "1 <b>Average Score</b>": "$_end_position_avg",
-            "2 Park %": "$_park_avg",
-            "3 Climb %": "$_climb_avg"
+        "dataset": {
+            "x": "_cube_avg_low",
+            "y": "_cube_avg_high",
+            "radius": "_climb_avg"
         }
-    }}
-]
+    }
+}

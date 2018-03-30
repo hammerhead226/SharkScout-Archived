@@ -406,17 +406,27 @@ $(document).ready(function() {
     // Initialize Chart.js
     $('canvas.chart').each(function() {
         var $chart = $(this);
+
         // Get array of labels
         var labels = _.split($chart.siblings('input[name="labels"]').val(), ',');
         if(labels.length == 1 && labels[0] == '') {
             labels = [];
         }
+
         // Get array of array of values
         var values = $chart.siblings('input[name="values"]').map(function() {
-            // (Array() because jQuery flattens arrays...)
-            return Array(_.map(_.split(this.value, ','), function(val) {
-                return parseFloat(val);
-            }));
+            var value = this.value;
+            try {
+                value = JSON.parse(value);
+            } catch(e) {}
+            if(_.isObject(value)) {
+                return value;
+            } else {
+                // (Array() because jQuery flattens arrays...)
+                return Array(_.map(_.split(this.value, ','), function(val) {
+                    return parseFloat(val);
+                }));
+            }
         }).get();
         var maxValues = _.max(_.map(values, function(v){return v.length;}));
         // Find min value
@@ -470,27 +480,66 @@ $(document).ready(function() {
                 return [x+1, y];
             })
         );
+
+        // Get object of axes titles
+        var axes = {};
+        try {
+            axes = JSON.parse($chart.siblings('input[name="axes"]').val());
+        } catch(e) {}
+
         // Plot the chart
-        new Chart(this, {
-            'type': 'line',
+        var chartType = $chart.attr('data-type') || 'line';
+        var chart = new Chart(this, {
+            'type': chartType,
             'data': {
                 'labels': Array(maxValues),
                 'datasets': _.map(values, function(val, idx) {
+                    if(_.isObject(val) && !_.isArray(val)) {
+                        var radiusMax = _.max(_.map(val, function(point) {
+                            return point.radius;
+                        }));
+                        console.log(radiusMax);
+                        val = _.map(val, function(point, key) {
+                            return {
+                                'label': key,
+                                'x': point.x,
+                                'y': point.y,
+                                'pointRadius': point.radius * (49 / radiusMax) + 1
+                            };
+                        });
+                    }
                     // Raw data set(s)
                     return {
                         'label': labels.length == values.length ? labels[idx] : '',
                         'data': val,
+                        'datalabels': {
+                            'display': chartType == 'scatter' || idx == values.length - 1,
+                            'anchor': 'end',
+                            'align': 'top',
+                            'offset': 0,
+                            'font': {
+                                'weight': 'bold'
+                            }
+                        },
                         'lineTension': 0,
                         'borderColor': ['#337ab7','#5cb85c','#5bc0de','#f0ad4e','#d9534f'][idx%5],
                         'backgroundColor': ['rgba(51,122,182,0.5)','rgba(92,184,92,0.5)','rgba(91,192,222,0.5)','rgba(240,173,78,0.5)','rgba(217,83,79,0.5)'][idx%5],
                         'borderWidth': 3,
-                        'pointRadius': 2,
+                        'pointRadius': _.map(val, function(point) {
+                            return _.isObject(point) ? point.pointRadius : 2;
+                        }),
+                        'pointHoverRadius': _.map(val, function(point) {
+                            return _.isObject(point) ? point.pointRadius : 2;
+                        }),
                         'fill': idx ? '-1' : 'origin'
                     };
                 }).concat([{
                     'data': _.map(Array(maxValues), function(y, x) {
                         return fitted.predict(x+1)[1];
                     }),
+                    'datalabels': {
+                        'display': false
+                    },
                     'borderColor': '#777777',
                     'backgroundColor': 'rgba(119,119,119,0.2)',
                     'borderWidth': 2,
@@ -501,10 +550,20 @@ $(document).ready(function() {
             },
             'options': {
                 'layout': {
-                    'padding': 5
+                    'padding': {
+                        'top': 20,
+                        'right': 10,
+                        'bottom': 5,
+                        'left': 5
+                    }
+                },
+                'title': {
+                    'display': axes.radius,
+                    'text': axes.radius ? 'Radius: ' + axes.radius : ''
                 },
                 'legend': {
                     'display': labels.length == values.length,
+                    'position': 'bottom',
                     'labels': {
                         'filter': function(item) {
                             return typeof(item.text) !== 'undefined' && item.text;
@@ -514,19 +573,29 @@ $(document).ready(function() {
                 },
                 'scales': {
                     'yAxes': [{
+                        'scaleLabel': {
+                            'display': axes.y,
+                            'labelString': axes.y,
+                            'fontStyle': 'bold'
+                        },
                         'ticks': {
-                            'display': false,
+                            'display': axes.y,
                             'stepSize': 1,
-                            'min': minValue,
-                            'max': maxValue
+                            'min': minValue || undefined,
+                            'max': maxValue || undefined
                         },
                         'gridLines': {
                             'display': true
                         }
                     }],
                     'xAxes': [{
+                        'scaleLabel': {
+                            'display': axes.x,
+                            'labelString': axes.x,
+                            'fontStyle': 'bold'
+                        },
                         'ticks': {
-                            'display': false,
+                            'display': axes.x,
                             'stepSize': 1
                         },
                         'gridLines': {
@@ -545,6 +614,14 @@ $(document).ready(function() {
                 'responsiveAnimationDuration': 0
             }
         });
+
+        // Fix sizing on nav-tab changes
+        var $tab_toggle = $('a[href="#' + $chart.closest('.tab-page').attr('id') + '"][data-toggle="tab"]');
+        if($tab_toggle.length) {
+            $tab_toggle.on('shown.bs.tab', function() {
+                chart.resize();
+            });
+        }
     });
 
     // Initialize DataTable on all Bootstrap <table>s

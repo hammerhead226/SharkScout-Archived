@@ -306,9 +306,12 @@ class Index(CherryServer):
             'modified_timestamp': event['modified_timestamp']
         }
         try:
-            page['stats'] = sharkscout.Mongo().scouting_stats(event_key, stats_matches)
+            stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)
+            page['stats'] = stats['individual']
+            page['scatter'] = stats['scatter']
         except Exception as e:
             page['stats'] = []
+            page['scatter'] = {}
             cherrypy.log(e)
         return self.display('event', page)
 
@@ -324,7 +327,7 @@ class Index(CherryServer):
 
         alliance_stats = {}
         for alliance in match['alliances']:
-            alliance_stats[alliance] = [s for s in stats if s['_id'] in match['alliances'][alliance]['teams']]
+            alliance_stats[alliance] = [s for s in stats['individual'] if s['_id'] in match['alliances'][alliance]['teams']]
 
         page = {
             'event': event,
@@ -513,7 +516,7 @@ class Download(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def stats(self, event_key, stats_matches):
-        stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)
+        stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)['individual']
         return self._csv(event_key + '_scouting_stats_', stats)
 
 

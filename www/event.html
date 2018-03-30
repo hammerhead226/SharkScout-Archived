@@ -60,6 +60,12 @@
                     <span class="badge">${len(page['stats'])}</span>
                 </a>
             </li>
+            <li role="presentation" py:if="'scatter' in page and page['scatter']">
+                <a href="#comparison" role="tab" data-toggle="tab">
+                    <span class="far fa-chart-bar"></span>&nbsp;&nbsp;Comparison
+                    <span class="badge">${len(page['scatter']['dataset'])}</span>
+                </a>
+            </li>
             <li role="presentation" py:if="'awards' in page['event'] and page['event']['awards']">
                 <a href="#awards" role="tab" data-toggle="tab">
                     <span class="fas fa-trophy"></span>&nbsp;&nbsp;Awards
@@ -187,6 +193,59 @@
                         </div>
                         <br />
                         ${stats_listing(page['stats'])}
+                    </div>
+                </div>
+            </div>
+            <div id="comparison" role="tabpanel" class="tab-page" py:if="'scatter' in page and page['scatter']">
+                <div class="panel panel-default">
+                    <div class="panel-heading clearfix">
+                        <span class="far fa-chart-bar"></span>&nbsp;&nbsp;Scouting Comparison -
+                        <py:choose>
+                            <py:when test="page['stats_matches'] == 0">All Matches</py:when>
+                            <py:when test="page['stats_matches'] > 0">First ${page['stats_matches']} Matches</py:when>
+                            <py:when test="page['stats_matches'] &lt; 0">Last ${page['stats_matches']*-1} Matches</py:when>
+                        </py:choose>
+                    </div>
+                    <div class="panel-body scroll-x">
+                        <div class="clearfix">
+                            <div class="pull-left">
+                                <a href="/event/${page['event']['key']}#stats" class="btn ${'btn-default' if page['stats_matches'] == 0 else 'btn-primary'}">
+                                    <span class="fas fa-chevron-up"></span>&nbsp;&nbsp;All Matches
+                                </a>
+                                <a href="/event/${page['event']['key']}/5#stats" class="btn ${'btn-default' if page['stats_matches'] == 5 else 'btn-primary'}">
+                                    <span class="fas fa-chevron-left"></span>&nbsp;&nbsp;First 5 Matches
+                                </a>
+                                <a href="/event/${page['event']['key']}/-5#stats" class="btn ${'btn-default' if page['stats_matches'] == -5 else 'btn-primary'}">
+                                    <span class="fas fa-chevron-right"></span>&nbsp;&nbsp;Last 5 Matches
+                                </a>
+                            </div>
+                        </div>
+                        <br />
+                        <canvas
+                            class="chart"
+                            style="height:500px;"
+                            data-type="scatter"></canvas>
+                        <input type="hidden" name="axes" value="${json.dumps(page['scatter']['axes'])}"></input>
+                        <input type="hidden" name="values" value="${json.dumps(page['scatter']['dataset'])}"></input>
+                        <br />
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>${page['scatter']['axes']['x']}</th>
+                                    <th>${page['scatter']['axes']['y']}</th>
+                                    <th>${page['scatter']['axes']['radius']}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr py:for="team in page['scatter']['dataset']">
+                                    <td>${team}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['x'] or 0, 2)}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['y'] or 0, 2)}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['radius'] or 0, 2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

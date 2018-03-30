@@ -453,9 +453,19 @@ class Mongo(object):
         event = self.event(event_key)
         year_json = os.path.join(os.path.dirname(sys.argv[0]), 'stats', str(event['year']) + '.json')
         if not os.path.exists(year_json):
-            return []
+            return {
+                'individual': [],
+                'scatter': []
+            }
         with open(year_json, 'r') as f:
             year_stats = hjson.load(f)
+            year_individual = year_stats
+            year_scatter = {}
+            if isinstance(year_stats, dict):
+                if 'individual' in year_stats:
+                    year_individual = year_stats['individual']
+                if 'scatter' in year_stats:
+                    year_scatter = year_stats['scatter']
 
         aggregation = [
             # Get matches from TBA data (so they're in order)
@@ -533,7 +543,7 @@ class Mongo(object):
             }},
             {'$unwind': '$matches'}
         ]
-        aggregation.extend(year_stats)
+        aggregation.extend(year_individual)
         aggregation.extend([
             {'$addFields': {
                '_team_number':  {'$ifNull': ['$_team_number', '$_id']}
@@ -544,13 +554,14 @@ class Mongo(object):
             }}
         ])
 
-        stats = list(self.tba_events.aggregate(aggregation))
-        for idx, team in enumerate(stats):
-            for key in team:
-                if sharkscout.Util.isnumeric(team[key]):
-                    stats[idx][key] = round(team[key], 2)
-
-        return stats
+        individual = list(self.tba_events.aggregate(aggregation))
+        return {
+            'individual': individual,
+            'scatter': {
+                'axes': year_scatter['axes'],
+                'dataset': {t['_team_number']:{k:t[year_scatter['dataset'][k]] for k in year_scatter['dataset']} for t in individual}
+            } if year_scatter else year_scatter
+        }
 
     # List of all teams
     def teams(self):
