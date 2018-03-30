@@ -171,7 +171,7 @@
         ${match['match_number']}
     </py:def>
 
-    <py:def function="match_listing(matches)">
+    <py:def function="match_listing(matches, team={})">
         <table class="table table-bordered table-striped text-center match-listing">
             <?python
                 # Find all alliances
@@ -210,7 +210,15 @@
                 </tr>
             </thead>
             <tbody>
-                <py:for each="match in matches">
+                <py:for each="match_idx, match in enumerate(matches)">
+                    <py:choose>
+                        <tr py:when="match_idx == 0 or (match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and datetime.fromtimestamp(match['time']).strftime('%d') != datetime.fromtimestamp(matches[match_idx-1]['time']).strftime('%d'))">
+                            <td colspan="99" class="strong">${datetime.fromtimestamp(match['time']).strftime('%A, %B %d, %Y')}</td>
+                        </tr>
+                        <tr py:when="not team and match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and match['time'] > matches[match_idx-1]['time'] + 2700">
+                            <td colspan="99">${round((match['time'] - matches[match_idx-1]['time']) / 60)} Minute Break</td>
+                        </tr>
+                    </py:choose>
                     <!--! Full table -->
                     <tr class="visible-md visible-lg ${match['key']}">
                         <td>

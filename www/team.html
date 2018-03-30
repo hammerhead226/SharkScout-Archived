@@ -60,7 +60,7 @@
                         ${event_info(event, page['team'])}
                     </div>
                     <div class="col-md-7" py:if="'matches' in event and event['matches']">
-                        ${match_listing(event['matches'])}
+                        ${match_listing(event['matches'], page['team'])}
                     </div>
                 </div>
             </py:for>
