@@ -63,6 +63,7 @@
             <li role="presentation" py:if="'scatter' in page and page['scatter']">
                 <a href="#comparison" role="tab" data-toggle="tab">
                     <span class="far fa-chart-bar"></span>&nbsp;&nbsp;Comparison
+                    <span class="badge">${len(page['scatter']['dataset'])}</span>
                 </a>
             </li>
             <li role="presentation" py:if="'awards' in page['event'] and page['event']['awards']">
@@ -239,9 +240,9 @@
                             <tbody>
                                 <tr py:for="team in page['scatter']['dataset']">
                                     <td>${team}</td>
-                                    <td>${round(page['scatter']['dataset'][team]['x'],2)}</td>
-                                    <td>${round(page['scatter']['dataset'][team]['y'],2)}</td>
-                                    <td>${round(page['scatter']['dataset'][team]['radius'],2)}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['x'] or 0, 2)}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['y'] or 0, 2)}</td>
+                                    <td>${round(page['scatter']['dataset'][team]['radius'] or 0, 2)}</td>
                                 </tr>
                             </tbody>
                         </table>
