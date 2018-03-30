@@ -52,9 +52,9 @@ if __name__ == '__main__':
 
     # mongorestore
     build_restored = False
-    if not args.restore and not mongo.tba_count:
-        build_dump = os.path.join(os.path.dirname(__file__), 'mongodump.gz')
-        if os.path.exists(build_dump):
+    build_dump = os.path.join(os.path.dirname(__file__), 'mongodump.gz')
+    if os.path.exists(build_dump):
+        if not args.restore and not mongo.tba_count:
             args.restore = build_dump
             build_restored = True
     if args.restore:
