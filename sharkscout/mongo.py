@@ -683,5 +683,5 @@ class Mongo(object):
 
     # TBA update all events a team is attending in a given year
     def team_update_events(self, team_key, year):
-        for event in self.tba_api.team_events(team_key, int(year)):
+        for event in self.tba_api.team_events(team_key, int(year), True):
             self.event_update(event['key'])
