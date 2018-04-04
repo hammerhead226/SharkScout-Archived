@@ -1,12 +1,26 @@
+import base64
 import collections
 import os
 import psutil
 import re
 import socket
 import string
+import urllib
+
+import requests
 
 
 class Util(object):
+    @staticmethod
+    def favicon(url):
+        if url:
+            try:
+                response = requests.get('https://www.google.com/s2/favicons', {'domain':url}, stream=True)
+                return 'data:' + response.headers['Content-Type'] + ';base64,' + base64.b64encode(response.raw.read()).decode()
+            except Exception:
+                pass
+        return None
+
     @staticmethod
     def flatten(iterable):
         for item in iterable:
