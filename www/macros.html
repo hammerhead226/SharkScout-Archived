@@ -560,7 +560,10 @@
                 <py:if test="show in ['both','icon']"><span class="${icon}"></span><py:if test="show in ['both','title']">&nbsp;</py:if></py:if>
             </a>
             <a href="${link}" target="_blank" py:strip="not link or href != 'title'">
-                <py:if test="show in ['both','title']">${title}</py:if>
+                <py:if test="show in ['both','title']">
+                    ${title}
+                    <py:if test="link and href == 'title'">&nbsp;<span class="fas fa-external-link-alt"></span></py:if>
+                </py:if>
             </a>
         </a>
     </py:def>
