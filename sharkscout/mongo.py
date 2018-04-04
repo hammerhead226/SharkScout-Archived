@@ -254,7 +254,8 @@ class Mongo(object):
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
                 'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
-                'matches': self.tba_api.event_matches(event_key)
+                'matches': self.tba_api.event_matches(event_key),
+                'favicon': sharkscout.Util.favicon(event['website'] if 'website' in event else '')
             }.items() if v})
             # Info that can't be known before an event starts
             if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():

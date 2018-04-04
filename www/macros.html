@@ -105,7 +105,10 @@
             </a>
         </h5>
         <h5 py:if="event['website']">
-            <span class="fas fa-link"></span>
+            <py:choose>
+                <img src="${event['favicon']}" class="favicon" py:when="'favicon' in event and event['favicon']"></img>
+                <span class="fas fa-link" py:otherwise=""></span>
+            </py:choose>
             <a href="${event['website']}" target="_blank">
                 ${event['website']}
                 &nbsp;<span class="fas fa-external-link-alt"></span>
