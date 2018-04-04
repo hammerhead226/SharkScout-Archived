@@ -638,7 +638,8 @@ class Mongo(object):
             team.update({k:v for k, v in {
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)},
-                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else '')
+                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else ''),
+                'media': self.tba_api.team_media(team_key)
             }.items() if v})
         team['modified_timestamp'] = datetime.utcnow()
         self.tba_teams.update_one({

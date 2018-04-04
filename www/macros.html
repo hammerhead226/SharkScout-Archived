@@ -407,6 +407,7 @@
                             <py:if test="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
                                 <span class="badge ${district['abbreviation'].lower()}" title="${district['year']} ${district['display_name']} District" py:with="district = team['districts'][str(page['year'])]">${district['abbreviation'].upper()}</span>
                             </py:if>
+                            <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" class="favicon" py:if="'media' in team and 'avatar' in team['media']"></img>
                             <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
                                 <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
                                 <py:when test="team['nickname']">${team['nickname']}</py:when>
@@ -435,6 +436,7 @@
         <h2>
             <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
             <span class="badge ${team['districts'][str(page['year'])]['abbreviation'].lower()}" title="${team['districts'][str(page['year'])]['year']} ${team['districts'][str(page['year'])]['display_name']} District" py:if="'districts' in team and team['districts'] and str(page['year']) in team['districts']">${team['districts'][str(page['year'])]['abbreviation'].upper()}</span>
+            <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" py:if="'media' in team and 'avatar' in team['media']"></img>
             <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
         </h2>
         <h4><strong><em>${team['motto']}</em></strong></h4>
@@ -446,7 +448,7 @@
         <h5><span class="far fa-id-card"></span>&nbsp;&nbsp;${team['name']}</h5>
         <h5 py:if="team['website']">
             <py:choose>
-                <img src="${team['favicon']}" style="height:16px; vertical-align:bottom;" py:when="'favicon' in team and team['favicon']"></img>
+                <img src="${team['favicon']}" class="favicon" py:when="'favicon' in team and team['favicon']"></img>
                 <span class="fas fa-link" py:otherwise=""></span>
             </py:choose>
             <a href="${team['website']}" target="_blank">

@@ -146,6 +146,7 @@ h5 > .badge, .h5 > .badge {
 
 .trim-text {
     display: inline-flex;
+    align-items: center;
 }
 
 .hide-next + .hide-next {
@@ -334,6 +335,11 @@ body {
 
 .font-25vh {
     font-size: calc(25vh);
+}
+
+.favicon {
+    max-width: 16px;
+    max-height: 16px;
 }
 
 /* CSS tricks */

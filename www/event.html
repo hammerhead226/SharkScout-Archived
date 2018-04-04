@@ -149,6 +149,7 @@
                             <td py:for="team_key in alliance['picks']" py:choose="">
                                 <py:when test="'teams' in page['event'] and page['event']['teams'] and [t for t in page['event']['teams'] if t['key'] == team_key]">
                                     <py:with vars="team = [t for t in page['event']['teams'] if t['key'] == team_key][0]">
+                                        <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" class="favicon" py:if="'media' in team and 'avatar' in team['media']"></img>
                                         <a href="/team/${team['key']}/${page['event']['year']}">${team['team_number']} - ${team['nickname']}</a>
                                         <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
                                     </py:with>
@@ -271,7 +272,10 @@
                                         <py:choose>
                                             <py:when test="recipient['team_number'] and 'teams' in page['event'] and page['event']['teams']">
                                                 <py:choose py:with="teams = [t for t in page['event']['teams'] if int(t['team_number']) == int(recipient_team_number_normalized)]; team = teams[0] if len(teams) > 0 else []">
-                                                    <a href="/team/${team['key']}/${page['event']['year']}" py:when="team">${recipient_team_number_normalized} - ${team['nickname']}</a>
+                                                    <py:when test="team">
+                                                        <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" class="favicon" py:if="'media' in team and 'avatar' in team['media']"></img>&nbsp;
+                                                        <a href="/team/${team['key']}/${page['event']['year']}">${recipient_team_number_normalized} - ${team['nickname']}</a>
+                                                    </py:when>
                                                     <py:otherwise>${recipient_team_number_normalized}</py:otherwise>
                                                 </py:choose>
                                             </py:when>
