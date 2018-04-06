@@ -242,7 +242,7 @@
                         <tr py:when="'time' in match and match['time'] and (match_idx == 0 or (match_idx > 0 and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and datetime.fromtimestamp(match['time']).strftime('%d') != datetime.fromtimestamp(matches[match_idx-1]['time']).strftime('%d')))">
                             <td colspan="99" class="strong">${datetime.fromtimestamp(match['time']).strftime('%A, %B %d, %Y')}</td>
                         </tr>
-                        <tr py:when="not team and match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and match['time'] > matches[match_idx-1]['time'] + 2700">
+                        <tr py:when="not team and match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and match['time'] > matches[match_idx-1]['time'] + 1800">
                             <td colspan="99">${round((match['time'] - matches[match_idx-1]['time']) / 60)} Minute Break</td>
                         </tr>
                     </py:choose>
