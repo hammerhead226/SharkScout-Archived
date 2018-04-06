@@ -49,6 +49,7 @@ cd "$(dirname "$0")"
 
 	# panr + bt-pan
 	sudo apt-get -y install bluez bridge-utils ipcalc python python-dbus udhcpd
+	sudo update-rc.d udhcpd disable
 	wget -N https://raw.githubusercontent.com/mk-fg/fgtk/master/bt-pan
 	chmod +x bt-pan
 	wget -N https://raw.githubusercontent.com/emmercm/panr/master/panr
