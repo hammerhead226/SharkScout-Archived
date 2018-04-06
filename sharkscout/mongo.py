@@ -248,14 +248,14 @@ class Mongo(object):
             pass  # "No operations to execute"
 
     # TBA update an individual event
-    def event_update(self, event_key):
+    def event_update(self, event_key, update_favicon=False):
         event = self.tba_api.event(event_key, True)
         if event:
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
                 'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
                 'matches': self.tba_api.event_matches(event_key),
-                'favicon': sharkscout.Util.favicon(event['website'] if 'website' in event else '')
+                'favicon': sharkscout.Util.favicon(event['website'] if 'website' in event else '') if update_favicon else None
             }.items() if v})
             # Info that can't be known before an event starts
             if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
@@ -633,13 +633,13 @@ class Mongo(object):
             return {}
 
     # TBA update an individual team
-    def team_update(self, team_key):
+    def team_update(self, team_key, update_favicon=False):
         team = self.tba_api.team(team_key, True)
         if team:
             team.update({k:v for k, v in {
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)},
-                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else ''),
+                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else '') if update_favicon else None,
                 'media': self.tba_api.team_media(team_key)
             }.items() if v})
             team['modified_timestamp'] = datetime.utcnow()
