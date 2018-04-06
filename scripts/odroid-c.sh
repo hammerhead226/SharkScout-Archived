@@ -23,9 +23,8 @@ cd "$(dirname "$0")"
 	sudo rm /etc/localtime
 	sudo ln -s /usr/share/zoneinfo/US/Eastern /etc/localtime
 
-	# Turn off startup fsck (potentially dangerous)
-	sudo sed -i 's/1$/0/g' /etc/fstab
-	sudo tune2fs -c 0 -i 0 -l /dev/mmcblk0p2
+	# Drastically shorten startup network check
+	sudo sed -i 's/TimeoutStartSec=.\+/TimeoutStartSec=30sec/g' /etc/systemd/system/network-online.target.wants/networking.service
 
 	# ODROID C1/C2 LCD
 	if [ "$(systemctl | grep odroid-lcd35)" == "" ]; then
