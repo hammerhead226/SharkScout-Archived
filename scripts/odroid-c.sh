@@ -23,8 +23,10 @@ cd "$(dirname "$0")"
 	sudo rm /etc/localtime
 	sudo ln -s /usr/share/zoneinfo/US/Eastern /etc/localtime
 
-	# Drastically shorten startup network check
-	sudo sed -i 's/TimeoutStartSec=.\+/TimeoutStartSec=30sec/g' /etc/systemd/system/network-online.target.wants/networking.service
+	# Drastically shorten all service startups
+	for FILE in $(sudo grep --recursive --files-with-matches 5min /*/systemd/ 2>/dev/null); do
+		sudo sed --in-place 's/TimeoutStartSec=.\+/TimeoutStartSec=30sec/g' "${FILE}"
+	done
 
 	# ODROID C1/C2 LCD
 	if [ "$(systemctl | grep odroid-lcd35)" == "" ]; then
