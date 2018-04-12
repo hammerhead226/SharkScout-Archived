@@ -60,7 +60,7 @@
                     <span class="badge">${len(page['stats'])}</span>
                 </a>
             </li>
-            <li role="presentation" py:if="'scatter' in page and page['scatter']">
+            <li role="presentation" py:if="'scatter' in page and 'dataset' in page['scatter'] and page['scatter']['dataset']">
                 <a href="#comparison" role="tab" data-toggle="tab">
                     <span class="far fa-chart-bar"></span>&nbsp;&nbsp;Comparison
                     <span class="badge">${len(page['scatter']['dataset'])}</span>
@@ -197,7 +197,7 @@
                     </div>
                 </div>
             </div>
-            <div id="comparison" role="tabpanel" class="tab-page" py:if="'scatter' in page and page['scatter']">
+            <div id="comparison" role="tabpanel" class="tab-page" py:if="'scatter' in page and 'dataset' in page['scatter'] and page['scatter']['dataset']">
                 <div class="panel panel-default">
                     <div class="panel-heading clearfix">
                         <span class="far fa-chart-bar"></span>&nbsp;&nbsp;Scouting Comparison -
