@@ -285,7 +285,7 @@
                     "then": {"$concat": [
                         "$matches.number",
                         " ",
-                        "$matches.comments_offense"
+                        {"$substr": ["$matches.comments_offense", 0, -1]}
                     ]},
                     "else": ""
                 }
@@ -296,7 +296,7 @@
                     "then": {"$concat": [
                         "$matches.number",
                         " ",
-                        "$matches.comments_defense"
+                        {"$substr": ["$matches.comments_defense", 0, -1]}
                     ]},
                     "else": ""
                 }
