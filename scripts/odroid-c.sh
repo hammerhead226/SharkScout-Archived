@@ -93,7 +93,9 @@ cd "$(dirname "$0")"
 (
 	sleep 10s
 	cd SharkScout
-	sed -i 's/\r\n/\n/g' *.py
+	for FILE in $(grep --recursive --files-with-matches "\r" *.py); do
+		sed --in-place 's/\r//g' "${FILE}"
+	done
 	while [ "" == "" ]; do
 		sudo ./SharkScout.py --port 80 --no-browser &> /dev/null
 	done
