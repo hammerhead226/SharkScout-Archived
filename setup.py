@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 import argparse
-import pip
+
+try:
+    from pip import main as pipmain
+except:
+    from pip._internal import main as pipmain
 
 
 if __name__ == '__main__':
@@ -10,7 +14,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.command == 'install':
-        pip.main([
+        pipmain([
             'install',
             'backoff',
             'cherrypy',
