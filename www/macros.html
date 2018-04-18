@@ -43,7 +43,7 @@
                         </span>
                         <span class="pull-right hidden-sm hidden-xs">
                             <a href="/event/${event['key']}#teams" py:if="'teams' in event and event['teams']">
-                                <span class="badge">${len(event['teams']) if 'teams' in event else 0} teams</span>
+                                <span class="badge">${len(event['teams']) if 'teams' in event else 0} team<py:if test="len(event['teams']) > 1">s</py:if></span>
                             </a>
                         </span>
                     </td>
@@ -79,7 +79,7 @@
             <span class="badge ${event['district']['abbreviation'].lower()}" title="${event['district']['year']} ${event['district']['display_name']} District" py:if="event['district']">${event['district']['abbreviation'].upper()}</span>
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
             <small>
-                <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
+                <span class="badge" py:if="'teams' in event">${len(event['teams'])} team<py:if test="len(event['teams']) > 1">s</py:if></span>
             </small>
         </h2>
         <h5>
