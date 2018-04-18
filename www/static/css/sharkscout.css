@@ -127,6 +127,13 @@ h5 > .badge, .h5 > .badge {
     padding: 3px 7px;
 }
 
+a:link,
+a:visited,
+a:hover,
+a:active {
+    text-decoration: none;
+}
+
 
 /***** Bootstrap Additions *****/
 

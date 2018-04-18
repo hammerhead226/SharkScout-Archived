@@ -131,7 +131,7 @@ function openSocket() {
                             '</div>',
                 'type': data.toast.type,
                 'offset': {
-                    'y': 65,
+                    'y': 10,
                     'x': 10
                 },
                 'mouse_over': 'pause'
