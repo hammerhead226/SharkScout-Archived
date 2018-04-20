@@ -205,9 +205,9 @@ class Mongo(object):
                     for alliance in match['alliances']:
                         if match['key'] in scouting_matches and alliance in scouting_matches[match['key']]['alliances']:
                             if 'team_keys' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['team_keys'] = list(set(match['alliances'][alliance]['team_keys'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                                match['alliances'][alliance]['team_keys'] += [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams'] if t not in match['alliances'][alliance]['team_keys']]
                             if 'teams' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['teams'] = list(set(match['alliances'][alliance]['teams'] + scouting_matches[match['key']]['alliances'][alliance]['teams']))
+                                match['alliances'][alliance]['teams'] += [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams'] if t not in match['alliances'][alliance]['teams']]
                     # Attach scouting data to matches
                     if match['key'] in scouting_match_teams:
                         match['scouting'] = scouting_match_teams[match['key']]
@@ -248,13 +248,14 @@ class Mongo(object):
             pass  # "No operations to execute"
 
     # TBA update an individual event
-    def event_update(self, event_key):
+    def event_update(self, event_key, update_favicon=False):
         event = self.tba_api.event(event_key, True)
         if event:
             # Info that can be known before an event starts
             event.update({k:v for k, v in {
                 'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
-                'matches': self.tba_api.event_matches(event_key)
+                'matches': self.tba_api.event_matches(event_key),
+                'favicon': sharkscout.Util.favicon(event['website'] if 'website' in event else '') if update_favicon else None
             }.items() if v})
             # Info that can't be known before an event starts
             if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
@@ -264,13 +265,13 @@ class Mongo(object):
                     'awards': self.tba_api.event_awards(event_key),
                     'alliances': self.tba_api.event_alliances(event_key)
                 }.items() if v})
-        event['modified_timestamp'] = datetime.utcnow()
-        self.tba_events.update_one({
-            'key': event_key
-        }, {
-            '$set': event,
-            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-        }, upsert=True)
+            event['modified_timestamp'] = datetime.utcnow()
+            self.tba_events.update_one({
+                'key': event_key
+            }, {
+                '$set': event,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # List of matches with scouting data
     def scouting_matches(self, event_key):
@@ -632,20 +633,22 @@ class Mongo(object):
             return {}
 
     # TBA update an individual team
-    def team_update(self, team_key):
+    def team_update(self, team_key, update_favicon=False):
         team = self.tba_api.team(team_key, True)
         if team:
             team.update({k:v for k, v in {
                 'awards': self.tba_api.team_history_awards(team_key),
-                'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)}
+                'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)},
+                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else '') if update_favicon else None,
+                'media': self.tba_api.team_media(team_key)
             }.items() if v})
-        team['modified_timestamp'] = datetime.utcnow()
-        self.tba_teams.update_one({
-            'key': team_key
-        }, {
-            '$set': team,
-            '$setOnInsert': {'created_timestamp': datetime.utcnow()}
-        }, upsert=True)
+            team['modified_timestamp'] = datetime.utcnow()
+            self.tba_teams.update_one({
+                'key': team_key
+            }, {
+                '$set': team,
+                '$setOnInsert': {'created_timestamp': datetime.utcnow()}
+            }, upsert=True)
 
     # Years that a team competed
     def team_stats(self, team_key):
@@ -680,5 +683,5 @@ class Mongo(object):
 
     # TBA update all events a team is attending in a given year
     def team_update_events(self, team_key, year):
-        for event in self.tba_api.team_events(team_key, int(year)):
+        for event in self.tba_api.team_events(team_key, int(year), True):
             self.event_update(event['key'])

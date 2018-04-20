@@ -43,13 +43,16 @@
                         </span>
                         <span class="pull-right hidden-sm hidden-xs">
                             <a href="/event/${event['key']}#teams" py:if="'teams' in event and event['teams']">
-                                <span class="badge">${len(event['teams']) if 'teams' in event else 0} teams</span>
+                                <span class="badge">${len(event['teams']) if 'teams' in event else 0} team<py:if test="len(event['teams']) > 1">s</py:if></span>
                             </a>
                         </span>
                     </td>
                     <td>
                         <span class="${flag_icon_css(event['location'])}"></span>
-                        <a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">${event['location']}</a>
+                        <a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">
+                            ${event['location']}
+                            &nbsp;<span class="fas fa-external-link-alt"></span>
+                        </a>
                     </td>
                     <td>
                         <py:choose>
@@ -76,7 +79,7 @@
             <span class="badge ${event['district']['abbreviation'].lower()}" title="${event['district']['year']} ${event['district']['display_name']} District" py:if="event['district']">${event['district']['abbreviation'].upper()}</span>
             <a href="/event/${event['key']}">${event['year']} ${event['name']}</a>
             <small>
-                <span class="badge" py:if="'teams' in event">${len(event['teams'])} teams</span>
+                <span class="badge" py:if="'teams' in event">${len(event['teams'])} team<py:if test="len(event['teams']) > 1">s</py:if></span>
             </small>
         </h2>
         <h5>
@@ -96,11 +99,35 @@
         <h5>
             <span class="fas fa-map-marker-alt"></span>&nbsp;
             <span class="${flag_icon_css(event['location'])}"></span>
-            <a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">${event['venue_address'] or event['location']}</a>
+            <a href="https://www.google.com/maps/search/${event['venue_address'] or event['location']}" target="_blank">
+                ${event['venue_address'] or event['location']}
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
         </h5>
-        <h5 py:if="event['website']"><span class="fas fa-link"></span>&nbsp;&nbsp;<a href="${event['website']}" target="_blank">${event['website']}</a></h5>
-        <h5><span class="far fa-lightbulb fa-rotate-180"></span>&nbsp;&nbsp;<a href="https://www.thebluealliance.com/event/${event['key']}" target="_blank">The Blue Alliance</a></h5>
-        <h5 py:if="'facebook_eid' in event and event['facebook_eid']"><span class="fab fa-facebook"></span>&nbsp;&nbsp;<a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">Facebook</a></h5>
+        <h5 py:if="event['website']">
+            <py:choose>
+                <img src="${event['favicon']}" class="favicon" py:when="'favicon' in event and event['favicon']"></img>
+                <span class="fas fa-link" py:otherwise=""></span>
+            </py:choose>
+            <a href="${event['website']}" target="_blank">
+                ${event['website']}
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
+        </h5>
+        <h5>
+            <span class="far fa-lightbulb fa-rotate-180"></span>
+            <a href="https://www.thebluealliance.com/event/${event['key']}" target="_blank">
+                The Blue Alliance
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
+        </h5>
+        <h5 py:if="'facebook_eid' in event and event['facebook_eid']">
+            <span class="fab fa-facebook"></span>
+            <a href="https://www.facebook.com/events/${event['facebook_eid']}" target="_blank">
+                Facebook
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
+        </h5>
         <h5 py:for="webcast in event['webcast']" py:if="'webcast' in event">${video_icon(webcast, 'both', 'title')}</h5>
         <py:if test="team">
             <py:if test="'rankings' in event and str(team['team_number']) in event['rankings']" py:with="ranking = event['rankings'][str(team['team_number'])]">
@@ -215,7 +242,7 @@
                         <tr py:when="'time' in match and match['time'] and (match_idx == 0 or (match_idx > 0 and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and datetime.fromtimestamp(match['time']).strftime('%d') != datetime.fromtimestamp(matches[match_idx-1]['time']).strftime('%d')))">
                             <td colspan="99" class="strong">${datetime.fromtimestamp(match['time']).strftime('%A, %B %d, %Y')}</td>
                         </tr>
-                        <tr py:when="not team and match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and match['time'] > matches[match_idx-1]['time'] + 2700">
+                        <tr py:when="not team and match_idx > 0 and 'time' in match and match['time'] and 'time' in matches[match_idx-1] and matches[match_idx-1]['time'] and match['time'] > matches[match_idx-1]['time'] + 1800">
                             <td colspan="99">${round((match['time'] - matches[match_idx-1]['time']) / 60)} Minute Break</td>
                         </tr>
                     </py:choose>
@@ -383,6 +410,7 @@
                             <py:if test="'districts' in team and team['districts'] and str(page['year']) in team['districts']">
                                 <span class="badge ${district['abbreviation'].lower()}" title="${district['year']} ${district['display_name']} District" py:with="district = team['districts'][str(page['year'])]">${district['abbreviation'].upper()}</span>
                             </py:if>
+                            <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" class="favicon" py:if="'media' in team and 'avatar' in team['media']"></img>
                             <a href="/team/${team['key']}${'/'+str(event['year']) if event else ''}" py:choose="">
                                 <py:when test="len(team['nickname']) &gt; 100">${team['nickname'][:97]}...</py:when>
                                 <py:when test="team['nickname']">${team['nickname']}</py:when>
@@ -399,6 +427,7 @@
                             <py:when test="not team['locality']" />
                             <py:when test="team['country_name'] == 'USA' or team['country_name'] == 'Canada'">${team['locality']}, ${team['region']}</py:when>
                             <py:otherwise>${team['locality']}, ${team['country_name']}</py:otherwise>
+                            &nbsp;<span class="fas fa-external-link-alt"></span>
                         </a>
                     </td>
                 </tr>
@@ -410,6 +439,7 @@
         <h2>
             <span class="fas fa-home" title="Home Team" py:if="int(team['team_number']) == int(session['team_number'] or -1)"></span>
             <span class="badge ${team['districts'][str(page['year'])]['abbreviation'].lower()}" title="${team['districts'][str(page['year'])]['year']} ${team['districts'][str(page['year'])]['display_name']} District" py:if="'districts' in team and team['districts'] and str(page['year']) in team['districts']">${team['districts'][str(page['year'])]['abbreviation'].upper()}</span>
+            <img src="data:image/png;base64,${team['media']['avatar']['details']['base64Image']}" py:if="'media' in team and 'avatar' in team['media']"></img>
             <a href="/team/${team['key']}">Team ${team['team_number']} &mdash; ${team['nickname']}</a>
         </h2>
         <h4><strong><em>${team['motto']}</em></strong></h4>
@@ -419,12 +449,30 @@
             District
         </h4>
         <h5><span class="far fa-id-card"></span>&nbsp;&nbsp;${team['name']}</h5>
-        <h5 py:if="team['website']"><span class="fas fa-link"></span>&nbsp;&nbsp;<a href="${team['website']}" target="_blank">${team['website']}</a></h5>
-        <h5><span class="far fa-lightbulb fa-rotate-180"></span>&nbsp;&nbsp;<a href="hhttps://www.thebluealliance.com/team/${team['team_number']}" target="_blank">The Blue Alliance</a></h5>
+        <h5 py:if="team['website']">
+            <py:choose>
+                <img src="${team['favicon']}" class="favicon" py:when="'favicon' in team and team['favicon']"></img>
+                <span class="fas fa-link" py:otherwise=""></span>
+            </py:choose>
+            <a href="${team['website']}" target="_blank">
+                ${team['website']}
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
+        </h5>
+        <h5>
+            <span class="far fa-lightbulb fa-rotate-180"></span>
+            <a href="hhttps://www.thebluealliance.com/team/${team['team_number']}" target="_blank">
+                The Blue Alliance
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
+        </h5>
         <h5 py:if="team['location']">
             <span class="fas fa-map-marker-alt"></span>&nbsp;
             <span class="${flag_icon_css(team['country_name'])}"></span>
-            <a href="https://www.google.com/maps/search/${team['location']}" target="_blank">${team['location']}</a>
+            <a href="https://www.google.com/maps/search/${team['location']}" target="_blank">
+                ${team['location']}
+                &nbsp;<span class="fas fa-external-link-alt"></span>
+            </a>
         </h5>
         <h5 py:if="team['rookie_year']"><span class="fas fa-child"></span>&nbsp;&nbsp;Rookie Year: ${team['rookie_year']}</h5>
     </py:def>
@@ -515,7 +563,10 @@
                 <py:if test="show in ['both','icon']"><span class="${icon}"></span><py:if test="show in ['both','title']">&nbsp;</py:if></py:if>
             </a>
             <a href="${link}" target="_blank" py:strip="not link or href != 'title'">
-                <py:if test="show in ['both','title']">${title}</py:if>
+                <py:if test="show in ['both','title']">
+                    ${title}
+                    <py:if test="link and href == 'title'">&nbsp;<span class="fas fa-external-link-alt"></span></py:if>
+                </py:if>
             </a>
         </a>
     </py:def>

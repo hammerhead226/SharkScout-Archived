@@ -179,7 +179,11 @@ class TheBlueAlliance(object):
         return self._get('team/' + team_key + '/years_participated', ignore_cache)
 
     def team_media(self, team_key, year=None, ignore_cache=False):
-        return self._get('team/' + team_key + '/media' + ('/' + str(year) if year else ''), ignore_cache)
+        if year is None:
+            year = date.today().year
+        media = self._get('team/' + team_key + '/media/' + str(year), ignore_cache)
+        media = {m['type']:m for m in media}
+        return media
 
     def team_robots(self, team_key, ignore_cache=False):
         return self._get('team/' + team_key + '/robots', ignore_cache)

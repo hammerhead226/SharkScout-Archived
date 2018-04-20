@@ -23,9 +23,10 @@ cd "$(dirname "$0")"
 	sudo rm /etc/localtime
 	sudo ln -s /usr/share/zoneinfo/US/Eastern /etc/localtime
 
-	# Turn off startup fsck (potentially dangerous)
-	sudo sed -i 's/1$/0/g' /etc/fstab
-	sudo tune2fs -c 0 -i 0 -l /dev/mmcblk0p2
+	# Drastically shorten all service startups
+	for FILE in $(sudo grep --recursive --files-with-matches 5min /*/systemd/ 2>/dev/null); do
+		sudo sed --in-place 's/TimeoutStartSec=.\+/TimeoutStartSec=30sec/g' "${FILE}"
+	done
 
 	# ODROID C1/C2 LCD
 	if [ "$(systemctl | grep odroid-lcd35)" == "" ]; then
@@ -50,6 +51,7 @@ cd "$(dirname "$0")"
 
 	# panr + bt-pan
 	sudo apt-get -y install bluez bridge-utils ipcalc python python-dbus udhcpd
+	sudo update-rc.d udhcpd disable
 	wget -N https://raw.githubusercontent.com/mk-fg/fgtk/master/bt-pan
 	chmod +x bt-pan
 	wget -N https://raw.githubusercontent.com/emmercm/panr/master/panr
@@ -91,7 +93,9 @@ cd "$(dirname "$0")"
 (
 	sleep 10s
 	cd SharkScout
-	sed -i 's/\r\n/\n/g' *.py
+	for FILE in $(grep --recursive --files-with-matches "\r" *.py); do
+		sed --in-place 's/\r//g' "${FILE}"
+	done
 	while [ "" == "" ]; do
 		sudo ./SharkScout.py --port 80 --no-browser &> /dev/null
 	done
