@@ -36,7 +36,7 @@ var queue = function(key, val) {
 
 var ws_online = true;
 function openSocket() {
-    var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws'
+    var webSocket = 'ws://' + window.location.hostname + ':' + window.location.port + '/ws';
     var pingInterval;
     var pingCount = 0;
     var timeTeamInterval;
@@ -60,7 +60,7 @@ function openSocket() {
             }
             ws.send(JSON.stringify({'ping':'ping'}));
             pingCount++;
-        }
+        };
         pingInterval = setInterval(ping, 500);
         ping();
 
@@ -71,7 +71,7 @@ function openSocket() {
                 ws.send(JSON.stringify({'time_team':'frc' + _.trimStart(now.format('HHmm'),'0')}));
                 timeTeamLast = now;
             }
-        }
+        };
         timeTeamInterval = setInterval(timeTeam, 100);
         timeTeam();
 
@@ -79,7 +79,7 @@ function openSocket() {
             for(var key in queue()) {
                 if(queue(key).length) {
                     ws.send(JSON.stringify(queue()));
-                    $('#icon-queue').addClass('animated')
+                    $('#icon-queue').addClass('animated');
                     return;
                 }
             }
