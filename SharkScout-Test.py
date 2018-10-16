@@ -22,6 +22,7 @@ import sharkscout
 
 # SharkScout Scrapy spider
 class Spider(scrapy.spiders.Spider):
+    """ """
     name = 'spider'
     custom_settings = {
         'TELNETCONSOLE_ENABLED': False,  # why would this be on by default?
@@ -47,6 +48,11 @@ class Spider(scrapy.spiders.Spider):
         super(self.__class__, self).__init__(*args, **kwargs)
 
     def parse(self, response):
+        """
+
+        :param response: 
+
+        """
         # Stop on any error
         if response.status >= 400:
             raise scrapy.exceptions.CloseSpider(int(response.status))
@@ -80,6 +86,11 @@ class Spider(scrapy.spiders.Spider):
 
     # Remember why the spider stopped
     def closed(self, reason):
+        """
+
+        :param reason: 
+
+        """
         self.__class__.closed_reason = reason
 
 
@@ -102,6 +113,7 @@ if __name__ == '__main__':
     # Stop SharkScout on quit
     @atexit.register
     def goodbye():
+        """ """
         # Terminate any processes with an open port
         procs = [psutil.Process(sharkscout.Util.pid_of_port(p)) for p in sharkscout.Util.pid_tree_ports(server.pid)]
         for proc in procs:

@@ -9,6 +9,7 @@ from datetime import date
 
 
 class TheBlueAlliance(object):
+    """ """
     tba_auth_key = None
 
     def __init__(self, cache=None):
@@ -22,6 +23,12 @@ class TheBlueAlliance(object):
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint, ignore_cache=False):
+        """
+
+        :param endpoint: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         if self.__class__.tba_auth_key is None:
             return {}
 
@@ -54,6 +61,11 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_clean(models):
+        """
+
+        :param models: 
+
+        """
         if models is None:
             return models
         models_list = models if isinstance(models, list) else [models]
@@ -81,6 +93,11 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_to_tba2(models):
+        """
+
+        :param models: 
+
+        """
         if models is None:
             return models
         models_list = models if isinstance(models, list) else [models]
@@ -123,6 +140,11 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _team_map(teams):
+        """
+
+        :param teams: 
+
+        """
         for idx, team in enumerate(teams):
             if 'country_name' in team and team['country_name'] == 'USA':
                 states = {
@@ -146,12 +168,23 @@ class TheBlueAlliance(object):
         return teams
 
     def teams(self, page_num=0, ignore_cache=False):
+        """
+
+        :param page_num:  (Default value = 0)
+        :param ignore_cache:  (Default value = False)
+
+        """
         teams = self._get('teams/' + str(page_num), ignore_cache)
         teams = [t for t in teams if t['nickname'] and t['name'] != 'Team ' + str(t['team_number'])]
         teams = self._team_map(teams)
         return teams
 
     def teams_all(self, ignore_cache=False):
+        """
+
+        :param ignore_cache:  (Default value = False)
+
+        """
         teams = []
         page_num = 0
         while True:
@@ -163,27 +196,80 @@ class TheBlueAlliance(object):
         return teams
 
     def team(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key, ignore_cache)
 
     def team_awards(self, team_key, year=None, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param year:  (Default value = None)
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''), ignore_cache)
 
     def team_districts(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/districts', ignore_cache) or []
 
     def team_events(self, team_key, year=None, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param year:  (Default value = None)
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''), ignore_cache)
 
     def team_event_awards(self, team_key, event_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/event/' + event_key + '/awards', ignore_cache)
 
     def team_event_matches(self, team_key, event_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/event/' + event_key + '/matches', ignore_cache)
 
     def team_years_participated(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/years_participated', ignore_cache)
 
     def team_media(self, team_key, year=None, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param year:  (Default value = None)
+        :param ignore_cache:  (Default value = False)
+
+        """
         if year is None:
             year = date.today().year
         media = self._get('team/' + team_key + '/media/' + str(year), ignore_cache)
@@ -191,53 +277,131 @@ class TheBlueAlliance(object):
         return media
 
     def team_robots(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('team/' + team_key + '/robots', ignore_cache)
 
     # Deprecated
     def team_history_events(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self.team_events(team_key, None, ignore_cache)
 
     # Deprecated
     def team_history_awards(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self.team_awards(team_key, None, ignore_cache)
 
     # Deprecated
     def team_history_robots(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self.team_robots(team_key, ignore_cache)
 
     # Deprecated
     def team_history_districts(self, team_key, ignore_cache=False):
+        """
+
+        :param team_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self.team_districts(team_key, ignore_cache)
 
     def events(self, year=None, ignore_cache=False):
+        """
+
+        :param year:  (Default value = None)
+        :param ignore_cache:  (Default value = False)
+
+        """
         if year is None:
             year = date.today().year
         events = self._get('events/' + str(year), ignore_cache)
         return events if isinstance(events, list) else []
 
     def event(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key, ignore_cache)
 
     def event_teams(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         teams = self._get('event/' + event_key + '/teams', ignore_cache)
         teams = self._team_map(teams)
         return teams
 
     def event_matches(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         matches = self._get('event/' + event_key + '/matches', ignore_cache)
         return sorted(matches, key=lambda m: (m['time'] or 0))
 
     def event_oprs(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key + '/oprs', ignore_cache)
 
     # Deprecated
     def event_stats(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self.event_oprs(event_key, ignore_cache)
 
     def event_rankings_raw(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key + '/rankings', ignore_cache)
 
     def event_rankings_v2(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings and 'rankings' in rankings and rankings['rankings']:
             for idx, ranking in enumerate(rankings['rankings']):
@@ -254,6 +418,12 @@ class TheBlueAlliance(object):
         return []
 
     def event_rankings(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         rankings = self.event_rankings_v2(event_key, ignore_cache)
         if rankings:
             # Change value names to snake case
@@ -288,25 +458,74 @@ class TheBlueAlliance(object):
         return {}
 
     def event_awards(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key + '/awards', ignore_cache)
 
     def event_district_points(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key + '/district_points', ignore_cache)
 
     def event_alliances(self, event_key, ignore_cache=False):
+        """
+
+        :param event_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('event/' + event_key + '/alliances', ignore_cache)
 
     def match(self, match_key, ignore_cache=False):
+        """
+
+        :param match_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('match/' + match_key, ignore_cache)
 
     def districts(self, year, ignore_cache=False):
+        """
+
+        :param year: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('districts/' + str(year), ignore_cache)
 
     def district_events(self, district_key, year, ignore_cache=False):
+        """
+
+        :param district_key: 
+        :param year: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('district/' + district_key + '/' + year + '/events', ignore_cache)
 
     def district_rankings(self, district_key, ignore_cache=False):
+        """
+
+        :param district_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('district/' + district_key + '/rankings', ignore_cache)
 
     def district_teams(self, district_key, ignore_cache=False):
+        """
+
+        :param district_key: 
+        :param ignore_cache:  (Default value = False)
+
+        """
         return self._get('district/' + district_key + '/teams', ignore_cache)

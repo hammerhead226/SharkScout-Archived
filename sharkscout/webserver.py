@@ -19,6 +19,7 @@ import sharkscout
 
 
 class WebServer(threading.Thread):
+    """ """
     def __init__(self, port):
         sessions_path = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), 'sessions'))
         if not os.path.exists(sessions_path):
@@ -58,15 +59,18 @@ class WebServer(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
+        """ """
         ws4py.server.cherrypyserver.WebSocketPlugin(cherrypy.engine).subscribe()
         cherrypy.tools.websocket = ws4py.server.cherrypyserver.WebSocketTool()
         self.cherry = cherrypy.quickstart(Index(), '', self.cherry_config)
 
     def stop(self):
+        """ """
         cherrypy.engine.exit()
 
     @property
     def running(self):
+        """ """
         try:
             return cherrypy.server.running
         except:
@@ -74,6 +78,7 @@ class WebServer(threading.Thread):
 
     @property
     def port(self):
+        """ """
         try:
             return cherrypy.server.bound_addr[1]
         except:
@@ -81,11 +86,18 @@ class WebServer(threading.Thread):
 
 
 class CherryServer(object):
+    """ """
     def __init__(self):
         self.www = os.path.normpath(os.path.join(os.path.dirname(sys.argv[0]), 'www'))
         self.template_loader = genshi.template.TemplateLoader(self.www, auto_reload=True)
 
     def display(self, template, page=None):
+        """
+
+        :param template: 
+        :param page:  (Default value = None)
+
+        """
         if page is None:
             page = {}
 
@@ -96,9 +108,21 @@ class CherryServer(object):
         return self.render('www', page, False)
 
     def can_render(self, template):
+        """
+
+        :param template: 
+
+        """
         return os.path.exists(os.path.join(self.www, template + '.html'))
 
     def render(self, template, page=None, strip_html=True):
+        """
+
+        :param template: 
+        :param page:  (Default value = None)
+        :param strip_html:  (Default value = True)
+
+        """
         if page is None:
             page = {}
 
@@ -113,6 +137,11 @@ class CherryServer(object):
             page['year_defaulted'] = False
 
         def strip(stream):
+            """
+
+            :param stream: 
+
+            """
             ns = None
             for kind, data, pos in stream:
                 # Strip <!DOCTYPE>
@@ -133,6 +162,11 @@ class CherryServer(object):
 
         # Pack <link> and <script> to fewer files
         def packer(stream):
+            """
+
+            :param stream: 
+
+            """
             # Find all files to be packed, included packed file
             has_html = False
             static_files = {}
@@ -193,6 +227,11 @@ class CherryServer(object):
 
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
+            """
+
+            :param stream: 
+
+            """
             if not hasattr(self.__class__, 'static_hash'):
                 self.__class__.static_hash = ''.join(
                     random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
@@ -224,12 +263,14 @@ class CherryServer(object):
         return genshi.core.Markup(stream.render('html'))
 
     def refresh(self):
+        """ """
         if 'refresh' in cherrypy.session:
             raise cherrypy.HTTPRedirect(cherrypy.session['refresh'])
         raise cherrypy.HTTPRedirect('/')
 
 
 class Index(CherryServer):
+    """ """
     def __init__(self):
         super(self.__class__, self).__init__()
         self.scout = Scout()  # /scout/*
@@ -239,6 +280,7 @@ class Index(CherryServer):
     # @cherrypy.expose
     # @cherrypy.tools.allow(methods=['GET'])
     def manifest(self):
+        """ """
         manifest = 'CACHE MANIFEST\r\n'
         # Build CACHE:
         manifest += 'CACHE:\r\n'
@@ -265,11 +307,17 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def index(self):
+        """ """
         return self.display('index')
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
     def settings(self, **kwargs):
+        """
+
+        :param **kwargs: 
+
+        """
         for key in kwargs:
             cherrypy.session[key] = kwargs[key]
         return self.refresh()
@@ -277,6 +325,11 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def events(self, year=None):
+        """
+
+        :param year:  (Default value = None)
+
+        """
         if year is None:
             year = date.today().year
         events = sharkscout.Mongo().events(year)
@@ -307,6 +360,12 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def event(self, event_key, stats_matches=0):
+        """
+
+        :param event_key: 
+        :param stats_matches:  (Default value = 0)
+
+        """
         event = sharkscout.Mongo().event(event_key)
         page = {
             'event': event,
@@ -331,6 +390,12 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def stats(self, event_key, match_key):
+        """
+
+        :param event_key: 
+        :param match_key: 
+
+        """
         event = sharkscout.Mongo().event(event_key)
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
@@ -353,6 +418,11 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def teams(self, team_page=0):
+        """
+
+        :param team_page:  (Default value = 0)
+
+        """
         page = {
             'team_page': int(team_page),
             'stats': sharkscout.Mongo().teams_stats(),
@@ -363,6 +433,12 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def team(self, team_key, year=None):
+        """
+
+        :param team_key: 
+        :param year:  (Default value = None)
+
+        """
         if year is None:
             year = date.today().year
         team = sharkscout.Mongo().team(team_key, year)
@@ -381,16 +457,25 @@ class Index(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def ws(self):
+        """ """
         pass
 
 
 class Scout(CherryServer):
+    """ """
     def __init__(self):
         super(self.__class__, self).__init__()
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def match(self, event_key, match_key=None, team_key=None):
+        """
+
+        :param event_key: 
+        :param match_key:  (Default value = None)
+        :param team_key:  (Default value = None)
+
+        """
         event = sharkscout.Mongo().event(event_key)
 
         matches = [m for m in event['matches'] if m['key'] == match_key] if match_key else []
@@ -423,6 +508,12 @@ class Scout(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def pit(self, event_key, team_key=None):
+        """
+
+        :param event_key: 
+        :param team_key:  (Default value = None)
+
+        """
         event = sharkscout.Mongo().event(event_key)
         team = sharkscout.Mongo().team(team_key, event['year']) if team_key else {}
 
@@ -441,30 +532,49 @@ class Scout(CherryServer):
 
 
 class Update(CherryServer):
+    """ """
     def __init__(self):
         super(self.__class__, self).__init__()
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def events(self, year):
+        """
+
+        :param year: 
+
+        """
         sharkscout.Mongo().events_update(year)
         raise cherrypy.HTTPRedirect('/events/' + year)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def event(self, event_key):
+        """
+
+        :param event_key: 
+
+        """
         sharkscout.Mongo().event_update(event_key)
         raise cherrypy.HTTPRedirect('/event/' + event_key)
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def teams(self):
+        """ """
         sharkscout.Mongo().teams_update()
         raise cherrypy.HTTPRedirect('/teams')
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def team(self, team_key, path=None, *args):
+        """
+
+        :param team_key: 
+        :param path:  (Default value = None)
+        :param *args: 
+
+        """
         if path is None:
             sharkscout.Mongo().team_update(team_key)
         if path == 'events':
@@ -474,10 +584,17 @@ class Update(CherryServer):
 
 
 class Download(CherryServer):
+    """ """
     def __init__(self):
         super(self.__class__, self).__init__()
 
     def _csv(self, prefix, items):
+        """
+
+        :param prefix: 
+        :param items: 
+
+        """
         # Enforce a list
         if type(items) is dict:
             items = [items[k] for k in sorted(items)]
@@ -506,6 +623,11 @@ class Download(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def matches(self, event_key):
+        """
+
+        :param event_key: 
+
+        """
         event = sharkscout.Mongo().event(event_key)
         matches = []
         if 'matches' in event:
@@ -520,6 +642,12 @@ class Download(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def scouting(self, scouting_type, event_key):
+        """
+
+        :param scouting_type: 
+        :param event_key: 
+
+        """
         if scouting_type == 'match':
             matches = sharkscout.Mongo().scouting_matches_raw(event_key)
             return self._csv(event_key + '_scouting_match_', matches)
@@ -530,19 +658,32 @@ class Download(CherryServer):
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
     def stats(self, event_key, stats_matches):
+        """
+
+        :param event_key: 
+        :param stats_matches: 
+
+        """
         stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)['individual']
         return self._csv(event_key + '_scouting_stats_', stats)
 
 
 class WebSocketServer(ws4py.websocket.WebSocket):
+    """ """
     sockets = {}
 
     def opened(self):
+        """ """
         self.__class__.sockets[self] = time.time()
         cherrypy.log(str(self) + ' Opened (Open: ' + str(len(self.__class__.sockets)) + ')')
         # Note: can't send any messages here
 
     def received_message(self, message):
+        """
+
+        :param message: 
+
+        """
         message = message.data.decode()
         try:
             message = json.loads(message)
@@ -600,13 +741,30 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             cherrypy.log(e)
 
     def closed(self, code, reason=None):
+        """
+
+        :param code: 
+        :param reason:  (Default value = None)
+
+        """
         if self in self.__class__.sockets:
             del self.__class__.sockets[self]
         cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(
             len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
+        """
+
+        :param payload: 
+        :param binary:  (Default value = False)
+
+        """
         def basic(data):
+            """
+
+            :param data: 
+
+            """
             if isinstance(data, dict):
                 for key in data:
                     data[key] = basic(data[key])
@@ -623,10 +781,20 @@ class WebSocketServer(ws4py.websocket.WebSocket):
         super(self.__class__, self).send(payload, binary)
 
     def broadcast(self, payload):
+        """
+
+        :param payload: 
+
+        """
         for socket in self.__class__.sockets:
             socket.send(payload)
 
     def broadcast_others(self, payload):
+        """
+
+        :param payload: 
+
+        """
         for socket in self.__class__.sockets:
             if socket != self:
                 socket.send(payload)

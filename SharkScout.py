@@ -21,6 +21,7 @@ if __name__ == '__main__':
     # Clean up child processes on quit
     @atexit.register
     def goodbye():
+        """ """
         proc = psutil.Process()
         children = proc.children()
         for child in children:
