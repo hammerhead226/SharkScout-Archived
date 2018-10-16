@@ -1,19 +1,19 @@
+import sys
+import time
+
 import cherrypy
 import csv
-from datetime import datetime, date
 import genshi.core
 import genshi.template
 import json
 import os
 import random
-import re
 import string
-import sys
 import tempfile
 import threading
-import time
 import ws4py.server.cherrypyserver
 import ws4py.websocket
+from datetime import datetime, date
 
 import sharkscout
 

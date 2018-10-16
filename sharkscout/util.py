@@ -3,11 +3,9 @@ import collections
 import os
 import psutil
 import re
+import requests
 import socket
 import string
-import urllib
-
-import requests
 
 
 class Util(object):

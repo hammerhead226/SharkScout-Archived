@@ -1,10 +1,11 @@
+import sys
+
 import backoff
-from datetime import date, datetime
 import json
 import os
 import re
 import requests
-import sys
+from datetime import date
 
 
 class TheBlueAlliance(object):

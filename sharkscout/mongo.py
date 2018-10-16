@@ -1,13 +1,13 @@
+import sys
+
 import argparse
-from datetime import datetime, date
+import hjson
 import os
 import pymongo
 import pymongo.errors
 import re
 import subprocess
-import sys
-
-import hjson
+from datetime import datetime, date
 
 import sharkscout
 

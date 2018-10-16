@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 
-import argparse
 import atexit
+import sys
+import time
+
+import argparse
 import concurrent.futures
-from datetime import date
 import logging
 import os
 import psutil
 import pynumparser
-from tqdm import tqdm
 import subprocess
-import sys
-import time
 import webbrowser
+from datetime import date
+from tqdm import tqdm
 
 import sharkscout
 
