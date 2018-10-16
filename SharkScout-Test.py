@@ -55,7 +55,7 @@ class Spider(scrapy.spiders.Spider):
 
         # Prevent urllib.parse.urlparse() from being dumb...
         urls = [('http://' if 'www' in u else '') + u for u in urls]
-        urls = [('http://' if u.endswith(('.com','.net','.org')) else '') + u for u in urls]
+        urls = [('http://' if u.endswith(('.com', '.net', '.org')) else '') + u for u in urls]
 
         # Actually obey allowed_domains...
         if self.__class__.allowed_domains:
@@ -85,7 +85,8 @@ class Spider(scrapy.spiders.Spider):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=pynumparser.Number(limits=(1, 5)), default=3)
+    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)',
+                        type=pynumparser.Number(limits=(1, 5)), default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
 

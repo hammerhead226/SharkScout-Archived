@@ -17,19 +17,19 @@ class TBACache(object):
         self.collection = collection
 
     def __getitem__(self, key):
-        return list(self.collection.find({'endpoint':key}))[0]['modified']
+        return list(self.collection.find({'endpoint': key}))[0]['modified']
 
     def __setitem__(self, key, value):
-        self.collection.update_one({'endpoint':key}, {'$set':{
+        self.collection.update_one({'endpoint': key}, {'$set': {
             'endpoint': key,
             'modified': value
         }}, upsert=True)
 
     def __delitem__(self, key):
-        self.collection.remove({'endpoint':key})
+        self.collection.remove({'endpoint': key})
 
     def __contains__(self, key):
-        return len(list(self.collection.find({'endpoint':key})))
+        return len(list(self.collection.find({'endpoint': key})))
 
 
 class Mongo(object):
@@ -115,7 +115,7 @@ class Mongo(object):
 
     # Perform database migrations
     def migrate(self):
-        ##### Addition of created_timestamp and modified_timestamp #####
+        # ----- Addition of created_timestamp and modified_timestamp -----
         # TBA events
         self.tba_events.update({
             'modified_timestamp': {'$exists': False}
@@ -205,9 +205,13 @@ class Mongo(object):
                     for alliance in match['alliances']:
                         if match['key'] in scouting_matches and alliance in scouting_matches[match['key']]['alliances']:
                             if 'team_keys' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['team_keys'] += [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams'] if t not in match['alliances'][alliance]['team_keys']]
+                                match['alliances'][alliance]['team_keys'] +=\
+                                    [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams']
+                                     if t not in match['alliances'][alliance]['team_keys']]
                             if 'teams' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['teams'] += [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams'] if t not in match['alliances'][alliance]['teams']]
+                                match['alliances'][alliance]['teams'] +=\
+                                    [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams']
+                                     if t not in match['alliances'][alliance]['teams']]
                     # Attach scouting data to matches
                     if match['key'] in scouting_match_teams:
                         match['scouting'] = scouting_match_teams[match['key']]
@@ -252,13 +256,14 @@ class Mongo(object):
         event = self.tba_api.event(event_key, True)
         if event:
             # Info that can be known before an event starts
-            event.update({k:v for k, v in {
+            event.update({k: v for k, v in {
                 'teams': sorted([t['key'] for t in self.tba_api.event_teams(event_key)]),
                 'matches': self.tba_api.event_matches(event_key),
-                'favicon': sharkscout.Util.favicon(event['website'] if 'website' in event else '') if update_favicon else None
+                'favicon': sharkscout.Util.favicon(
+                    event['website'] if 'website' in event else '') if update_favicon else None
             }.items() if v})
             # Info that can't be known before an event starts
-            if not event['start_date'] or datetime.strptime(event['start_date'],'%Y-%m-%d').date() <= date.today():
+            if not event['start_date'] or datetime.strptime(event['start_date'], '%Y-%m-%d').date() <= date.today():
                 event.update({k: v for k, v in {
                     'rankings': self.tba_api.event_rankings(event_key),
                     'stats': self.tba_api.event_oprs(event_key),
@@ -411,7 +416,7 @@ class Mongo(object):
             }, {'$push': {
                 'matches': data
             }}, upsert=True)
-        return (result.upserted_id or result.matched_count or result.modified_count)
+        return result.upserted_id or result.matched_count or result.modified_count
 
     def scouting_pit(self, event_key, team_key):
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -448,7 +453,7 @@ class Mongo(object):
         }, {'$set': {
             'pit': data
         }}, upsert=True)
-        return (result.upserted_id or result.matched_count or result.modified_count)
+        return result.upserted_id or result.matched_count or result.modified_count
 
     def scouting_stats(self, event_key, matches=0):
         event = self.event(event_key)
@@ -473,15 +478,17 @@ class Mongo(object):
             {'$match': {'key': event_key}},
             # Fill in missing match list to allow for $unwind:$matches
             {'$addFields': {'matches': {'$ifNull': ['$matches',
-                [{
-                    'key': {'$concat': ['$key', '_qm' + str(match_number)]},
-                    'event_key': '$key'
-                } for match_number in range(250)]
-                + [{
-                    'key': {'$concat': ['$key', '_' + comp_level + str(match_number) + 'm' + str(set_number)]},
-                    'event_key': '$key'
-                } for comp_level in ['ef', 'qf', 'sf', 'f'] for match_number in range(8) for set_number in range(3)]
-            ]}}},
+                                                    [{
+                                                        'key': {'$concat': ['$key', '_qm' + str(match_number)]},
+                                                        'event_key': '$key'
+                                                    } for match_number in range(250)] +
+                                                    [{
+                                                        'key': {'$concat': ['$key', '_' + comp_level + str(
+                                                            match_number) + 'm' + str(set_number)]},
+                                                        'event_key': '$key'
+                                                    } for comp_level in ['ef', 'qf', 'sf', 'f'] for match_number in
+                                                        range(8) for set_number in range(3)]
+                                                    ]}}},
             # Add practice matches
             {'$addFields': {'matches': {'$concatArrays': ['$matches', [{
                 'key': {'$concat': ['$key', '_p' + str(match_number)]},
@@ -547,7 +554,7 @@ class Mongo(object):
         aggregation.extend(year_individual)
         aggregation.extend([
             {'$addFields': {
-               '_team_number':  {'$ifNull': ['$_team_number', '$_id']}
+                '_team_number': {'$ifNull': ['$_team_number', '$_id']}
             }},
             {'$sort': {
                 '_team_number': 1,
@@ -560,7 +567,8 @@ class Mongo(object):
             'individual': individual,
             'scatter': {
                 'axes': year_scatter['axes'],
-                'dataset': {t['_team_number']:{k:t[year_scatter['dataset'][k]] for k in year_scatter['dataset']} for t in individual}
+                'dataset': {t['_team_number']: {k: t[year_scatter['dataset'][k]] for k in year_scatter['dataset']} for t
+                            in individual}
             } if year_scatter else year_scatter
         }
 
@@ -636,10 +644,11 @@ class Mongo(object):
     def team_update(self, team_key, update_favicon=False):
         team = self.tba_api.team(team_key, True)
         if team:
-            team.update({k:v for k, v in {
+            team.update({k: v for k, v in {
                 'awards': self.tba_api.team_history_awards(team_key),
                 'districts': {str(d['year']): d for d in self.tba_api.team_districts(team_key)},
-                'favicon': sharkscout.Util.favicon(team['website'] if 'website' in team else '') if update_favicon else None,
+                'favicon': sharkscout.Util.favicon(
+                    team['website'] if 'website' in team else '') if update_favicon else None,
                 'media': self.tba_api.team_media(team_key)
             }.items() if v})
             team['modified_timestamp'] = datetime.utcnow()
@@ -668,7 +677,9 @@ class Mongo(object):
 
             if 'matches' in event:
                 # Filter matches
-                event['matches'] = [m for m in event['matches'] if team_key in m['alliances']['red']['teams'] or team_key in m['alliances']['blue']['teams']]
+                event['matches'] = [m for m in event['matches'] if
+                                    team_key in m['alliances']['red']['teams'] or
+                                    team_key in m['alliances']['blue']['teams']]
 
                 # Attach scouting data
                 scouting = self.scouting_matches_teams(event['key'])

@@ -85,7 +85,10 @@ class CherryServer(object):
         self.www = os.path.normpath(os.path.join(os.path.dirname(sys.argv[0]), 'www'))
         self.template_loader = genshi.template.TemplateLoader(self.www, auto_reload=True)
 
-    def display(self, template, page={}):
+    def display(self, template, page=None):
+        if page is None:
+            page = {}
+
         cherrypy.session['refresh'] = cherrypy.request.path_info
 
         page['__TEMPLATE__'] = template
@@ -95,7 +98,10 @@ class CherryServer(object):
     def can_render(self, template):
         return os.path.exists(os.path.join(self.www, template + '.html'))
 
-    def render(self, template, page={}, strip_html=True):
+    def render(self, template, page=None, strip_html=True):
+        if page is None:
+            page = {}
+
         for key in ['team_number', 'user_name']:
             if key not in cherrypy.session:
                 cherrypy.session[key] = ''
@@ -159,7 +165,8 @@ class CherryServer(object):
                                         static_files[extension][directory].append(absolute)
                                         if len(static_files[extension][directory]) > 1:
                                             strip = True
-                                        data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]), 'packed' + extension).replace('\\', '/'))
+                                        data_1[idx] = (attr[0], os.path.join(os.path.dirname(attr[1]),
+                                                                             'packed' + extension).replace('\\', '/'))
                         data = (data[0], genshi.core.Attrs(data_1))
                 if not strip:
                     yield kind, data, pos
@@ -187,7 +194,8 @@ class CherryServer(object):
         # Add a random hash to <link href=""> and <script src="">
         def static_hash(stream):
             if not hasattr(self.__class__, 'static_hash'):
-                self.__class__.static_hash = ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
+                self.__class__.static_hash = ''.join(
+                    random.choice(string.ascii_lowercase + string.digits) for _ in range(8))
             ns = None
             for kind, data, pos in stream:
                 if kind is genshi.core.START_NS:
@@ -276,10 +284,14 @@ class Index(CherryServer):
             'year': year,
             'stats': sharkscout.Mongo().events_stats(year),
             'events': events,
-            'events_attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and 'frc' + cherrypy.session['team_number'] in e['teams']],
-            'events_active': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() <= date.today() and e['end_date'] and date.today() <= datetime.strptime(e['end_date'],'%Y-%m-%d').date()],
+            'events_attending': [e for e in events if 'teams' in e and 'team_number' in cherrypy.session and
+                                 'frc' + cherrypy.session['team_number'] in e['teams']],
+            'events_active': [e for e in events if e['start_date'] and
+                              datetime.strptime(e['start_date'], '%Y-%m-%d').date() <= date.today() and
+                              e['end_date'] and date.today() <= datetime.strptime(e['end_date'], '%Y-%m-%d').date()],
             'events_district': [],
-            'events_upcoming': [e for e in events if e['start_date'] and datetime.strptime(e['start_date'],'%Y-%m-%d').date() > date.today()]
+            'events_upcoming': [e for e in events if e['start_date'] and
+                                datetime.strptime(e['start_date'], '%Y-%m-%d').date() > date.today()]
         }
         if 'team_number' in cherrypy.session:
             team = sharkscout.Mongo().team('frc' + str(cherrypy.session['team_number']))
@@ -287,7 +299,8 @@ class Index(CherryServer):
                 district = team['districts'][str(year)]
                 page.update({
                     'district': district,
-                    'events_district': [e for e in events if 'district' in e and e['district'] and e['district']['abbreviation'] == district['abbreviation']]
+                    'events_district': [e for e in events if 'district' in e and e['district'] and
+                                        e['district']['abbreviation'] == district['abbreviation']]
                 })
         return self.display('events', page)
 
@@ -327,7 +340,8 @@ class Index(CherryServer):
 
         alliance_stats = {}
         for alliance in match['alliances']:
-            alliance_stats[alliance] = [s for s in stats['individual'] if s['_id'] in match['alliances'][alliance]['teams']]
+            alliance_stats[alliance] = [s for s in stats['individual'] if
+                                        s['_id'] in match['alliances'][alliance]['teams']]
 
         page = {
             'event': event,
@@ -505,11 +519,11 @@ class Download(CherryServer):
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['GET'])
-    def scouting(self, type, event_key):
-        if type == 'match':
+    def scouting(self, scouting_type, event_key):
+        if scouting_type == 'match':
             matches = sharkscout.Mongo().scouting_matches_raw(event_key)
             return self._csv(event_key + '_scouting_match_', matches)
-        elif type == 'pit':
+        elif scouting_type == 'pit':
             teams = sharkscout.Mongo().scouting_pit_teams(event_key)
             return self._csv(event_key + '_scouting_pit_', teams)
 
@@ -534,10 +548,10 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             message = json.loads(message)
 
             if 'ping' in message:
-                self.send({'pong':'pong'})
+                self.send({'pong': 'pong'})
 
             if 'time_team' in message:
-                self.send({'time_team':sharkscout.Mongo().team(message['time_team'])})
+                self.send({'time_team': sharkscout.Mongo().team(message['time_team'])})
 
             # Match scouting upserts
             if 'scouting_match' in message:
@@ -550,10 +564,12 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                                 'type': 'success'
                             }
                         })
-                        self.broadcast({'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
+                        self.broadcast(
+                            {'show': '.match-listing .' + data['match_key'] + ' .' + data['team_key'] + ' .fa-check'})
                         self.broadcast_others({
                             'toast': {
-                                'message': data['scouter'] + ' match scouted ' + data['match_key'] + ' ' + data['team_key'],
+                                'message':
+                                    data['scouter'] + ' match scouted ' + data['match_key'] + ' ' + data['team_key'],
                                 'type': 'success',
                                 'mobile': False
                             }
@@ -573,7 +589,8 @@ class WebSocketServer(ws4py.websocket.WebSocket):
                         self.broadcast({'show': '.team-listing .' + data['team_key'] + ' .fa-check'})
                         self.broadcast_others({
                             'toast': {
-                                'message': data['scouter'] + ' pit scouted ' + data['event_key'] + ' ' + data['team_key'],
+                                'message': data['scouter'] + ' pit scouted ' + data['event_key'] + ' ' + data[
+                                    'team_key'],
                                 'type': 'success',
                                 'mobile': False
                             }
@@ -585,7 +602,8 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def closed(self, code, reason=None):
         if self in self.__class__.sockets:
             del self.__class__.sockets[self]
-        cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(len(self.__class__.sockets)) + ')')
+        cherrypy.log(str(self) + ' Closed ' + str(code) + ' ' + str(reason) + ' (Open: ' + str(
+            len(self.__class__.sockets)) + ')')
 
     def send(self, payload, binary=False):
         def basic(data):
@@ -598,6 +616,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
             elif not isinstance(data, (int, float, bool)) and data is not None:
                 data = str(data)
             return data
+
         payload = basic(payload)
         if type(payload) is dict:
             payload = json.dumps(payload)
