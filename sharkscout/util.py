@@ -5,7 +5,7 @@ import psutil
 import re
 import socket
 import string
-import urllib
+import urllib.parse
 
 import requests
 
@@ -112,6 +112,12 @@ class Util(object):
     def pid_to_path(pid):
         proc = psutil.Process(pid)
         return proc.exe()
+
+    @staticmethod
+    def urlparse(url):
+        if '//' not in url:
+            url = '//' + url
+        return urllib.parse.urlparse(url)
 
     @staticmethod
     def which(bin):

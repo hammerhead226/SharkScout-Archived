@@ -6,11 +6,41 @@
 
 ### Windows Executable
 
+This is the easiest way to run the server on a Windows machine.
+
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Download the [latest release](https://github.com/hammerhead226/SharkScout/releases/latest).
 3. Run `SharkScout.exe`.
 
+## Running From Docker
+
+This is the easiest way to run the server on a non-Windows machine.
+
+1. Install [Docker](https://www.docker.com/get-started).
+2. Install [Docker Compose](https://docs.docker.com/compose/install/).
+3. Build and run the containers.
+
+### Build the Containers
+
+This requires an internet connection and only needs to be done when the source has changed.
+
+Run `docker-compose`:
+
+```batch
+docker-compose up --build --no-start
+```
+
+### Run the Containers
+
+Run `docker-compose`:
+
+```batch
+docker-compose up
+```
+
 ## Running From Source
+
+Note: it is recommended that the server be run using one of the above out-of-the-box solutions.
 
 ### Installing Dependencies
 
@@ -77,9 +107,9 @@ The easiest setup is to run the server remotely and use cell phones to access it
 
 An alternative to running the server remotely is to run it locally on a laptop at the competition. Because WiFi access points are banned there are some options for this:
 
-1. Use a network switch and all wired connections to either laptops or tablets (with OTG ethernet adapters).
-2. Run the server in Linux and use [panr](https://github.com/emmercm/panr) to create a Bluetooth PAN network.
-3. Run the server in Windows and bridge a connection to a Linux device connected with ethernet, and run [panr](https://github.com/emmercm/panr) on the Linux device with the `-nd` flag to create a Bluetooth PAN network.
+1. Run the server and use a network switch with all wired connections to other computers or mobile devices (with OTG ethernet adapters).
+2. Run the server on a Linux machine and use [panr](https://github.com/emmercm/panr) to create a Bluetooth PAN network.
+3. Run the server on a Windows machine and bridge a connection to a Linux device connected with ethernet, and run [panr](https://github.com/emmercm/panr) on the Linux device with the `-nd` flag to create a Bluetooth PAN network.
 
 ## Additional Thoughts
 
