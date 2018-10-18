@@ -110,7 +110,7 @@ class TheBlueAlliance(object):
                     model['alliances'][alliance]['teams'] = model['alliances'][alliance]['team_keys']
 
             if not sum([0 if k in model else 1 for k in ['city', 'state_prov', 'postal_code', 'country']]):
-                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' +\
+                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + \
                                     (model['postal_code'] or '') + ', ' + (model['country'] or '')
                 model['location'] = model['location'].replace('  ', ' ')
                 model['location'] = model['location'].replace(' ,', ',')
@@ -241,7 +241,7 @@ class TheBlueAlliance(object):
         rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings and 'rankings' in rankings and rankings['rankings']:
             for idx, ranking in enumerate(rankings['rankings']):
-                rankings['rankings'][idx] = [ranking['rank'], ranking['team_key']] + ranking['sort_orders'] +\
+                rankings['rankings'][idx] = [ranking['rank'], ranking['team_key']] + ranking['sort_orders'] + \
                                             [
                                                 (str(ranking['record']['wins']) + '-' + str(
                                                     ranking['record']['losses']) + '-' + str(

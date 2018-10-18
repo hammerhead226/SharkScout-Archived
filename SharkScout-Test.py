@@ -25,10 +25,10 @@ class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
         'TELNETCONSOLE_ENABLED': False,  # why would this be on by default?
-        'DEPTH_PRIORITY': 1,             # breadth-first
-        'DNS_TIMEOUT': 10,               # 10s timeout
-        'DOWNLOAD_TIMEOUT': 10,          # 10s timeout
-        'HTTPERROR_ALLOW_ALL': True      # let parse() deal with them
+        'DEPTH_PRIORITY': 1,  # breadth-first
+        'DNS_TIMEOUT': 10,  # 10s timeout
+        'DOWNLOAD_TIMEOUT': 10,  # 10s timeout
+        'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
     }
     closed_reason = None
     allowed_domains = []
@@ -99,6 +99,7 @@ if __name__ == '__main__':
     null = open(os.devnull, 'w')
     server = subprocess.Popen(params, stdout=subprocess.DEVNULL)
 
+
     # Stop SharkScout on quit
     @atexit.register
     def goodbye():
@@ -108,6 +109,7 @@ if __name__ == '__main__':
             proc.terminate()
         psutil.wait_procs(procs, timeout=5)
         null.close()
+
 
     # Wait for the web server to start
     print('Waiting for listening ports ...')
