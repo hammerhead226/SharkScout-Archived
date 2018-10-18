@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Linux bash script to:
 # - Install the 3.5inch touchscreen shield
