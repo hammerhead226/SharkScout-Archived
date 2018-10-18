@@ -2,7 +2,9 @@
 
 Offline web app with TBA integration for competition scouting.
 
-## Getting Started on Windows
+## Running From Build
+
+### Windows Executable
 
 1. Install [MongoDB](https://www.mongodb.com/download-center).
 2. Download the [latest release](https://github.com/hammerhead226/SharkScout/releases/latest).
