@@ -25,7 +25,7 @@ class TheBlueAlliance(object):
     def _get(self, endpoint, ignore_cache=False):
         """
 
-        :param endpoint: 
+        :param endpoint:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -63,7 +63,7 @@ class TheBlueAlliance(object):
     def _tba3_clean(models):
         """
 
-        :param models: 
+        :param models:
 
         """
         if models is None:
@@ -95,7 +95,7 @@ class TheBlueAlliance(object):
     def _tba3_to_tba2(models):
         """
 
-        :param models: 
+        :param models:
 
         """
         if models is None:
@@ -127,7 +127,7 @@ class TheBlueAlliance(object):
                     model['alliances'][alliance]['teams'] = model['alliances'][alliance]['team_keys']
 
             if not sum([0 if k in model else 1 for k in ['city', 'state_prov', 'postal_code', 'country']]):
-                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' +\
+                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + \
                                     (model['postal_code'] or '') + ', ' + (model['country'] or '')
                 model['location'] = model['location'].replace('  ', ' ')
                 model['location'] = model['location'].replace(' ,', ',')
@@ -142,7 +142,7 @@ class TheBlueAlliance(object):
     def _team_map(teams):
         """
 
-        :param teams: 
+        :param teams:
 
         """
         for idx, team in enumerate(teams):
@@ -198,7 +198,7 @@ class TheBlueAlliance(object):
     def team(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -207,7 +207,7 @@ class TheBlueAlliance(object):
     def team_awards(self, team_key, year=None, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param year:  (Default value = None)
         :param ignore_cache:  (Default value = False)
 
@@ -217,7 +217,7 @@ class TheBlueAlliance(object):
     def team_districts(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -226,7 +226,7 @@ class TheBlueAlliance(object):
     def team_events(self, team_key, year=None, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param year:  (Default value = None)
         :param ignore_cache:  (Default value = False)
 
@@ -236,8 +236,8 @@ class TheBlueAlliance(object):
     def team_event_awards(self, team_key, event_key, ignore_cache=False):
         """
 
-        :param team_key: 
-        :param event_key: 
+        :param team_key:
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -246,8 +246,8 @@ class TheBlueAlliance(object):
     def team_event_matches(self, team_key, event_key, ignore_cache=False):
         """
 
-        :param team_key: 
-        :param event_key: 
+        :param team_key:
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -256,7 +256,7 @@ class TheBlueAlliance(object):
     def team_years_participated(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -265,7 +265,7 @@ class TheBlueAlliance(object):
     def team_media(self, team_key, year=None, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param year:  (Default value = None)
         :param ignore_cache:  (Default value = False)
 
@@ -279,7 +279,7 @@ class TheBlueAlliance(object):
     def team_robots(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -289,7 +289,7 @@ class TheBlueAlliance(object):
     def team_history_events(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -299,7 +299,7 @@ class TheBlueAlliance(object):
     def team_history_awards(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -309,7 +309,7 @@ class TheBlueAlliance(object):
     def team_history_robots(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -319,7 +319,7 @@ class TheBlueAlliance(object):
     def team_history_districts(self, team_key, ignore_cache=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -340,7 +340,7 @@ class TheBlueAlliance(object):
     def event(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -349,7 +349,7 @@ class TheBlueAlliance(object):
     def event_teams(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -360,7 +360,7 @@ class TheBlueAlliance(object):
     def event_matches(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -370,7 +370,7 @@ class TheBlueAlliance(object):
     def event_oprs(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -380,7 +380,7 @@ class TheBlueAlliance(object):
     def event_stats(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -389,7 +389,7 @@ class TheBlueAlliance(object):
     def event_rankings_raw(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -398,14 +398,14 @@ class TheBlueAlliance(object):
     def event_rankings_v2(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
         rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings and 'rankings' in rankings and rankings['rankings']:
             for idx, ranking in enumerate(rankings['rankings']):
-                rankings['rankings'][idx] = [ranking['rank'], ranking['team_key']] + ranking['sort_orders'] +\
+                rankings['rankings'][idx] = [ranking['rank'], ranking['team_key']] + ranking['sort_orders'] + \
                                             [
                                                 (str(ranking['record']['wins']) + '-' + str(
                                                     ranking['record']['losses']) + '-' + str(
@@ -420,7 +420,7 @@ class TheBlueAlliance(object):
     def event_rankings(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -460,7 +460,7 @@ class TheBlueAlliance(object):
     def event_awards(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -469,7 +469,7 @@ class TheBlueAlliance(object):
     def event_district_points(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -478,7 +478,7 @@ class TheBlueAlliance(object):
     def event_alliances(self, event_key, ignore_cache=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -487,7 +487,7 @@ class TheBlueAlliance(object):
     def match(self, match_key, ignore_cache=False):
         """
 
-        :param match_key: 
+        :param match_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -496,7 +496,7 @@ class TheBlueAlliance(object):
     def districts(self, year, ignore_cache=False):
         """
 
-        :param year: 
+        :param year:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -505,8 +505,8 @@ class TheBlueAlliance(object):
     def district_events(self, district_key, year, ignore_cache=False):
         """
 
-        :param district_key: 
-        :param year: 
+        :param district_key:
+        :param year:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -515,7 +515,7 @@ class TheBlueAlliance(object):
     def district_rankings(self, district_key, ignore_cache=False):
         """
 
-        :param district_key: 
+        :param district_key:
         :param ignore_cache:  (Default value = False)
 
         """
@@ -524,7 +524,7 @@ class TheBlueAlliance(object):
     def district_teams(self, district_key, ignore_cache=False):
         """
 
-        :param district_key: 
+        :param district_key:
         :param ignore_cache:  (Default value = False)
 
         """

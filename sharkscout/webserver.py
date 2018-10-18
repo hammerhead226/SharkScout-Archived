@@ -51,8 +51,8 @@ class WebServer(threading.Thread):
                 'tools.websocket.on': True,
                 'tools.websocket.handler_cls': WebSocketServer,
                 'tools.sessions.on': False,  # unnecessary
-                'tools.gzip.on': False,      # otherwise websockets will always fail
-                'tools.expires.on': False    # otherwise websockets will usually not connect
+                'tools.gzip.on': False,  # otherwise websockets will always fail
+                'tools.expires.on': False  # otherwise websockets will usually not connect
             }
         }
         self.cherry = None
@@ -94,7 +94,7 @@ class CherryServer(object):
     def display(self, template, page=None):
         """
 
-        :param template: 
+        :param template:
         :param page:  (Default value = None)
 
         """
@@ -110,7 +110,7 @@ class CherryServer(object):
     def can_render(self, template):
         """
 
-        :param template: 
+        :param template:
 
         """
         return os.path.exists(os.path.join(self.www, template + '.html'))
@@ -118,7 +118,7 @@ class CherryServer(object):
     def render(self, template, page=None, strip_html=True):
         """
 
-        :param template: 
+        :param template:
         :param page:  (Default value = None)
         :param strip_html:  (Default value = True)
 
@@ -139,7 +139,7 @@ class CherryServer(object):
         def strip(stream):
             """
 
-            :param stream: 
+            :param stream:
 
             """
             ns = None
@@ -164,7 +164,7 @@ class CherryServer(object):
         def packer(stream):
             """
 
-            :param stream: 
+            :param stream:
 
             """
             # Find all files to be packed, included packed file
@@ -229,7 +229,7 @@ class CherryServer(object):
         def static_hash(stream):
             """
 
-            :param stream: 
+            :param stream:
 
             """
             if not hasattr(self.__class__, 'static_hash'):
@@ -315,7 +315,7 @@ class Index(CherryServer):
     def settings(self, **kwargs):
         """
 
-        :param **kwargs: 
+        :param **kwargs:
 
         """
         for key in kwargs:
@@ -362,7 +362,7 @@ class Index(CherryServer):
     def event(self, event_key, stats_matches=0):
         """
 
-        :param event_key: 
+        :param event_key:
         :param stats_matches:  (Default value = 0)
 
         """
@@ -392,8 +392,8 @@ class Index(CherryServer):
     def stats(self, event_key, match_key):
         """
 
-        :param event_key: 
-        :param match_key: 
+        :param event_key:
+        :param match_key:
 
         """
         event = sharkscout.Mongo().event(event_key)
@@ -435,7 +435,7 @@ class Index(CherryServer):
     def team(self, team_key, year=None):
         """
 
-        :param team_key: 
+        :param team_key:
         :param year:  (Default value = None)
 
         """
@@ -471,7 +471,7 @@ class Scout(CherryServer):
     def match(self, event_key, match_key=None, team_key=None):
         """
 
-        :param event_key: 
+        :param event_key:
         :param match_key:  (Default value = None)
         :param team_key:  (Default value = None)
 
@@ -510,7 +510,7 @@ class Scout(CherryServer):
     def pit(self, event_key, team_key=None):
         """
 
-        :param event_key: 
+        :param event_key:
         :param team_key:  (Default value = None)
 
         """
@@ -541,7 +541,7 @@ class Update(CherryServer):
     def events(self, year):
         """
 
-        :param year: 
+        :param year:
 
         """
         sharkscout.Mongo().events_update(year)
@@ -552,7 +552,7 @@ class Update(CherryServer):
     def event(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         sharkscout.Mongo().event_update(event_key)
@@ -570,9 +570,9 @@ class Update(CherryServer):
     def team(self, team_key, path=None, *args):
         """
 
-        :param team_key: 
+        :param team_key:
         :param path:  (Default value = None)
-        :param *args: 
+        :param *args:
 
         """
         if path is None:
@@ -591,8 +591,8 @@ class Download(CherryServer):
     def _csv(self, prefix, items):
         """
 
-        :param prefix: 
-        :param items: 
+        :param prefix:
+        :param items:
 
         """
         # Enforce a list
@@ -625,7 +625,7 @@ class Download(CherryServer):
     def matches(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         event = sharkscout.Mongo().event(event_key)
@@ -644,8 +644,8 @@ class Download(CherryServer):
     def scouting(self, scouting_type, event_key):
         """
 
-        :param scouting_type: 
-        :param event_key: 
+        :param scouting_type:
+        :param event_key:
 
         """
         if scouting_type == 'match':
@@ -660,8 +660,8 @@ class Download(CherryServer):
     def stats(self, event_key, stats_matches):
         """
 
-        :param event_key: 
-        :param stats_matches: 
+        :param event_key:
+        :param stats_matches:
 
         """
         stats = sharkscout.Mongo().scouting_stats(event_key, stats_matches)['individual']
@@ -681,7 +681,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def received_message(self, message):
         """
 
-        :param message: 
+        :param message:
 
         """
         message = message.data.decode()
@@ -743,7 +743,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def closed(self, code, reason=None):
         """
 
-        :param code: 
+        :param code:
         :param reason:  (Default value = None)
 
         """
@@ -755,14 +755,14 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def send(self, payload, binary=False):
         """
 
-        :param payload: 
+        :param payload:
         :param binary:  (Default value = False)
 
         """
         def basic(data):
             """
 
-            :param data: 
+            :param data:
 
             """
             if isinstance(data, dict):
@@ -783,7 +783,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def broadcast(self, payload):
         """
 
-        :param payload: 
+        :param payload:
 
         """
         for socket in self.__class__.sockets:
@@ -792,7 +792,7 @@ class WebSocketServer(ws4py.websocket.WebSocket):
     def broadcast_others(self, payload):
         """
 
-        :param payload: 
+        :param payload:
 
         """
         for socket in self.__class__.sockets:

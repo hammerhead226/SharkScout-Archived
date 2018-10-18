@@ -6,6 +6,7 @@ import re
 import requests
 import socket
 import string
+import urllib.parse
 
 
 class Util(object):
@@ -14,7 +15,7 @@ class Util(object):
     def favicon(url):
         """
 
-        :param url: 
+        :param url:
 
         """
         if url:
@@ -34,7 +35,7 @@ class Util(object):
     def flatten(iterable):
         """
 
-        :param iterable: 
+        :param iterable:
 
         """
         for item in iterable:
@@ -47,7 +48,7 @@ class Util(object):
     def isnumeric(val):
         """
 
-        :param val: 
+        :param val:
 
         """
         return str(val).lstrip('-').replace('.', '', 1).isdigit()
@@ -74,7 +75,7 @@ class Util(object):
     def pid(name):
         """
 
-        :param name: 
+        :param name:
 
         """
         for proc in psutil.process_iter():
@@ -89,7 +90,7 @@ class Util(object):
     def pids(name):
         """
 
-        :param name: 
+        :param name:
 
         """
         bin_pids = []
@@ -105,7 +106,7 @@ class Util(object):
     def pid_of_port(port):
         """
 
-        :param port: 
+        :param port:
 
         """
         for proc in psutil.process_iter():
@@ -118,7 +119,7 @@ class Util(object):
     def pid_ports(pid):
         """
 
-        :param pid: 
+        :param pid:
 
         """
         try:
@@ -131,7 +132,7 @@ class Util(object):
     def pid_tree_ports(pid):
         """
 
-        :param pid: 
+        :param pid:
 
         """
         try:
@@ -147,7 +148,7 @@ class Util(object):
     def pid_to_argv(pid):
         """
 
-        :param pid: 
+        :param pid:
 
         """
         proc = psutil.Process(pid)
@@ -157,7 +158,7 @@ class Util(object):
     def pid_to_cwd(pid):
         """
 
-        :param pid: 
+        :param pid:
 
         """
         proc = psutil.Process(pid)
@@ -167,17 +168,28 @@ class Util(object):
     def pid_to_path(pid):
         """
 
-        :param pid: 
+        :param pid:
 
         """
         proc = psutil.Process(pid)
         return proc.exe()
 
     @staticmethod
+    def urlparse(url):
+        """
+
+        :param url:
+
+        """
+        if '//' not in url:
+            url = '//' + url
+        return urllib.parse.urlparse(url)
+
+    @staticmethod
     def which(name):
         """
 
-        :param name: 
+        :param name:
 
         """
         # Fast-search PATH first

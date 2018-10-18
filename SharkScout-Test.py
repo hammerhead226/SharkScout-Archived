@@ -15,7 +15,7 @@ import scrapy.crawler
 import scrapy.exceptions
 import scrapy.spiders
 import subprocess
-from urllib import parse
+import urllib.parse
 
 import sharkscout
 
@@ -26,10 +26,10 @@ class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
         'TELNETCONSOLE_ENABLED': False,  # why would this be on by default?
-        'DEPTH_PRIORITY': 1,             # breadth-first
-        'DNS_TIMEOUT': 10,               # 10s timeout
-        'DOWNLOAD_TIMEOUT': 10,          # 10s timeout
-        'HTTPERROR_ALLOW_ALL': True      # let parse() deal with them
+        'DEPTH_PRIORITY': 1,  # breadth-first
+        'DNS_TIMEOUT': 10,  # 10s timeout
+        'DOWNLOAD_TIMEOUT': 10,  # 10s timeout
+        'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
     }
     closed_reason = None
     allowed_domains = []
@@ -40,7 +40,7 @@ class Spider(scrapy.spiders.Spider):
 
         if 'start_url' in kwargs:
             self.__class__.start_urls = [kwargs.pop('start_url')]
-        self.__class__.allowed_domains = [parse.urlparse(u).hostname for u in self.__class__.start_urls]
+        self.__class__.allowed_domains = [urllib.parse.urlparse(u).hostname for u in self.__class__.start_urls]
 
         if 'url_regex' in kwargs:
             self.__class__.url_regex = kwargs.pop('url_regex')
@@ -50,7 +50,7 @@ class Spider(scrapy.spiders.Spider):
     def parse(self, response):
         """
 
-        :param response: 
+        :param response:
 
         """
         # Stop on any error
@@ -65,7 +65,7 @@ class Spider(scrapy.spiders.Spider):
 
         # Actually obey allowed_domains...
         if self.__class__.allowed_domains:
-            urls = [u for u in urls if parse.urlparse(u) not in self.__class__.allowed_domains + [None]]
+            urls = [u for u in urls if urllib.parse.urlparse(u) not in self.__class__.allowed_domains + [None]]
 
         # URL massaging
         for idx, url in enumerate(urls):
@@ -88,7 +88,7 @@ class Spider(scrapy.spiders.Spider):
     def closed(self, reason):
         """
 
-        :param reason: 
+        :param reason:
 
         """
         self.__class__.closed_reason = reason
@@ -110,6 +110,7 @@ if __name__ == '__main__':
     null = open(os.devnull, 'w')
     server = subprocess.Popen(params, stdout=subprocess.DEVNULL)
 
+
     # Stop SharkScout on quit
     @atexit.register
     def goodbye():
@@ -120,6 +121,7 @@ if __name__ == '__main__':
             proc.terminate()
         psutil.wait_procs(procs, timeout=5)
         null.close()
+
 
     # Wait for the web server to start
     print('Waiting for listening ports ...')

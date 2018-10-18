@@ -35,10 +35,11 @@ class TBACache(object):
 
 class Mongo(object):
     """ """
-    port = None
     client = None
 
-    def __init__(self):
+    def __init__(self, host=None):
+        self.host = host
+
         if self.__class__.client is None:
             self.start()
         self.client = self.__class__.client
@@ -59,8 +60,19 @@ class Mongo(object):
         if not os.path.exists(mongo_dir):
             os.mkdir(mongo_dir)
 
-        # Look for mongod already running with same database path
-        mongo_pid = None
+        # Use host from CLI params
+        if self.host:
+            host = sharkscout.Util.urlparse(self.host)
+            if not host.hostname:
+                print('invalid mongod host: ' + self.host)
+                print()
+                sys.exit(1)
+            self.__class__.client = pymongo.MongoClient(host.hostname, host.port or 27017)
+            print('mongod already running remotely at ' + self.host)
+            print()
+            return
+
+        # Look for mongod already running locally with same database path
         parser = argparse.ArgumentParser()
         parser.add_argument('--port', type=int, default=27017)
         parser.add_argument('--dbpath', default=None)
@@ -69,32 +81,34 @@ class Mongo(object):
             if known.dbpath and not os.path.isabs(known.dbpath):
                 known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
             if known.dbpath is not None and os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
-                mongo_pid = pid
-                self.__class__.port = known.port
-                print('mongod already running on port ' + str(self.__class__.port))
-                break
+                self.__class__.client = pymongo.MongoClient('localhost', known.port)
+                print('mongod already running on local port ' + str(known.port))
+                print()
+                return
 
-        if not mongo_pid:
-            self.__class__.port = sharkscout.Util.open_port(27017)
-            try:
-                null = open(os.devnull, 'w')
-                mongod = sharkscout.Util.which('mongod')
-                if mongod is None:
-                    print('mongod not found')
-                    sys.exit(1)
-                subprocess.Popen([
-                    mongod,
-                    '--port', str(self.__class__.port),
-                    '--dbpath', mongo_dir,
-                    '--smallfiles'
-                ], stdout=null, stderr=subprocess.STDOUT)
-                print('mongod started on port ' + str(self.__class__.port))
-            except FileNotFoundError:
-                print('mongod couldn\'t start')
+        # Start mongod locally
+        port = sharkscout.Util.open_port(27017)
+        try:
+            null = open(os.devnull, 'w')
+            mongod = sharkscout.Util.which('mongod')
+            if mongod is None:
+                print('mongod not found locally')
+                print()
                 sys.exit(1)
-
-        self.__class__.client = pymongo.MongoClient('localhost', self.__class__.port)
-        print()
+            subprocess.Popen([
+                mongod,
+                '--port', str(port),
+                '--dbpath', mongo_dir,
+                '--smallfiles'
+            ], stdout=null, stderr=subprocess.STDOUT)
+            self.__class__.client = pymongo.MongoClient('localhost', port)
+            print('mongod started on local port ' + str(port))
+            print()
+            return
+        except FileNotFoundError:
+            print('mongod couldn\'t start')
+            print()
+            sys.exit(1)
 
     # Ensure indexes on MongoDB
     def index(self):
@@ -167,7 +181,7 @@ class Mongo(object):
     def events(self, year):
         """
 
-        :param year: 
+        :param year:
 
         """
         return list(self.tba_events.find({
@@ -182,7 +196,7 @@ class Mongo(object):
     def events_stats(self, year):
         """
 
-        :param year: 
+        :param year:
 
         """
         return {
@@ -194,7 +208,7 @@ class Mongo(object):
     def event(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         event = list(self.tba_events.find({'key': event_key}))
@@ -227,11 +241,11 @@ class Mongo(object):
                     for alliance in match['alliances']:
                         if match['key'] in scouting_matches and alliance in scouting_matches[match['key']]['alliances']:
                             if 'team_keys' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['team_keys'] +=\
+                                match['alliances'][alliance]['team_keys'] += \
                                     [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams']
                                      if t not in match['alliances'][alliance]['team_keys']]
                             if 'teams' in match['alliances'][alliance]:
-                                match['alliances'][alliance]['teams'] +=\
+                                match['alliances'][alliance]['teams'] += \
                                     [t for t in scouting_matches[match['key']]['alliances'][alliance]['teams']
                                      if t not in match['alliances'][alliance]['teams']]
                     # Attach scouting data to matches
@@ -246,7 +260,7 @@ class Mongo(object):
     def event_years(self, event_code):
         """
 
-        :param event_code: 
+        :param event_code:
 
         """
         return list(self.tba_events.find({'event_code': event_code}).sort('year', pymongo.DESCENDING))
@@ -255,7 +269,7 @@ class Mongo(object):
     def events_update(self, year):
         """
 
-        :param year: 
+        :param year:
 
         """
         events = self.tba_api.events(year)
@@ -287,7 +301,7 @@ class Mongo(object):
     def event_update(self, event_key, update_favicon=False):
         """
 
-        :param event_key: 
+        :param event_key:
         :param update_favicon:  (Default value = False)
 
         """
@@ -320,7 +334,7 @@ class Mongo(object):
     def scouting_matches(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         matches = list(self.scouting.aggregate([{'$match': {
@@ -401,7 +415,7 @@ class Mongo(object):
     def scouting_matches_teams(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         return {m['key']: m['team_keys'] for m in self.scouting_matches(event_key)}
@@ -409,7 +423,7 @@ class Mongo(object):
     def scouting_matches_raw(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         return list(self.scouting.aggregate([{'$match': {
@@ -427,9 +441,9 @@ class Mongo(object):
     def scouting_match(self, event_key, match_key, team_key):
         """
 
-        :param event_key: 
-        :param match_key: 
-        :param team_key: 
+        :param event_key:
+        :param team_key:
+        :param match_key:
 
         """
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -462,7 +476,7 @@ class Mongo(object):
     def scouting_match_update(self, data):
         """
 
-        :param data: 
+        :param data:
 
         """
         # Update if existing
@@ -486,8 +500,8 @@ class Mongo(object):
     def scouting_pit(self, event_key, team_key):
         """
 
-        :param event_key: 
-        :param team_key: 
+        :param event_key:
+        :param team_key:
 
         """
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -507,7 +521,7 @@ class Mongo(object):
     def scouting_pit_teams(self, event_key):
         """
 
-        :param event_key: 
+        :param event_key:
 
         """
         scouting = list(self.scouting.aggregate([{'$match': {
@@ -525,7 +539,7 @@ class Mongo(object):
     def scouting_pit_update(self, data):
         """
 
-        :param data: 
+        :param data:
 
         """
         result = self.scouting.update_one({
@@ -539,7 +553,7 @@ class Mongo(object):
     def scouting_stats(self, event_key, matches=0):
         """
 
-        :param event_key: 
+        :param event_key:
         :param matches:  (Default value = 0)
 
         """
@@ -668,7 +682,7 @@ class Mongo(object):
     def teams_paged(self, page, limit=500):
         """
 
-        :param page: 
+        :param page:
         :param limit:  (Default value = 500)
 
         """
@@ -680,7 +694,7 @@ class Mongo(object):
     def teams_list(self, team_keys):
         """
 
-        :param team_keys: 
+        :param team_keys:
 
         """
         return list(self.tba_teams.find({'key': {'$in': team_keys}}).sort('team_number'))
@@ -734,7 +748,7 @@ class Mongo(object):
     def team(self, team_key, year=None):
         """
 
-        :param team_key: 
+        :param team_key:
         :param year:  (Default value = None)
 
         """
@@ -751,7 +765,7 @@ class Mongo(object):
     def team_update(self, team_key, update_favicon=False):
         """
 
-        :param team_key: 
+        :param team_key:
         :param update_favicon:  (Default value = False)
 
         """
@@ -776,7 +790,7 @@ class Mongo(object):
     def team_stats(self, team_key):
         """
 
-        :param team_key: 
+        :param team_key:
 
         """
         return {
@@ -787,8 +801,8 @@ class Mongo(object):
     def team_events(self, team_key, year):
         """
 
-        :param team_key: 
-        :param year: 
+        :param team_key:
+        :param year:
 
         """
         # Query
@@ -820,8 +834,8 @@ class Mongo(object):
     def team_update_events(self, team_key, year):
         """
 
-        :param team_key: 
-        :param year: 
+        :param team_key:
+        :param year:
 
         """
         for event in self.tba_api.team_events(team_key, int(year), True):
