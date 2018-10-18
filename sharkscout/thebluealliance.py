@@ -1,10 +1,11 @@
+import sys
+
 import backoff
-from datetime import date, datetime
 import json
 import os
 import re
 import requests
-import sys
+from datetime import date
 
 
 class TheBlueAlliance(object):
@@ -94,19 +95,23 @@ class TheBlueAlliance(object):
                 model['country_name'] = model['country']
                 model['locality'] = model['city']
                 model['region'] = model['state_prov']
-            elif not sum([0 if k in model else 1 for k in ['key', 'name', 'event_code', 'event_type', 'start_date', 'end_date', 'year', 'event_type_string']]):
+            elif not sum([0 if k in model else 1
+                          for k in ['key', 'name', 'event_code', 'event_type', 'start_date', 'end_date', 'year',
+                                    'event_type_string']]):
                 # Event
                 model['event_district'] = model['district']['abbreviation'] if model['district'] else None
                 model['event_district_string'] = model['district']['display_name'] if model['district'] else None
                 model['venue_address'] = model['address']
                 model['webcast'] = model['webcasts']
-            elif not sum([0 if k in model else 1 for k in ['key', 'comp_level', 'set_number', 'match_number', 'event_key']]):
+            elif not sum([0 if k in model else 1
+                          for k in ['key', 'comp_level', 'set_number', 'match_number', 'event_key']]):
                 # Match
                 for alliance in model['alliances']:
                     model['alliances'][alliance]['teams'] = model['alliances'][alliance]['team_keys']
 
             if not sum([0 if k in model else 1 for k in ['city', 'state_prov', 'postal_code', 'country']]):
-                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + (model['postal_code'] or '') + ', ' + (model['country'] or '')
+                model['location'] = (model['city'] or '') + ', ' + (model['state_prov'] or '') + ' ' + \
+                                    (model['postal_code'] or '') + ', ' + (model['country'] or '')
                 model['location'] = model['location'].replace('  ', ' ')
                 model['location'] = model['location'].replace(' ,', ',')
                 model['location'] = model['location'].lstrip(', ').rstrip(', ')
@@ -182,7 +187,7 @@ class TheBlueAlliance(object):
         if year is None:
             year = date.today().year
         media = self._get('team/' + team_key + '/media/' + str(year), ignore_cache)
-        media = {m['type']:m for m in media}
+        media = {m['type']: m for m in media}
         return media
 
     def team_robots(self, team_key, ignore_cache=False):
@@ -236,14 +241,15 @@ class TheBlueAlliance(object):
         rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings and 'rankings' in rankings and rankings['rankings']:
             for idx, ranking in enumerate(rankings['rankings']):
-                rankings['rankings'][idx] = [
-                    ranking['rank'],
-                    ranking['team_key']
-                ] + ranking['sort_orders'] + [
-                    (str(ranking['record']['wins']) + '-' + str(ranking['record']['losses']) + '-' + str(ranking['record']['ties'])) if ranking['record'] else '0-0-0',
-                    ranking['matches_played']
-                ]
-            rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + ['Record (W-L-T)', 'Played'])
+                rankings['rankings'][idx] = [ranking['rank'], ranking['team_key']] + ranking['sort_orders'] + \
+                                            [
+                                                (str(ranking['record']['wins']) + '-' + str(
+                                                    ranking['record']['losses']) + '-' + str(
+                                                    ranking['record']['ties'])) if ranking['record'] else '0-0-0',
+                                                ranking['matches_played']
+                                            ]
+            rankings['rankings'].insert(0, ['Rank', 'Team'] + [i['name'] for i in rankings['sort_order_info']] + [
+                'Record (W-L-T)', 'Played'])
             return rankings['rankings']
         return []
 

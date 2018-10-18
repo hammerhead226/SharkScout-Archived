@@ -3,11 +3,10 @@ import collections
 import os
 import psutil
 import re
+import requests
 import socket
 import string
 import urllib.parse
-
-import requests
 
 
 class Util(object):
@@ -15,13 +14,14 @@ class Util(object):
     def favicon(url):
         if url:
             try:
-                response = requests.get('https://www.google.com/s2/favicons', {'domain':url}, stream=True)
+                response = requests.get('https://www.google.com/s2/favicons', {'domain': url}, stream=True)
                 image = base64.b64encode(response.raw.read()).decode()
                 if image not in [
-                    'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAABJJREFUOI1jYBgFo2AUjAIIAAAEEAABf014jgAAAABJRU5ErkJggg=='  # transparent 16x16 PNG
+                    'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAABJJREFUOI1jYBgFo2AUjAIIAAAEEA'
+                    'ABf014jgAAAABJRU5ErkJggg=='  # transparent 16x16 PNG
                 ]:
                     return 'data:' + response.headers['Content-Type'] + ';base64,' + image
-            except Exception:
+            except:
                 pass
         return None
 
@@ -51,21 +51,21 @@ class Util(object):
         return port
 
     @staticmethod
-    def pid(bin):
+    def pid(name):
         for proc in psutil.process_iter():
             try:
-                if re.sub(r'\.[^\.]+$', r'', proc.name()) == bin:
+                if re.sub(r'\.[^.]+$', r'', proc.name()) == name:
                     return proc.pid
             except Exception as e:
                 print(e)
         return 0
 
     @staticmethod
-    def pids(bin):
+    def pids(name):
         bin_pids = []
         for proc in psutil.process_iter():
             try:
-                if re.sub(r'\.[^\.]+$', r'', proc.name()) == bin:
+                if re.sub(r'\.[^.]+$', r'', proc.name()) == name:
                     bin_pids.append(proc.pid)
             except Exception as e:
                 print(e)
@@ -120,13 +120,13 @@ class Util(object):
         return urllib.parse.urlparse(url)
 
     @staticmethod
-    def which(bin):
+    def which(name):
         # Fast-search PATH first
         for path in os.environ['PATH'].split(os.pathsep):
             path = path.strip('"')
             if os.path.exists(path):
                 for file in [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]:
-                    if re.match(r'^' + bin + '(\.[^\.]+)?$', file):
+                    if re.match(r'^' + name + '(\.[^.]+)?$', file):
                         return os.path.join(path, file)
 
         # Slow-search everywhere
@@ -135,7 +135,7 @@ class Util(object):
                 if os.path.exists(drive):
                     for root, dirs, files in os.walk(drive):
                         for file in files:
-                            if re.match(r'^' + bin + '(\.[^\.]+)?$', file):
+                            if re.match(r'^' + name + '(\.[^.]+)?$', file):
                                 return os.path.join(root, file)
 
         return None

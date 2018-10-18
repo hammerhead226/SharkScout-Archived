@@ -7,7 +7,6 @@ try:
 except:
     from pip._internal import main as pipmain
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
     parser.add_argument('command', type=str, choices=['install'], help='command')

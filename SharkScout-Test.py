@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 
-import argparse
 import atexit
+import sys
+import time
+
+import argparse
 import datetime
 import os
 import psutil
-import re
-import subprocess
-import sys
-import time
-import urllib
-
 import pynumparser
+import re
 import requests
 import scrapy.crawler
 import scrapy.exceptions
 import scrapy.spiders
+import subprocess
+import urllib.parse
 
 import sharkscout
 
@@ -25,10 +25,10 @@ class Spider(scrapy.spiders.Spider):
     name = 'spider'
     custom_settings = {
         'TELNETCONSOLE_ENABLED': False,  # why would this be on by default?
-        'DEPTH_PRIORITY': 1,             # breadth-first
-        'DNS_TIMEOUT': 10,               # 10s timeout
-        'DOWNLOAD_TIMEOUT': 10,          # 10s timeout
-        'HTTPERROR_ALLOW_ALL': True      # let parse() deal with them
+        'DEPTH_PRIORITY': 1,  # breadth-first
+        'DNS_TIMEOUT': 10,  # 10s timeout
+        'DOWNLOAD_TIMEOUT': 10,  # 10s timeout
+        'HTTPERROR_ALLOW_ALL': True  # let parse() deal with them
     }
     closed_reason = None
     allowed_domains = []
@@ -55,7 +55,7 @@ class Spider(scrapy.spiders.Spider):
 
         # Prevent urllib.parse.urlparse() from being dumb...
         urls = [('http://' if 'www' in u else '') + u for u in urls]
-        urls = [('http://' if u.endswith(('.com','.net','.org')) else '') + u for u in urls]
+        urls = [('http://' if u.endswith(('.com', '.net', '.org')) else '') + u for u in urls]
 
         # Actually obey allowed_domains...
         if self.__class__.allowed_domains:
@@ -85,7 +85,8 @@ class Spider(scrapy.spiders.Spider):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=__file__)
-    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)', type=pynumparser.Number(limits=(1, 5)), default=3)
+    parser.add_argument('-l', '--level', metavar='[1-5]', help='testing level (default: 3)',
+                        type=pynumparser.Number(limits=(1, 5)), default=3)
     parser.add_argument('params', nargs='+')
     known, unknown = parser.parse_known_args()
 
@@ -98,6 +99,7 @@ if __name__ == '__main__':
     null = open(os.devnull, 'w')
     server = subprocess.Popen(params, stdout=subprocess.DEVNULL)
 
+
     # Stop SharkScout on quit
     @atexit.register
     def goodbye():
@@ -107,6 +109,7 @@ if __name__ == '__main__':
             proc.terminate()
         psutil.wait_procs(procs, timeout=5)
         null.close()
+
 
     # Wait for the web server to start
     print('Waiting for listening ports ...')
