@@ -1,6 +1,6 @@
 # SharkScout
 
-Offline web app with TBA integration for competition scouting.
+🕵️ Web App for FRC Competition Scouting.
 
 ## Running From Build
 
