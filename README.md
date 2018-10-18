@@ -18,7 +18,7 @@ Offline web app with TBA integration for competition scouting.
 4. Run `setup.py`:
 
     ```batch
-    > py setup.py install
+    py setup.py install
     ```
 
 5. Configure your TBA Read API Key in `config.json`.
@@ -27,7 +27,7 @@ Offline web app with TBA integration for competition scouting.
 
 Run `SharkScout.py`.
 
-#### Building for Windows
+### Building for Windows
 
 Run `build.bat`.
 
@@ -38,25 +38,25 @@ SharkScout is intended to be used offline and therefore needs to pull a lot of i
 To see a full list of command-line arguments execute:
 
 ```batch
-> python SharkScout.py -h
+python SharkScout.py -h
 ```
 
 To update team information only:
 
 ```batch
-> python SharkScout.py -ut
+python SharkScout.py -ut
 ```
 
 To update the event listings for all years:
 
 ```batch
-> python SharkScout.py -ue 1992-2018
+python SharkScout.py -ue 1992-2018
 ```
 
 To update detailed event information for this year:
 
 ```batch
-> python SharkScout.py -ue 2018 -uei 2018
+python SharkScout.py -ue 2018 -uei 2018
 ```
 
 In order to be a responsible user of The Blue Alliance's API it is recommended that you only update as little and as infrequently as needed.
@@ -82,5 +82,5 @@ An alternative to running the server remotely is to run it locally on a laptop a
 It is recommended that you make regular backups on multiple drives while `SharkScout` is running. Losing all of your scouting data due to corruption or general failure during a competition would be a disaster. Here is a basic `mongodump` command:
 
 ```batch
-> mongodump /out C:/mongodump-sharkscout /gzip
+mongodump /out C:/mongodump-sharkscout /gzip
 ```
