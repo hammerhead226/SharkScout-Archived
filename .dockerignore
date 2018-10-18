@@ -1,0 +1,33 @@
+# Git
+.git/
+.github/
+
+# SharkScout
+*/__pycache__/
+*.bat
+scripts/
+
+# build.bat
+build/
+dist/
+SharkScout.spec
+venv/
+
+# ----- custom (matches .gitignore) -----
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# JetBrains PyCharm
+.idea/
+
+# SharkScout
+mongo/
+mongodump-*/
+sessions/
+SharkScout-*-x86/
+build-mongodump.gz
+packed.*
+SharkScout-*-x86.zip

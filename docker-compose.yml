@@ -1,0 +1,16 @@
+version: '3'
+services:
+  sharkscout:
+    build: .
+    command: python3 SharkScout.py --port 2260 --mongo mongo:27017
+    volumes:
+      - .:/code
+    ports:
+      - "2260:2260"
+    depends_on:
+      - mongo
+  mongo:
+    image: "mongo:3.6"
+    command: "--smallfiles"
+    volumes:
+      - ./mongo:/data/db
