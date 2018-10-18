@@ -33,10 +33,11 @@ class TBACache(object):
 
 
 class Mongo(object):
-    port = None
     client = None
 
-    def __init__(self):
+    def __init__(self, host=None):
+        self.host = host
+
         if self.__class__.client is None:
             self.start()
         self.client = self.__class__.client
@@ -56,8 +57,19 @@ class Mongo(object):
         if not os.path.exists(mongo_dir):
             os.mkdir(mongo_dir)
 
-        # Look for mongod already running with same database path
-        mongo_pid = None
+        # Use host from CLI params
+        if self.host:
+            host = sharkscout.Util.urlparse(self.host)
+            if not host.hostname:
+                print('invalid mongod host: ' + self.host)
+                print()
+                sys.exit(1)
+            self.__class__.client = pymongo.MongoClient(host.hostname, host.port or 27017)
+            print('mongod already running remotely at ' + self.host)
+            print()
+            return
+
+        # Look for mongod already running locally with same database path
         parser = argparse.ArgumentParser()
         parser.add_argument('--port', type=int, default=27017)
         parser.add_argument('--dbpath', default=None)
@@ -66,32 +78,34 @@ class Mongo(object):
             if known.dbpath and not os.path.isabs(known.dbpath):
                 known.dbpath = os.path.join(sharkscout.Util.pid_to_cwd(pid), known.dbpath)
             if known.dbpath is not None and os.path.normpath(known.dbpath) == os.path.normpath(mongo_dir):
-                mongo_pid = pid
-                self.__class__.port = known.port
-                print('mongod already running on port ' + str(self.__class__.port))
-                break
+                self.__class__.client = pymongo.MongoClient('localhost', known.port)
+                print('mongod already running on local port ' + str(known.port))
+                print()
+                return
 
-        if not mongo_pid:
-            self.__class__.port = sharkscout.Util.open_port(27017)
-            try:
-                null = open(os.devnull, 'w')
-                mongod = sharkscout.Util.which('mongod')
-                if mongod is None:
-                    print('mongod not found')
-                    sys.exit(1)
-                subprocess.Popen([
-                    mongod,
-                    '--port', str(self.__class__.port),
-                    '--dbpath', mongo_dir,
-                    '--smallfiles'
-                ], stdout=null, stderr=subprocess.STDOUT)
-                print('mongod started on port ' + str(self.__class__.port))
-            except FileNotFoundError:
-                print('mongod couldn\'t start')
+        # Start mongod locally
+        port = sharkscout.Util.open_port(27017)
+        try:
+            null = open(os.devnull, 'w')
+            mongod = sharkscout.Util.which('mongod')
+            if mongod is None:
+                print('mongod not found locally')
+                print()
                 sys.exit(1)
-
-        self.__class__.client = pymongo.MongoClient('localhost', self.__class__.port)
-        print()
+            subprocess.Popen([
+                mongod,
+                '--port', str(port),
+                '--dbpath', mongo_dir,
+                '--smallfiles'
+            ], stdout=null, stderr=subprocess.STDOUT)
+            self.__class__.client = pymongo.MongoClient('localhost', port)
+            print('mongod started on local port ' + str(port))
+            print()
+            return
+        except FileNotFoundError:
+            print('mongod couldn\'t start')
+            print()
+            sys.exit(1)
 
     # Ensure indexes on MongoDB
     def index(self):
