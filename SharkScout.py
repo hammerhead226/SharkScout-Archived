@@ -37,6 +37,7 @@ if __name__ == '__main__':
     parser.add_argument('-ue', '--update-events', metavar='year', dest='update_events', help='update all TBA events in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
     parser.add_argument('-uei', '--update-events-info', metavar='year', dest='update_events_info', help='update all TBA event info in a year', type=pynumparser.NumberSequence(limits=(1992, date.today().year+1)))
     parser.add_argument('-uef', '--update-events-favicon', dest='update_events_favicon', help='update event website\'s favicon when updating event info', action='store_true', default=False)
+    parser.add_argument('-m', '--mongo', dest='mongo_host', help='mongo host URL', type=str)
     parser.add_argument('-d', '--dump', metavar='file', help='run mongodump after any update(s)', type=str)
     parser.add_argument('-r', '--restore', metavar='file', help='run mongorestore before any update(s)', type=argparse.FileType('r'))
     args = parser.parse_args()
@@ -48,7 +49,7 @@ if __name__ == '__main__':
     logging.getLogger('backoff').addHandler(logging.StreamHandler())
 
     # Start MongoDB
-    mongo = sharkscout.Mongo()
+    mongo = sharkscout.Mongo(args.mongo_host)
     mongo.index()
     mongo.migrate()
 
