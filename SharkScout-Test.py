@@ -15,7 +15,7 @@ import scrapy.crawler
 import scrapy.exceptions
 import scrapy.spiders
 import subprocess
-from urllib import parse
+import urllib.parse
 
 import sharkscout
 
@@ -39,7 +39,7 @@ class Spider(scrapy.spiders.Spider):
 
         if 'start_url' in kwargs:
             self.__class__.start_urls = [kwargs.pop('start_url')]
-        self.__class__.allowed_domains = [parse.urlparse(u).hostname for u in self.__class__.start_urls]
+        self.__class__.allowed_domains = [urllib.parse.urlparse(u).hostname for u in self.__class__.start_urls]
 
         if 'url_regex' in kwargs:
             self.__class__.url_regex = kwargs.pop('url_regex')
@@ -59,7 +59,7 @@ class Spider(scrapy.spiders.Spider):
 
         # Actually obey allowed_domains...
         if self.__class__.allowed_domains:
-            urls = [u for u in urls if parse.urlparse(u) not in self.__class__.allowed_domains + [None]]
+            urls = [u for u in urls if urllib.parse.urlparse(u) not in self.__class__.allowed_domains + [None]]
 
         # URL massaging
         for idx, url in enumerate(urls):
