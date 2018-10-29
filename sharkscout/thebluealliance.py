@@ -9,10 +9,14 @@ from datetime import date
 
 
 class TheBlueAlliance(object):
-    """ """
     tba_auth_key = None
 
     def __init__(self, cache=None):
+        """Wrapper class for The Blue Alliance's API.
+
+        :param cache: dict-like object cache API calls with
+        :type cache: dict, TBACache
+        """
         if self.__class__.tba_auth_key is None:
             config = os.path.join(getattr(sys, '_MEIPASS', os.path.abspath('.')), 'config.json')
             with open(config, 'r') as f:
@@ -23,11 +27,14 @@ class TheBlueAlliance(object):
 
     @backoff.on_exception(backoff.expo, requests.exceptions.RequestException, max_tries=3)
     def _get(self, endpoint, ignore_cache=False):
-        """
+        """Perform an HTTP GET to an endpoint.
 
-        :param endpoint:
-        :param ignore_cache:  (Default value = False)
+        :param endpoint: endpoint to GET
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type endpoint: string
+        :type ignore_cache: bool
 
+        :rtype dict, list
         """
         if self.__class__.tba_auth_key is None:
             return {}
@@ -61,10 +68,12 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_clean(models):
-        """
+        """Clean models coming back from the TBA v3 endpoints.
 
-        :param models:
+        :param models: one or more models
+        :type models: dict, list, None
 
+        :rtype dict, list, None
         """
         if models is None:
             return models
@@ -93,10 +102,12 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _tba3_to_tba2(models):
-        """
+        """Convert TBA v3 models to v2 models.
 
-        :param models:
+        :param models: one or more models
+        :type models: dict, list, None
 
+        :rtype dict, list, None
         """
         if models is None:
             return models
@@ -140,10 +151,12 @@ class TheBlueAlliance(object):
 
     @staticmethod
     def _team_map(teams):
-        """
+        """Map a model's full region text to its' abbreviation.
 
-        :param teams:
+        :param teams: list of teams
+        :type teams: list
 
+        :rtype list
         """
         for idx, team in enumerate(teams):
             if 'country_name' in team and team['country_name'] == 'USA':
@@ -168,11 +181,12 @@ class TheBlueAlliance(object):
         return teams
 
     def teams(self, page_num=0, ignore_cache=False):
-        """
+        """Fetch a list of teams in a page.
 
-        :param page_num:  (Default value = 0)
-        :param ignore_cache:  (Default value = False)
+        :param page_num: page number to request, starting at 0 (Default value = 0)
+        :param ignore_cache: should cache be ignored (Default value = False)
 
+        :rtype list
         """
         teams = self._get('teams/' + str(page_num), ignore_cache)
         teams = [t for t in teams if t['nickname'] and t['name'] != 'Team ' + str(t['team_number'])]
@@ -180,10 +194,12 @@ class TheBlueAlliance(object):
         return teams
 
     def teams_all(self, ignore_cache=False):
-        """
+        """Fetch a list of all teams.
 
-        :param ignore_cache:  (Default value = False)
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type ignore_cache: bool
 
+        :rtype list
         """
         teams = []
         page_num = 0
@@ -196,79 +212,108 @@ class TheBlueAlliance(object):
         return teams
 
     def team(self, team_key, ignore_cache=False):
-        """
+        """Fetch a specific team.
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('team/' + team_key, ignore_cache)
 
     def team_awards(self, team_key, year=None, ignore_cache=False):
-        """
+        """Fetch a team's awards.
 
-        :param team_key:
-        :param year:  (Default value = None)
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param year: year to fetch (Default value = None)
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type year: int, string, None
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/awards' + ('/' + str(year) if year else ''), ignore_cache)
 
     def team_districts(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's districts.
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/districts', ignore_cache) or []
 
     def team_events(self, team_key, year=None, ignore_cache=False):
-        """
+        """Fetch a team's events.
 
-        :param team_key:
-        :param year:  (Default value = None)
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param year: year to fetch (Default value = None)
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type year: int, string, None
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/events' + ('/' + str(year) if year else ''), ignore_cache)
 
     def team_event_awards(self, team_key, event_key, ignore_cache=False):
-        """
+        """Fetch a team's awards at an event.
 
-        :param team_key:
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type event_key string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/event/' + event_key + '/awards', ignore_cache)
 
     def team_event_matches(self, team_key, event_key, ignore_cache=False):
-        """
+        """Fetch a team's matches at an event.
 
-        :param team_key:
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/event/' + event_key + '/matches', ignore_cache)
 
     def team_years_participated(self, team_key, ignore_cache=False):
-        """
+        """Fetch the years a team participated.
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/years_participated', ignore_cache)
 
     def team_media(self, team_key, year=None, ignore_cache=False):
-        """
+        """Fetch a team's media.
 
-        :param team_key:
-        :param year:  (Default value = None)
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param year: year to fetch (Default value = None)
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type year: int, string, None
+        :type ignore_cache: bool
 
+        :rtype list
         """
         if year is None:
             year = date.today().year
@@ -277,60 +322,74 @@ class TheBlueAlliance(object):
         return media
 
     def team_robots(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's robots.
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('team/' + team_key + '/robots', ignore_cache)
 
-    # Deprecated
     def team_history_events(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's historical events (deprecated).
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self.team_events(team_key, None, ignore_cache)
 
-    # Deprecated
     def team_history_awards(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's historical awards (deprecated).
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self.team_awards(team_key, None, ignore_cache)
 
-    # Deprecated
     def team_history_robots(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's historical robots (deprecated).
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self.team_robots(team_key, ignore_cache)
 
-    # Deprecated
     def team_history_districts(self, team_key, ignore_cache=False):
-        """
+        """Fetch a team's historical districts (deprecated).
 
-        :param team_key:
-        :param ignore_cache:  (Default value = False)
+        :param team_key: team key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type team_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self.team_districts(team_key, ignore_cache)
 
     def events(self, year=None, ignore_cache=False):
-        """
+        """Fetch events from a specific year.
 
-        :param year:  (Default value = None)
-        :param ignore_cache:  (Default value = False)
+        :param year: year of events (Default value = None)
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type year: int, string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         if year is None:
             year = date.today().year
@@ -338,69 +397,89 @@ class TheBlueAlliance(object):
         return events if isinstance(events, list) else []
 
     def event(self, event_key, ignore_cache=False):
-        """
+        """Fetch the details for an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('event/' + event_key, ignore_cache)
 
     def event_teams(self, event_key, ignore_cache=False):
-        """
+        """Fetch the list of teams at an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         teams = self._get('event/' + event_key + '/teams', ignore_cache)
         teams = self._team_map(teams)
         return teams
 
     def event_matches(self, event_key, ignore_cache=False):
-        """
+        """Fetch the list of matches at an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         matches = self._get('event/' + event_key + '/matches', ignore_cache)
         return sorted(matches, key=lambda m: (m['time'] or 0))
 
     def event_oprs(self, event_key, ignore_cache=False):
-        """
+        """Fetch OPR rankings of an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('event/' + event_key + '/oprs', ignore_cache)
 
-    # Deprecated
     def event_stats(self, event_key, ignore_cache=False):
-        """
+        """Fetch team stats from an event (deprecated).
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self.event_oprs(event_key, ignore_cache)
 
     def event_rankings_raw(self, event_key, ignore_cache=False):
-        """
+        """Fetch raw team rankings from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('event/' + event_key + '/rankings', ignore_cache)
 
     def event_rankings_v2(self, event_key, ignore_cache=False):
-        """
+        """Fetch team rankings from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         rankings = self.event_rankings_raw(event_key, ignore_cache)
         if rankings and 'rankings' in rankings and rankings['rankings']:
@@ -418,11 +497,14 @@ class TheBlueAlliance(object):
         return []
 
     def event_rankings(self, event_key, ignore_cache=False):
-        """
+        """Fetch team rankings from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         rankings = self.event_rankings_v2(event_key, ignore_cache)
         if rankings:
@@ -458,74 +540,99 @@ class TheBlueAlliance(object):
         return {}
 
     def event_awards(self, event_key, ignore_cache=False):
-        """
+        """Fetch awards from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('event/' + event_key + '/awards', ignore_cache)
 
     def event_district_points(self, event_key, ignore_cache=False):
-        """
+        """Fetch district points from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('event/' + event_key + '/district_points', ignore_cache)
 
     def event_alliances(self, event_key, ignore_cache=False):
-        """
+        """Fetch alliances from an event.
 
-        :param event_key:
-        :param ignore_cache:  (Default value = False)
+        :param event_key: event key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type event_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('event/' + event_key + '/alliances', ignore_cache)
 
     def match(self, match_key, ignore_cache=False):
-        """
+        """Fetch the details for a match.
 
-        :param match_key:
-        :param ignore_cache:  (Default value = False)
+        :param match_key: match key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type match_key: string
+        :type ignore_cache: bool
 
+        :rtype dict
         """
         return self._get('match/' + match_key, ignore_cache)
 
     def districts(self, year, ignore_cache=False):
-        """
+        """Fetch the districts in a year.
 
-        :param year:
-        :param ignore_cache:  (Default value = False)
+        :param year: year
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type year: int, string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('districts/' + str(year), ignore_cache)
 
     def district_events(self, district_key, year, ignore_cache=False):
-        """
+        """Fetch the events in a district.
 
-        :param district_key:
-        :param year:
-        :param ignore_cache:  (Default value = False)
+        :param district_key: district key
+        :param year: year
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type district_key: string
+        :type year: int, string
+        :type ignore_cache: bool
 
+        :rtype list
         """
-        return self._get('district/' + district_key + '/' + year + '/events', ignore_cache)
+        return self._get('district/' + district_key + '/' + str(year) + '/events', ignore_cache)
 
     def district_rankings(self, district_key, ignore_cache=False):
-        """
+        """Fetch the rankings of a district.
 
-        :param district_key:
-        :param ignore_cache:  (Default value = False)
+        :param district_key: district key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type district_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('district/' + district_key + '/rankings', ignore_cache)
 
     def district_teams(self, district_key, ignore_cache=False):
-        """
+        """Fetch the teams in a district.
 
-        :param district_key:
-        :param ignore_cache:  (Default value = False)
+        :param district_key: district key
+        :param ignore_cache: should cache be ignored (Default value = False)
+        :type district_key: string
+        :type ignore_cache: bool
 
+        :rtype list
         """
         return self._get('district/' + district_key + '/teams', ignore_cache)
