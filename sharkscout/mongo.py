@@ -14,6 +14,11 @@ import sharkscout
 
 class TBACache(object):
     def __init__(self, collection):
+        """Dict-like class that uses mongo for hard storage.
+
+        :param collection: mongo collection to use for storage
+        :type collection: pymongo.collection.Collection
+        """
         self.collection = collection
 
     def __getitem__(self, key):
@@ -36,10 +41,15 @@ class Mongo(object):
     client = None
 
     def __init__(self, host=None):
+        """Class to wrap all mongo database functionality.
+
+        :param host: RFC 1808 & 3986 URL for mongo
+        :type host: int, None
+        """
         self.host = host
 
         if self.__class__.client is None:
-            self.start()
+            self.connect()
         self.client = self.__class__.client
 
         self.shark_scout = self.client.shark_scout
@@ -51,7 +61,8 @@ class Mongo(object):
         cache = TBACache(self.tba_cache)
         self.tba_api = sharkscout.TheBlueAlliance(cache)
 
-    def start(self):
+    def connect(self):
+        """Connect to the mongo instance."""
         # Build and create database path
         mongo_dir = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'mongo')
         if not os.path.exists(mongo_dir):
@@ -107,8 +118,8 @@ class Mongo(object):
             print()
             sys.exit(1)
 
-    # Ensure indexes on MongoDB
     def index(self):
+        """Ensure indexes on MongoDB."""
         self.scouting.create_index('event_key')
         self.scouting.create_index([
             ('event_key', pymongo.ASCENDING),
@@ -127,8 +138,8 @@ class Mongo(object):
         self.tba_teams.create_index('team_number', unique=True)
         self.tba_cache.create_index('endpoint', unique=True)
 
-    # Perform database migrations
     def migrate(self):
+        """Perform database migrations."""
         # ----- Addition of created_timestamp and modified_timestamp -----
         # TBA events
         self.tba_events.update({
@@ -163,15 +174,31 @@ class Mongo(object):
 
     @property
     def version(self):
+        """Return connected mongo instance's version.
+
+        :rtype string
+        """
         return self.shark_scout.command('serverStatus')['version']
 
     @property
     def tba_count(self):
+        """Count of all TBA events + TBA teams.
+
+        This is to detect the presence of any stored TBA data.
+
+        :rtype int
+        """
         # (not using collection.count() because it can incorrectly return 0)
         return len(list(self.tba_events.find())) + len(list(self.tba_teams.find()))
 
-    # List of all events in a given year
     def events(self, year):
+        """List of all events in a given year.
+
+        :param year: year to query events with
+        :type year: int, string
+
+        :rtype list
+        """
         return list(self.tba_events.find({
             'year': int(year)
         }).sort([
@@ -180,15 +207,27 @@ class Mongo(object):
             ('name', pymongo.ASCENDING)
         ]))
 
-    # List of all years with events, and all weeks in a given year
     def events_stats(self, year):
+        """List of all years with events, and all weeks in a given year.
+
+        :param year: year to query event weeks with
+        :type year: int, string
+
+        :rtype dict
+        """
         return {
             'years': sorted(self.tba_events.distinct('year'), reverse=True),
             'weeks': sorted([w for w in self.tba_events.find({'year': int(year)}).distinct('week') if w is not None])
         }
 
-    # Event information
     def event(self, event_key):
+        """Event information.
+
+        :param event_key: event key to query with]
+        :type event_key: string
+
+        :rtype dict
+        """
         event = list(self.tba_events.find({'key': event_key}))
         if event:
             event = event[0]
@@ -234,12 +273,22 @@ class Mongo(object):
         else:
             return {}
 
-    # List of all events (years) with a given event code
     def event_years(self, event_code):
+        """List of all events (years) with a given event code.
+
+        :param event_code: event code to query with
+        :type event_code: string
+
+        :rtype list
+        """
         return list(self.tba_events.find({'event_code': event_code}).sort('year', pymongo.DESCENDING))
 
-    # TBA update the event listing for a year
     def events_update(self, year):
+        """TBA update the event listing for a year.
+
+        :param year: year to update events for
+        :type year: int, string
+        """
         events = self.tba_api.events(year)
         bulk = self.tba_events.initialize_unordered_bulk_op()
         # Upsert events
@@ -265,8 +314,14 @@ class Mongo(object):
         except pymongo.errors.InvalidOperation:
             pass  # "No operations to execute"
 
-    # TBA update an individual event
     def event_update(self, event_key, update_favicon=False):
+        """TBA update an individual event.
+
+        :param event_key: event to update
+        :param update_favicon: download the favicon or not (Default value = False)
+        :type event_key: string
+        :type update_favicon: bool
+        """
         event = self.tba_api.event(event_key, True)
         if event:
             # Info that can be known before an event starts
@@ -292,8 +347,14 @@ class Mongo(object):
                 '$setOnInsert': {'created_timestamp': datetime.utcnow()}
             }, upsert=True)
 
-    # List of matches with scouting data
     def scouting_matches(self, event_key):
+        """List of matches with scouting data.
+
+        :param event_key: event key to query with
+        :type event_key: string
+
+        :rtype list
+        """
         matches = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$unwind': {
@@ -368,11 +429,24 @@ class Mongo(object):
 
         return matches
 
-    # List of teams within matches with scouting data
     def scouting_matches_teams(self, event_key):
+        """List of teams within matches with scouting data.
+
+        :param event_key: event key to query with
+        :type event_key: string
+
+        :rtype dict
+        """
         return {m['key']: m['team_keys'] for m in self.scouting_matches(event_key)}
 
     def scouting_matches_raw(self, event_key):
+        """Return match scouting data for an event.
+
+        :param event_key: event key to query with
+        :type event_key: string
+
+        :rtype list
+        """
         return list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$unwind': {
@@ -384,8 +458,18 @@ class Mongo(object):
             'team_key': 1
         }}]))
 
-    # Return scouting data given an event key, match key, and team key
     def scouting_match(self, event_key, match_key, team_key):
+        """Return match scouting data given an event key, match key, and team key.
+
+        :param event_key: event key to query with
+        :param team_key: team key to query with
+        :param match_key: match key to query with
+        :type event_key: string
+        :type team_key: string
+        :type match_key: string
+
+        :rtype dict
+        """
         scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key,
             'team_key': team_key
@@ -412,8 +496,14 @@ class Mongo(object):
         else:
             return {}
 
-    # Upsert scouted data
     def scouting_match_update(self, data):
+        """Upsert match scouting data.
+
+        :param data: scouting data to save
+        :type data: dict
+
+        :rtype bool
+        """
         # Update if existing
         result = self.scouting.update_one({
             'event_key': data['event_key'],
@@ -433,6 +523,15 @@ class Mongo(object):
         return result.upserted_id or result.matched_count or result.modified_count
 
     def scouting_pit(self, event_key, team_key):
+        """Return pit scouting data for a team at an event.
+
+        :param event_key: event key to query with
+        :param team_key: team key to query with
+        :type event_key: string
+        :type team_key: string
+
+        :rtype dict
+        """
         scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key,
             'team_key': team_key
@@ -448,6 +547,13 @@ class Mongo(object):
             return {}
 
     def scouting_pit_teams(self, event_key):
+        """Return pit scouting data for all teams at an event.
+
+        :param event_key: event key to query with
+        :type event_key: string
+
+        :rtype dict
+        """
         scouting = list(self.scouting.aggregate([{'$match': {
             'event_key': event_key
         }}, {'$match': {
@@ -461,6 +567,13 @@ class Mongo(object):
         return scouting
 
     def scouting_pit_update(self, data):
+        """Upsert pit scouting data.
+
+        :param data: scouting data to save
+        :type data: dict
+
+        :rtype bool
+        """
         result = self.scouting.update_one({
             'event_key': data['event_key'],
             'team_key': data['team_key'],
@@ -470,6 +583,15 @@ class Mongo(object):
         return result.upserted_id or result.matched_count or result.modified_count
 
     def scouting_stats(self, event_key, matches=0):
+        """Return aggregated scouting stats per JSON config.
+
+        :param event_key: event key to query with
+        :param matches: number of matches to include (Default value = 0)
+        :type event_key: string
+        :type matches: int
+
+        :rtype dict
+        """
         event = self.event(event_key)
         year_json = os.path.join(os.path.dirname(sys.argv[0]), 'stats', str(event['year']) + '.json')
         if not os.path.exists(year_json):
@@ -586,22 +708,42 @@ class Mongo(object):
             } if year_scatter else year_scatter
         }
 
-    # List of all teams
     def teams(self):
+        """List of all teams
+
+        :rtype list
+        """
         return list(self.tba_teams.find())
 
-    # List of all teams, paged
     def teams_paged(self, page, limit=500):
+        """List of all teams, paged.
+
+        :param page: page number
+        :param limit: results limit (Default value = 500)
+        :type page: int, string
+        :type limit: int, string
+
+        :rtype list
+        """
         min_num = int(page) * limit
         max_num = (int(page) + 1) * limit - 1
         return list(self.tba_teams.find({'team_number': {'$gte': min_num, '$lte': max_num}}))
 
-    # List of teams, given a set of team keys
     def teams_list(self, team_keys):
+        """List of teams, given a set of team keys.
+
+        :param team_keys: list of team keys to query with
+        :type team_keys: list
+
+        :rtype list
+        """
         return list(self.tba_teams.find({'key': {'$in': team_keys}}).sort('team_number'))
 
-    # Count, min, and max of all team numbers
     def teams_stats(self):
+        """Count, min, and max of all team numbers.
+
+        :rtype dict
+        """
         stats = list(self.tba_teams.aggregate([{'$group': {
             '_id': '$id',
             'count': {'$sum': 1},
@@ -617,8 +759,8 @@ class Mongo(object):
                 'max': 0
             }
 
-    # TBA update the team listing
     def teams_update(self):
+        """TBA update the team listing."""
         teams = self.tba_api.teams_all(True)
         bulk = self.tba_teams.initialize_unordered_bulk_op()
 
@@ -643,8 +785,16 @@ class Mongo(object):
         except pymongo.errors.InvalidOperation:
             pass  # "No operations to execute"
 
-    # Team information
     def team(self, team_key, year=None):
+        """Team information.
+
+        :param team_key: team key to query with
+        :param year: year to query for (Default value = None)
+        :type team_key: string
+        :type year: int, None
+
+        :rtype dict
+        """
         team = list(self.tba_teams.find({'key': team_key}))
         if team:
             team = team[0]
@@ -654,8 +804,14 @@ class Mongo(object):
         else:
             return {}
 
-    # TBA update an individual team
     def team_update(self, team_key, update_favicon=False):
+        """TBA update an individual team.
+
+        :param team_key: team to update
+        :param update_favicon: should favicon be updated (Default value = False)
+        :type team_key: string
+        :type update_favicon: bool
+        """
         team = self.tba_api.team(team_key, True)
         if team:
             team.update({k: v for k, v in {
@@ -673,14 +829,28 @@ class Mongo(object):
                 '$setOnInsert': {'created_timestamp': datetime.utcnow()}
             }, upsert=True)
 
-    # Years that a team competed
     def team_stats(self, team_key):
+        """Years that a team competed.
+
+        :param team_key: team key to query with
+        :type team_key: string
+
+        :rtype dict
+        """
         return {
             'years': sorted(self.tba_events.find({'teams': team_key}).distinct('year'), reverse=True)
         }
 
-    # Events a team is attending in a given year
     def team_events(self, team_key, year):
+        """Events a team is attending in a given year.
+
+        :param team_key: team key to query with
+        :param year: year to query for
+        :type team_key: string
+        :type year: int, string
+
+        :rtype list
+        """
         # Query
         events = list(self.tba_events.find({'teams': team_key, 'year': int(year)}).sort('start_date'))
 
@@ -706,7 +876,13 @@ class Mongo(object):
 
         return events
 
-    # TBA update all events a team is attending in a given year
     def team_update_events(self, team_key, year):
+        """TBA update all events a team is attending in a given year.
+
+        :param team_key: team to update
+        :param year: year to update
+        :type team_key: string
+        :type year: int, string
+        """
         for event in self.tba_api.team_events(team_key, int(year), True):
             self.event_update(event['key'])

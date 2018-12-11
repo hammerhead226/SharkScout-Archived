@@ -10,8 +10,14 @@ import urllib.parse
 
 
 class Util(object):
+    """ """
     @staticmethod
     def favicon(url):
+        """
+
+        :param url:
+
+        """
         if url:
             try:
                 response = requests.get('https://www.google.com/s2/favicons', {'domain': url}, stream=True)
@@ -27,6 +33,11 @@ class Util(object):
 
     @staticmethod
     def flatten(iterable):
+        """
+
+        :param iterable:
+
+        """
         for item in iterable:
             if isinstance(item, collections.Iterable) and not isinstance(item, (str, bytes)):
                 yield from Util.flatten(item)
@@ -35,10 +46,20 @@ class Util(object):
 
     @staticmethod
     def isnumeric(val):
+        """
+
+        :param val:
+
+        """
         return str(val).lstrip('-').replace('.', '', 1).isdigit()
 
     @staticmethod
     def open_port(preferred=0):
+        """
+
+        :param preferred:  (Default value = 0)
+
+        """
         # Check for other processes listening on the port
         if preferred and not Util.pid_of_port(preferred):
             return preferred
@@ -52,6 +73,11 @@ class Util(object):
 
     @staticmethod
     def pid(name):
+        """
+
+        :param name:
+
+        """
         for proc in psutil.process_iter():
             try:
                 if re.sub(r'\.[^.]+$', r'', proc.name()) == name:
@@ -62,6 +88,11 @@ class Util(object):
 
     @staticmethod
     def pids(name):
+        """
+
+        :param name:
+
+        """
         bin_pids = []
         for proc in psutil.process_iter():
             try:
@@ -73,6 +104,11 @@ class Util(object):
 
     @staticmethod
     def pid_of_port(port):
+        """
+
+        :param port:
+
+        """
         for proc in psutil.process_iter():
             for conn in [c for c in proc.connections() if c.status == psutil.CONN_LISTEN]:
                 if conn.laddr.port == port:
@@ -81,6 +117,11 @@ class Util(object):
 
     @staticmethod
     def pid_ports(pid):
+        """
+
+        :param pid:
+
+        """
         try:
             proc = psutil.Process(pid)
             return [c.laddr.port for c in proc.connections() if c.status == psutil.CONN_LISTEN]
@@ -89,6 +130,11 @@ class Util(object):
 
     @staticmethod
     def pid_tree_ports(pid):
+        """
+
+        :param pid:
+
+        """
         try:
             proc = psutil.Process(pid)
             ports = [c.laddr.port for c in proc.connections() if c.status == psutil.CONN_LISTEN]
@@ -100,27 +146,52 @@ class Util(object):
 
     @staticmethod
     def pid_to_argv(pid):
+        """
+
+        :param pid:
+
+        """
         proc = psutil.Process(pid)
         return proc.cmdline()
 
     @staticmethod
     def pid_to_cwd(pid):
+        """
+
+        :param pid:
+
+        """
         proc = psutil.Process(pid)
         return proc.cwd()
 
     @staticmethod
     def pid_to_path(pid):
+        """
+
+        :param pid:
+
+        """
         proc = psutil.Process(pid)
         return proc.exe()
 
     @staticmethod
     def urlparse(url):
+        """
+
+        :param url:
+
+        """
         if '//' not in url:
             url = '//' + url
         return urllib.parse.urlparse(url)
 
     @staticmethod
     def which(name):
+        """
+
+        :param name:
+
+        """
         # Fast-search PATH first
         for path in os.environ['PATH'].split(os.pathsep):
             path = path.strip('"')
